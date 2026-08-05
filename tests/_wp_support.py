@@ -71,18 +71,25 @@ def load_ext():
 
 
 def ensure_plugin(app):
-    """Mirror a real install on a test app: active InstalledPlugin row, all
-    blueprint mounts (entry_point + extra_blueprints), and the core_hooks
-    seam registrations (backup target, event types, template provider, …)."""
+    """Mirror a real install on a test app: active InstalledPlugin row (with
+    the manifest loaded from plugin.json, so manifest-driven seams like
+    core_hooks are observable), all blueprint mounts (entry_point +
+    extra_blueprints), and the core_hooks seam registrations (backup target,
+    event types, template provider, …)."""
+    import json
     from app import db
     from app.models.plugin import InstalledPlugin
-    if not InstalledPlugin.query.filter_by(slug=SLUG).first():
-        db.session.add(InstalledPlugin(
+    plugin = InstalledPlugin.query.filter_by(slug=SLUG).first()
+    if not plugin:
+        plugin = InstalledPlugin(
             name=SLUG, display_name='WordPress', slug=SLUG, version='1.0.0',
             status=InstalledPlugin.STATUS_ACTIVE,
             has_backend=True, url_prefix='/api/v1/wordpress',
-        ))
-        db.session.commit()
+        )
+        db.session.add(plugin)
+    with open(os.path.join(EXT_DIR, 'plugin.json'), encoding='utf-8') as f:
+        plugin.manifest = json.load(f)
+    db.session.commit()
     mods = load_ext()
     for module_name, attr, prefix, name in BLUEPRINTS:
         bp = getattr(mods[module_name], attr)
