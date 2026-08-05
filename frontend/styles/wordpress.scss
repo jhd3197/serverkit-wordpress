@@ -1,0 +1,3378 @@
+// Compiled into the extension's runtime-ESM bundle (imported ?inline by
+// runtime-entry.jsx). The design-token partial is a verbatim copy of the
+// host's styles/_variables.scss (kept in styles/_variables.scss) so every
+// $var — including the *-raw hex feeds for fade()/lighten() — resolves
+// exactly as it did in the host build; themed values are var()-backed and
+// track the panel's runtime theme.
+@import 'variables';
+
+// ============================================
+// WORDPRESS PAGE STYLES
+// ============================================
+
+// WordPress Standalone Page (Docker-based, mirrors Git page layout)
+.wordpress-standalone-page {
+    // Inherits .git-page styles for layout, status cards, overview tab, etc.
+
+    .empty-state-large {
+        .empty-icon svg {
+            stroke: $color-wordpress;
+        }
+    }
+
+    .status-card.success {
+        border-left-color: $color-success;
+
+        .status-icon {
+            color: $color-success;
+        }
+    }
+
+    .status-card.danger {
+        border-left-color: $color-danger;
+
+        .status-icon {
+            color: $color-danger;
+        }
+    }
+}
+
+// WordPress Page Layout (extends Docker page styles)
+.wordpress-page {
+    .empty-state-large {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px $space-6;
+        background: $bg-card;
+        border-radius: $radius-xl;
+        text-align: center;
+        margin: 0 $space-4;
+
+        .empty-icon {
+            color: $text-tertiary;
+            margin-bottom: $space-6;
+
+            svg {
+                stroke: $color-wordpress;
+            }
+        }
+
+        h2 {
+            margin: 0 0 $space-3 0;
+            font-size: $font-size-2xl;
+            font-weight: $font-weight-semibold;
+        }
+
+        p {
+            margin: 0 0 $space-6 0;
+            color: $text-secondary;
+            max-width: 460px;
+        }
+    }
+
+    .install-warning {
+        display: flex;
+        gap: $space-3;
+        padding: $space-4;
+        background: fade($warning-raw, 8%);
+        border: 1px solid fade($warning-raw, 20%);
+        border-radius: $radius-md;
+        margin-bottom: $space-4;
+
+        > svg {
+            flex-shrink: 0;
+            color: $color-warning;
+            margin-top: 2px;
+        }
+
+        strong {
+            display: block;
+            margin-bottom: $space-2;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: $space-4;
+            color: $text-secondary;
+            font-size: $font-size-sm;
+
+            li {
+                margin-bottom: $space-1;
+            }
+        }
+    }
+
+    .form-hint {
+        display: block;
+        font-size: $font-size-xs;
+        color: $text-tertiary;
+        margin-top: $space-1;
+    }
+
+    .docker-empty {
+        .wp-empty-icon {
+            color: $text-tertiary;
+            margin-bottom: $space-4;
+
+            svg {
+                stroke: currentColor;
+            }
+        }
+    }
+}
+
+// Sites Grid
+.wp-sites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: $space-4;
+    padding: $space-4;
+}
+
+// Redesign: dense WordPress site table (replaces the .wp-site-card grid).
+.wp-list {
+    padding: $space-4;
+
+    &__toolbar {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+        flex-wrap: wrap;
+        margin-bottom: $space-3;
+
+        .wp-tag-filter { margin: 0; }
+    }
+
+    // Client-side site search (name / title / domain). Mirrors the demo's
+    // .input: leading icon + borderless field on a quiet surface.
+    &__search {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-2;
+        margin-left: auto;
+        padding: 0 10px;
+        width: 240px;
+        max-width: 100%;
+        height: 32px;
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        color: var(--text-faint);
+        transition: border-color 0.14s;
+
+        &:focus-within { border-color: var(--accent-dim); }
+
+        svg { flex-shrink: 0; }
+
+        input {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            background: none;
+            color: var(--text);
+            font-size: 13px;
+
+            &::placeholder { color: var(--text-faint); }
+            &:focus { outline: none; }
+        }
+    }
+
+    // Count subtitle accent ("M running") in the PageTopbar meta slot.
+    &__meta-running { color: var(--green); }
+
+    // Table/cards switch — only rendered by pages that pass a card renderer to
+    // ResourceListPage. It claims the free space so it stays right-aligned on
+    // pages whose search lives in the top bar instead (Services); where a
+    // toolbar search IS present that element already claims it, so the switch
+    // gives the margin back and simply trails it.
+    &__viewswitch {
+        display: flex;
+        gap: 2px;
+        flex-shrink: 0;
+        margin-left: auto;
+        padding: 3px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+
+        button {
+            display: grid;
+            place-items: center;
+            padding: 6px 9px;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-faint);
+            cursor: pointer;
+            transition: background 0.14s, color 0.14s;
+
+            &:hover { color: var(--text); }
+            &.is-active { background: var(--surface-3); color: var(--text); }
+        }
+    }
+
+    &__search + &__viewswitch { margin-left: 0; }
+
+    // Card layout for the same rows the table shows.
+    &__cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 14px;
+    }
+
+    &__cardtile {
+        display: flex;
+        flex-direction: column;
+        padding: $space-4;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: border-color 0.14s, transform 0.14s;
+
+        &:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+        &.is-selected { border-color: var(--accent-dim); background: var(--accent-bg-soft); }
+    }
+
+    // bulk-select bar (demo's bulkbar) — appears once any row is checked
+    &__bulkbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $space-3;
+        flex-wrap: wrap;
+        padding: $space-2 $space-4;
+        margin-bottom: $space-3;
+        background: var(--accent-bg-soft);
+        border: 1px solid var(--accent-dim);
+        border-radius: var(--radius);
+    }
+
+    &__bulkcount {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: $font-weight-medium;
+        color: var(--accent-bright);
+    }
+
+    &__bulkactions {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        flex-wrap: wrap;
+    }
+
+    &__ck {
+        width: 36px;
+        padding-right: 0;
+    }
+
+    &__action { width: 70px; }
+
+    &__card {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    // Per-site gradient initial avatar (ds ServiceTile / .sk-tile). The tile
+    // brings its own size + hue-hashed gradient inline; we only soften the
+    // corner to the demo's small rounded-square look.
+    &__tile {
+        border-radius: 8px;
+    }
+
+    &__links {
+        display: inline-flex;
+        gap: $space-2;
+
+        a {
+            display: inline-flex;
+            color: var(--text-faint);
+            transition: color 0.14s;
+            &:hover { color: var(--accent-bright); }
+        }
+    }
+
+    &__dash { color: var(--text-ghost); font-family: var(--mono); font-size: 12px; }
+    &__chev { color: var(--text-ghost); }
+
+    .sk-tag + .sk-tag { margin-left: 4px; }
+}
+
+// Site tags / labels (chips + filter bar)
+.wp-tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-2;
+    margin: 0 $space-4 $space-4;
+}
+
+.wp-site-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-1;
+    margin-top: $space-3;
+}
+
+.wp-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    font-size: $font-size-xs;
+    line-height: 1.4;
+    border-radius: $radius-full;
+    background: $bg-tertiary;
+    color: $text-secondary;
+    border: 1px solid $border-subtle;
+
+    &--filter {
+        cursor: pointer;
+        background: $bg-card;
+
+        &.is-active {
+            background: $color-primary;
+            color: #fff;
+            border-color: $color-primary;
+        }
+    }
+}
+
+// Site Card
+.wp-site-card {
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-lg;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+        border-color: $border-hover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+}
+
+.wp-site-card-header {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-4;
+    border-bottom: 1px solid $border-subtle;
+}
+
+.wp-site-icon {
+    width: 40px;
+    height: 40px;
+    background: $color-wordpress;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.wp-site-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.wp-site-name {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wp-site-url {
+    font-size: $font-size-xs;
+    color: $text-tertiary;
+    font-family: $font-family-mono;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.wp-site-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: $font-size-xs;
+    padding: 4px 10px;
+    border-radius: $radius-full;
+    font-weight: $font-weight-medium;
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    &.running {
+        background: fade($success-raw, 12%);
+        color: $color-success;
+
+        .status-dot {
+            background: $color-success;
+        }
+    }
+
+    &.stopped {
+        background: fade($text-tertiary-raw, 12%);
+        color: $text-tertiary;
+
+        .status-dot {
+            background: $text-tertiary;
+        }
+    }
+}
+
+.wp-site-card-body {
+    padding: $space-4;
+}
+
+.wp-site-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-3;
+}
+
+.wp-site-meta-item {
+    .meta-label {
+        display: block;
+        font-size: $font-size-xs;
+        color: $text-tertiary;
+        margin-bottom: 2px;
+    }
+
+    .meta-value {
+        font-size: $font-size-sm;
+        color: $text-primary;
+        font-weight: $font-weight-medium;
+
+        &.git-connected {
+            color: $color-success;
+        }
+    }
+}
+
+.wp-site-badge {
+    display: inline-block;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    padding: 2px 8px;
+    border-radius: $radius-sm;
+    margin-top: $space-3;
+
+    &.production {
+        background: fade($danger-raw, 12%);
+        color: $color-danger;
+    }
+
+    &.development {
+        background: fade($info-raw, 12%);
+        color: $color-info;
+    }
+}
+
+.wp-site-card-links {
+    display: flex;
+    gap: $space-3;
+    margin-top: $space-3;
+    padding-top: $space-3;
+    border-top: 1px solid $border-subtle;
+}
+
+.wp-site-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $color-primary;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.wp-site-card-footer {
+    display: flex;
+    gap: $space-2;
+    padding: $space-3 $space-4;
+    border-top: 1px solid $border-subtle;
+    background: $bg-tertiary;
+    border-radius: 0 0 $radius-lg $radius-lg;
+
+    .btn {
+        flex: 1;
+        justify-content: center;
+
+        &.btn-danger {
+            flex: 0;
+            color: $color-danger;
+
+            &:hover {
+                background: fade($danger-raw, 10%);
+            }
+        }
+    }
+}
+
+// ============================================
+// WORDPRESS DETAIL PAGE (redesign — infra console look)
+// ============================================
+// Everything here is scoped under .wp-detail-page on purpose: the base
+// `app-*` classes (.app-panel, .app-info-grid, .app-detail-tabs, …) live in
+// _applications.scss and are ALSO rendered by the Applications detail page,
+// which keeps its current look until its own pass. Same pattern as the
+// `.server-detail-page` block in _servers.scss.
+
+// Run the detail page FULL-BLEED, like the WordPress list page: drop the
+// .main-content 40px frame so the .sk-topbar spans edge-to-edge. (Unlike the
+// generic full-bleed rule in _main-content.scss, we keep the normal scroll —
+// no height:100vh/overflow:hidden — because this is a long scrolling page, not
+// a self-managing two-pane tool.) .app-detail-body re-pads the content below.
+.main-content:has(.wp-detail-page) {
+    padding: 0;
+
+    // padding:0 also drops the base rule's mobile top-clearance, so restore it
+    // (the fixed mobile header would otherwise overlap the top bar).
+    @media (max-width: $breakpoint-md) {
+        margin-top: calc(#{$mobile-header-height} + env(safe-area-inset-top));
+    }
+}
+
+.wp-detail-page {
+    // The full-bleed top bar sits flush above the padded body (no page gap).
+    gap: 0;
+
+    // Content below the full-bleed top bar: a CENTERED max-width column (like the
+    // prototype), laid out as a flex column so identity / tabs / content are
+    // evenly spaced (fixes the tab-touches-content gap).
+    .app-detail-body {
+        display: flex;
+        flex-direction: column;
+        gap: $space-5;
+        width: 100%;
+        max-width: 1200px;
+        margin-inline: auto;
+        padding: $space-6 $space-6 $space-10;
+    }
+
+    // ---- Breadcrumbs (mono trail) ----
+    .app-detail-breadcrumbs {
+        font-family: var(--mono);
+        font-size: $font-size-sm;
+
+        a {
+            color: var(--text-faint);
+
+            &:hover {
+                color: var(--accent-bright);
+            }
+        }
+
+        > span {
+            color: var(--text-ghost);
+        }
+
+        .current {
+            color: var(--text-dim);
+            font-weight: $font-weight-medium;
+        }
+    }
+
+    // ---- Header (demo .site-header: gradient surface + accent wash) ----
+    // Identity row — NO card background (matches the prototype): just the icon +
+    // name + status sitting directly on the page.
+    .app-detail-header {
+        position: relative;
+        gap: $space-4;
+        padding: 4px 0 0;
+        background: none;
+        border: none;
+        border-radius: 0;
+    }
+
+    // The detail page uses the canonical PageTopbar (.sk-topbar) for its top bar
+    // so the chrome matches the WordPress LIST page and every other page. Tweaks:
+    // a breadcrumb title and a compact, wrapping action cluster (the detail page
+    // carries more actions than a typical page).
+    .wp-detail-topbar {
+        // Full-bleed now that .main-content has no padding; match the list page's
+        // sk-topbar inset. Many actions, so wrap the bar as a whole instead of
+        // squeezing the title (which made the breadcrumb collide with a button).
+        padding: 10px $space-4;
+        flex-wrap: wrap;
+        row-gap: 8px;
+
+        // The bar's flex:1 spacer would force the actions onto their own line
+        // every time; drop it and push the cluster right with margin instead, so
+        // the actions sit beside the title when they fit and wrap only when not.
+        .sk-topbar__spacer { display: none; }
+
+        .sk-topbar__titles { flex-shrink: 0; }
+
+        .wp-crumbs {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+
+            a {
+                color: var(--text-dim);
+                text-decoration: none;
+                &:hover { color: var(--accent-bright); }
+            }
+            &__sep { color: var(--text-ghost); }
+            &__cur { color: var(--text); }
+        }
+
+        .sk-topbar__actions {
+            margin-left: auto;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            row-gap: 6px;
+
+            .ui-button {
+                height: 32px;
+                padding: 0 10px;
+                font-size: 12.5px;
+                gap: 6px;
+            }
+        }
+    }
+
+    // Overview top grid: Site information (left) + Traffic chart (right), matching
+    // the mockup's ~40/60 split; collapses to one column on narrow screens.
+    .wp-overview-main {
+        display: grid;
+        grid-template-columns: minmax(300px, 0.85fr) 1.15fr;
+        gap: $space-4;
+        margin-bottom: $space-4;
+
+        @media (max-width: $breakpoint-lg) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    // Traffic panel: stack the title over a muted mono sub-label.
+    .wp-traffic-panel {
+        .app-panel-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+        .wp-panel-sub {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: $font-weight-normal;
+            letter-spacing: 0;
+            text-transform: none;
+            color: var(--text-faint);
+        }
+    }
+
+    // Recent activity spans full width beneath the main grid.
+    .wp-activity-panel { margin-bottom: $space-4; }
+
+    // WP detail carries more tabs than fit one row at common widths, so let the
+    // strip WRAP instead of scrolling — otherwise the right-pinned Settings tab
+    // gets pushed off-screen and becomes unreachable.
+    .app-detail-tabs {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        row-gap: 2px;
+    }
+
+    // Settings tab pinned to the far right of the tab strip (the mockup's gear).
+    .app-detail-tab--end { margin-left: auto; }
+
+    // Settings tab — left sub-nav + content (PHP, Updates, …).
+    .wp-settings {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: $space-4;
+        align-items: start;
+
+        @media (max-width: $breakpoint-md) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .wp-settings__nav {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        position: sticky;
+        top: $space-4;
+
+        @media (max-width: $breakpoint-md) {
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+    }
+
+    .wp-settings__navitem {
+        display: flex;
+        width: 100%; // fill the nav column — a flex <button> otherwise shrinks
+                     // to its label, so each item's box was a different width
+        align-items: center;
+        gap: 9px;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 8px;
+        background: none;
+        color: var(--text-dim);
+        font-size: 13.5px;
+        font-weight: $font-weight-medium;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.14s, color 0.14s;
+
+        svg { color: var(--text-faint); flex-shrink: 0; }
+
+        &:hover { background: var(--surface-hover); color: var(--text); }
+        &.is-active {
+            background: var(--accent-bg);
+            color: var(--accent-bright);
+            svg { color: var(--accent-bright); }
+        }
+    }
+
+    .wp-settings__content { min-width: 0; }
+
+    // Grouped left nav — an uppercase mono label per group (the sidebar-style
+    // "group section" the user asked for).
+    .wp-settings__group + .wp-settings__group { margin-top: $space-4; }
+
+    .wp-settings__grouplabel {
+        padding: 0 12px;
+        margin-bottom: 6px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: $font-weight-semibold;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+    }
+
+    .app-detail-icon {
+        position: relative;
+        width: 52px;
+        height: 52px;
+        border-radius: 13px;
+        border: 1px solid fade(#fff, 8%);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .wp-icon {
+        background: linear-gradient(150deg, lighten($color-wordpress, 12%), $color-wordpress) !important;
+    }
+
+    // Status dot pinned to the favicon corner (demo .site-favicon .badge)
+    .wp-head-dot {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2.5px solid var(--surface);
+        background: var(--text-faint);
+
+        &.running {
+            background: var(--green);
+        }
+
+        &.stopped {
+            background: var(--red);
+        }
+    }
+
+    .app-detail-title-block h1 {
+        font-size: 21px;
+        font-weight: $font-weight-semibold;
+        letter-spacing: -0.02em;
+        gap: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .app-detail-subtitle {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-dim);
+
+        a {
+            color: var(--accent-bright);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        .separator {
+            color: var(--text-ghost);
+        }
+    }
+
+    // ---- Repo connection pill (mirrors service detail page) ----
+    .wp-detail__repo-bar {
+        display: flex;
+        margin-top: -#{$space-2}; // tuck it up under the identity header a bit
+    }
+
+    .wp-detail__repo-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-2;
+        padding: 6px $space-3;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: $radius-full;
+        font-family: var(--mono);
+        font-size: $font-size-sm;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: border-color $transition-fast, background $transition-fast;
+
+        svg { color: var(--text-faint); }
+
+        &:hover {
+            border-color: var(--accent-dim);
+            background: var(--surface-2);
+        }
+    }
+
+    .wp-detail__repo-url {
+        font-size: $font-size-sm;
+        color: $text-primary;
+    }
+
+    .wp-detail__repo-arrow {
+        color: var(--text-ghost);
+    }
+
+    .wp-detail__repo-branch {
+        font-size: $font-size-sm;
+        color: var(--accent-bright);
+        font-weight: $font-weight-medium;
+    }
+
+    .wp-detail__auto-deploy-badge {
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: $font-weight-semibold;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 1px 6px;
+        background: var(--green-bg);
+        color: var(--green);
+        border-radius: $radius-sm;
+    }
+
+    .wp-detail__connect-repo {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-2;
+        padding: 6px $space-3;
+        background: none;
+        border: 1px dashed var(--border-strong);
+        border-radius: $radius-full;
+        font-size: $font-size-sm;
+        color: var(--text-faint);
+        cursor: pointer;
+        transition: all $transition-fast;
+
+        svg { color: var(--text-faint); }
+
+        &:hover {
+            border-color: var(--accent-dim);
+            color: var(--accent-bright);
+            background: var(--accent-bg-soft);
+        }
+    }
+
+    // ---- Tab strip (segmented bar — pills in a bordered surface, matching the
+    // shared .app-detail-tabs treatment in _applications.scss so every detail
+    // page's nav reads the same) ----
+    .app-detail-tabs {
+        gap: 3px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 4px;
+        overflow-x: auto;
+
+        &::-webkit-scrollbar {
+            height: 0;
+        }
+    }
+
+    .app-detail-tab {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 7px;
+        color: var(--text-dim);
+        font-size: 13px;
+        font-weight: $font-weight-medium;
+        white-space: nowrap;
+        transition: color 0.14s, background 0.14s;
+
+        svg {
+            color: var(--text-faint);
+            transition: color 0.14s;
+            flex-shrink: 0;
+        }
+
+        &:hover {
+            background: var(--surface-2);
+            color: var(--text);
+
+            svg {
+                color: var(--text-dim);
+            }
+        }
+
+        &.active {
+            background: var(--accent-bg);
+            color: var(--accent-bright);
+            font-weight: $font-weight-semibold;
+
+            svg {
+                color: var(--accent-bright);
+            }
+        }
+    }
+
+    // ---- Panels (quiet surface + mono eyebrow header) ----
+    .app-panel {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+    }
+
+    .app-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 7px;
+        padding: 12px 17px;
+        border-bottom: 1px solid var(--border-soft);
+        font-family: var(--mono);
+        font-size: 10.5px;
+        font-weight: $font-weight-semibold;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+
+        svg {
+            width: 13px;
+            height: 13px;
+            color: var(--accent-bright);
+        }
+    }
+
+    .app-panel-body {
+        padding: $space-4 17px;
+
+        .hint:last-child {
+            margin-bottom: 0;
+        }
+
+        .app-detail-actions {
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: $space-3;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .app-info-grid + .app-detail-actions,
+        .app-info-grid + .hint {
+            margin-top: $space-3;
+        }
+    }
+
+    // Danger Zone panel — stack the rows with a gap so Archive and Delete don't
+    // sit flush against each other.
+    .danger-zone-body {
+        display: flex;
+        flex-direction: column;
+        gap: $space-3;
+
+        .danger-zone {
+            margin-top: 0;
+        }
+    }
+
+    // SSL guided flow — checklist + primary action.
+    .ssl-guide {
+        display: flex;
+        flex-direction: column;
+        gap: $space-3;
+        margin-top: $space-3;
+    }
+
+    .ssl-checklist {
+        display: flex;
+        flex-direction: column;
+        gap: $space-2;
+        padding: $space-3;
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+    }
+
+    .ssl-check-item {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        font-size: $font-size-sm;
+        color: var(--text-dim);
+    }
+
+    .ssl-check-icon {
+        flex-shrink: 0;
+
+        &--ok { color: var(--green); }
+        &--missing { color: var(--amber); }
+    }
+
+    .ssl-check-label {
+        &--ok { color: var(--text); }
+    }
+
+    // Inline domain attach inside the SSL panel — no modal needed.
+    .ssl-inline-attach {
+        display: flex;
+        flex-direction: column;
+        gap: $space-3;
+        margin-top: $space-3;
+        padding-top: $space-3;
+        border-top: 1px solid var(--border-soft);
+    }
+
+    .ssl-context {
+        display: flex;
+        flex-direction: column;
+        gap: $space-2;
+    }
+
+    .ssl-provider-status {
+        display: inline-flex;
+        align-items: center;
+        gap: $space-2;
+        font-size: $font-size-sm;
+
+        &--ok {
+            color: var(--green);
+
+            svg { color: var(--green); }
+        }
+
+        &--missing {
+            color: var(--amber);
+
+            svg { color: var(--amber); }
+        }
+    }
+
+    .ssl-context-links {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        font-size: $font-size-xs;
+        color: var(--text-faint);
+
+        a {
+            color: var(--accent-bright);
+            text-decoration: none;
+
+            &:hover { text-decoration: underline; }
+        }
+    }
+
+    .ssl-attach-result {
+        display: flex;
+        flex-direction: column;
+        gap: $space-3;
+        margin-top: $space-3;
+        padding: $space-3;
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+
+        &__success {
+            display: flex;
+            align-items: center;
+            gap: $space-2;
+            font-size: $font-size-sm;
+            color: var(--green);
+
+            svg { color: var(--green); }
+        }
+
+        &__manual {
+            display: flex;
+            flex-direction: column;
+            gap: $space-2;
+            font-size: $font-size-sm;
+        }
+
+        &__record {
+            display: block;
+            padding: $space-2 $space-3;
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
+            font-family: var(--mono);
+            font-size: $font-size-xs;
+            color: var(--text);
+        }
+    }
+
+    // ---- Info grids → k/v spec rows (.sk-info-row look, CSS-only) ----
+    .app-info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .app-info-item {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: $space-4;
+        padding: 10px 0;
+        border-top: 1px solid var(--border-soft);
+
+        &:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        &:last-child {
+            padding-bottom: 0;
+        }
+    }
+
+    .app-info-label {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-faint);
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .app-info-value {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: $space-2;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--text);
+        text-align: right;
+        min-width: 0;
+        overflow-wrap: anywhere;
+
+        a {
+            color: var(--accent-bright);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    // ---- Section headers → mono eyebrows ----
+    .section-header {
+        margin-bottom: $space-4;
+
+        h3 {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: $font-weight-semibold;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-faint);
+        }
+    }
+
+    // ---- KPI strip (ds MetricCard rows) ----
+    .wp-kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: $space-4;
+    }
+
+    .wp-overview {
+        display: flex;
+        flex-direction: column;
+        gap: $space-4;
+    }
+
+    // ---- Dense table chrome shared by plugins/themes/vulns ----
+    .wp-asset-table,
+    .wp-vuln-table {
+        .sk-cell-name {
+            font-size: 13px;
+        }
+
+        .sk-cell-sub {
+            margin-top: 2px;
+        }
+    }
+
+    .wp-vuln-title {
+        font-size: 12.5px;
+        color: var(--text-dim);
+        max-width: 360px;
+        overflow-wrap: anywhere;
+    }
+
+    // app-panel hosting a flush table (Findings)
+    .app-panel > .sk-dtable {
+        border-radius: 0 0 var(--radius) var(--radius);
+        overflow: hidden;
+    }
+
+    // ---- Severity chips (prototype .sev / security ramp) ----
+    .wp-sev {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: $font-weight-semibold;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+
+        .d {
+            width: 9px;
+            height: 9px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            background: var(--text-ghost);
+        }
+
+        &--critical {
+            color: var(--red);
+
+            .d {
+                background: var(--red);
+                box-shadow: 0 0 6px var(--red);
+            }
+        }
+
+        &--high {
+            color: var(--red);
+
+            .d {
+                background: var(--red);
+            }
+        }
+
+        &--medium {
+            color: var(--amber);
+
+            .d {
+                background: var(--amber);
+            }
+        }
+
+        &--low {
+            color: var(--cyan);
+
+            .d {
+                background: var(--cyan);
+            }
+        }
+
+        &--unknown {
+            color: var(--text-faint);
+
+            .d {
+                background: var(--text-faint);
+            }
+        }
+    }
+
+    .wp-fix-chip {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--accent-bright);
+        background: var(--accent-bg);
+        padding: 2px 7px;
+        border-radius: 5px;
+        white-space: nowrap;
+    }
+
+    .wp-no-fix {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-faint);
+    }
+
+    .wp-advisory-link {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--accent-bright);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    // ---- Update chips + bulk bar (amber wash, mono) ----
+    .wp-update-badge {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        font-weight: $font-weight-medium;
+        color: var(--amber);
+        background: var(--amber-bg);
+        padding: 2px 7px;
+        border-radius: 5px;
+        margin-left: $space-2;
+    }
+
+    .bulk-update-bar {
+        background: var(--amber-bg);
+        border: 1px solid fade($warning-raw, 25%);
+        border-radius: var(--radius);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--amber);
+    }
+
+    .install-form {
+        margin-bottom: $space-4;
+    }
+
+    // ---- Security posture (ScoreGauge ring + checklist, demo Posture panel) ----
+    .wp-posture {
+        display: flex;
+        align-items: center;
+        gap: $space-6;
+
+        &__checks {
+            flex: 1;
+            min-width: 0;
+        }
+
+        &__check {
+            display: flex;
+            align-items: center;
+            gap: $space-3;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-soft);
+            font-size: 13px;
+
+            &:first-child { border-top: none; }
+        }
+
+        &__label {
+            flex: 1;
+            min-width: 0;
+            color: var(--text);
+        }
+
+        &__detail {
+            font-family: var(--mono);
+            font-size: 11.5px;
+            color: var(--text-faint);
+            white-space: nowrap;
+        }
+
+        @media (max-width: $breakpoint-md) {
+            flex-direction: column;
+            align-items: flex-start;
+
+            &__checks { width: 100%; }
+        }
+    }
+
+    // ---- Mono code well (integrity issue lines) ----
+    .wp-code-list {
+        margin-top: $space-3;
+        padding: $space-3 $space-4;
+        background: var(--bg-code);
+        border: 1px solid var(--border-soft);
+        border-radius: $radius-md;
+        max-height: 320px;
+        overflow-y: auto;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.7;
+        color: var(--text-code);
+        overflow-wrap: anywhere;
+    }
+
+    // ---- Brute-force jail: banned-IP rows with an inline Unban action ----
+    .wp-banlist {
+        margin-top: $space-3;
+        border: 1px solid var(--border-soft);
+        border-radius: $radius-md;
+        overflow: hidden;
+    }
+    .wp-banlist__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $space-3;
+        padding: 8px $space-4;
+
+        & + & {
+            border-top: 1px solid var(--border-soft);
+        }
+    }
+    .wp-banlist__ip {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--text-code);
+    }
+
+    // ---- Run-history / incident rows (Updates + Reports) ----
+    .wp-run-row {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 11px 0;
+        border-top: 1px solid var(--border-soft);
+
+        &:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .form-hint {
+            margin-top: 0;
+        }
+    }
+
+    .wp-run-row-head {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        flex-wrap: wrap;
+
+        strong {
+            font-size: 13px;
+        }
+    }
+
+    .wp-run-row-meta {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-faint);
+    }
+
+    .wp-run-component {
+        font-family: var(--mono);
+    }
+
+    // ---- Analytics head (eyebrow + SegControl) ----
+    .wp-analytics-banner {
+        display: flex;
+        align-items: center;
+        gap: $space-3;
+        margin-bottom: $space-4;
+        padding: $space-3 $space-4;
+        border: 1px solid rgba(129, 140, 248, 0.28);
+        border-radius: var(--radius, 8px);
+        background: rgba(129, 140, 248, 0.08);
+        color: var(--text-primary);
+        flex-wrap: wrap;
+
+        svg { color: var(--accent-bright, #818cf8); flex-shrink: 0; }
+
+        &__text { flex: 1 1 240px; font-size: 13px; line-height: 1.4; }
+        &__text span { color: var(--text-secondary); }
+
+        &__link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: $font-weight-semibold;
+            color: var(--accent-bright, #818cf8);
+        }
+    }
+
+    .wp-analytics-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $space-3;
+        flex-wrap: wrap;
+    }
+
+    .wp-eyebrow {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: $font-weight-semibold;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+    }
+
+    // Recharts default tooltip → surface tokens (recharts inline-styles it)
+    .recharts-default-tooltip {
+        background: var(--surface-2) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-md);
+        font-family: var(--mono);
+        font-size: 11.5px;
+    }
+
+    .recharts-tooltip-label {
+        color: var(--text-faint) !important;
+    }
+
+    // ---- Report header actions keep normal type inside the eyebrow bar ----
+    .wp-report-actions {
+        font-family: $font-main;
+        text-transform: none;
+        letter-spacing: normal;
+    }
+
+    // ---- Commit list (scoped: Git.jsx renders .commit-item too) ----
+    .commit-list {
+        gap: 0;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        overflow: hidden;
+        max-width: 860px;
+    }
+
+    .commit-item {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        padding: 12px $space-4;
+        transition: background 0.12s;
+
+        & + .commit-item {
+            border-top: 1px solid var(--border-soft);
+        }
+
+        &:hover {
+            background: var(--surface-2);
+        }
+
+        &.current {
+            background: fade($success-raw, 5%);
+        }
+    }
+
+    .commit-icon {
+        color: var(--text-faint);
+
+        .current-icon {
+            color: var(--green);
+        }
+    }
+
+    .commit-sha {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--accent-bright);
+        background: var(--accent-bg);
+        padding: 2px 7px;
+        border-radius: 5px;
+    }
+    // Clickable SHA → the commit on the remote host.
+    a.commit-sha--link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+        transition: background 0.14s;
+
+        svg { opacity: 0.6; }
+        &:hover { background: var(--accent-bg-soft); text-decoration: underline; svg { opacity: 1; } }
+    }
+
+    .current-badge {
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: $font-weight-semibold;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--green-bg);
+        color: var(--green);
+        padding: 2px 7px;
+        border-radius: 5px;
+    }
+
+    .commit-date {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--text-faint);
+    }
+
+    .commit-message {
+        font-size: 13px;
+        font-weight: $font-weight-medium;
+    }
+
+    .commit-author {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-faint);
+    }
+
+    // ---- DiskUsageBar container re-tint (styles live in _wordpress-pipeline) ----
+    .app-health-disk .disk-usage-bar-container {
+        background: var(--surface-2);
+        border-color: var(--border-soft);
+    }
+}
+
+// ---- Header environment switcher (prototype .env-switch / .env-menu) ----
+.wp-envswitch-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.wp-envswitch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px 5px 11px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--surface-2);
+    font-family: $font-main;
+    font-size: 12.5px;
+    font-weight: $font-weight-medium;
+    letter-spacing: normal;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.14s, background 0.14s;
+
+    .ed {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .chev {
+        color: var(--text-faint);
+        transition: transform 0.15s;
+    }
+
+    &.open .chev {
+        transform: rotate(180deg);
+    }
+
+    &:hover {
+        background: var(--surface-3);
+        border-color: var(--border-strong);
+    }
+}
+
+.wp-envswitch-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 7px;
+    z-index: $z-dropdown + 5;
+    min-width: 280px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: 7px;
+}
+
+.wp-envswitch-head {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-ghost);
+    padding: 7px 10px 5px;
+}
+
+.wp-envswitch-opt {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    padding: 9px 10px;
+    border: none;
+    border-radius: 9px;
+    background: none;
+    color: var(--text);
+    font-family: $font-main;
+    letter-spacing: normal;
+    text-transform: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.1s;
+
+    &:hover {
+        background: var(--surface-3);
+    }
+
+    .ed {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .check {
+        margin-left: auto;
+        color: var(--accent-bright);
+        flex-shrink: 0;
+    }
+}
+
+.wp-envswitch-opt-body {
+    flex: 1;
+    min-width: 0;
+
+    .nm {
+        display: block;
+        font-weight: $font-weight-medium;
+        font-size: 13px;
+    }
+
+    .meta {
+        display: block;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--text-faint);
+        margin-top: 1px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+// ---- Surface card wrapper for dense tables (SnapshotTable & friends) ----
+.wp-table-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.wp-th-right {
+    text-align: right !important;
+}
+
+.wp-cell-actions {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.wp-row-action {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 7px;
+    background: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: background 0.14s, color 0.14s;
+
+    &:hover:not(:disabled) {
+        background: var(--surface-3);
+        color: var(--text);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+
+    &--danger:hover:not(:disabled) {
+        background: var(--red-bg);
+        color: var(--red);
+    }
+}
+
+// Environment Cards (EnvironmentCard.jsx — WP detail Environments tab).
+// Restyled to the prototype's .env-card: quiet surface, accent border on
+// production, EnvTag/Pill rendered by the ds components.
+.environments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: $space-4;
+    margin-top: $space-4;
+}
+
+// Dashed "add environment" tile — an in-grid affordance that reads as
+// intentional, replacing the old full-width empty-state block that looked
+// like an error sitting under the production card.
+.wp-env-add-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $space-2;
+    min-height: 150px;
+    padding: $space-6;
+    text-align: center;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+
+    &:hover {
+        border-color: var(--accent);
+        color: var(--text);
+        background: var(--accent-bg-soft);
+    }
+
+    &__icon {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius);
+        background: var(--accent-bg);
+        color: var(--accent-bright);
+    }
+
+    &__title {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: var(--text);
+    }
+
+    &__hint {
+        font-size: $font-size-sm;
+        line-height: $line-height-normal;
+        max-width: 280px;
+    }
+}
+
+.wp-env-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+    transition: border-color 0.15s;
+
+    &:hover {
+        border-color: var(--border-strong);
+    }
+
+    &.production {
+        border-color: var(--accent-dim);
+
+        &:hover {
+            border-color: var(--accent-dim);
+        }
+    }
+
+    &.stale {
+        border-color: fade($warning-raw, 35%);
+    }
+}
+
+.wp-env-status-group {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+}
+
+.wp-env-stale-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: $font-weight-medium;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: var(--amber-bg);
+    color: var(--amber);
+
+    svg {
+        flex-shrink: 0;
+    }
+}
+
+.text-warning {
+    color: var(--amber) !important;
+}
+
+// Kept for the pipeline surfaces: PipelineView / WordPressProjects /
+// EnvironmentStatusBadge still render these classes (EnvironmentCard itself
+// now uses the ds EnvTag/Pill components instead).
+.wp-env-badge {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    padding: 2px 8px;
+    border-radius: $radius-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.env-production {
+        background: fade($danger-raw, 12%);
+        color: $color-danger;
+    }
+
+    &.env-staging {
+        background: fade($warning-raw, 12%);
+        color: $color-warning;
+    }
+
+    &.env-development {
+        background: fade($info-raw, 12%);
+        color: $color-info;
+    }
+}
+
+.wp-env-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    &.running {
+        color: $color-success;
+
+        .status-dot {
+            background: $color-success;
+        }
+    }
+
+    &.stopped {
+        color: $text-tertiary;
+
+        .status-dot {
+            background: $text-tertiary;
+        }
+    }
+}
+
+.wp-env-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $space-2;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.wp-env-info {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    min-width: 0;
+}
+
+.wp-env-name {
+    font-size: 14px;
+    font-weight: $font-weight-semibold;
+    color: var(--text);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wp-env-body {
+    padding: 14px 16px;
+}
+
+.wp-env-url {
+    margin-bottom: $space-3;
+
+    a {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--accent-bright);
+        text-decoration: none;
+        overflow-wrap: anywhere;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.wp-env-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-3 $space-2;
+}
+
+.wp-env-meta-item {
+    .meta-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        margin-bottom: 3px;
+
+        svg {
+            color: var(--text-ghost);
+        }
+    }
+
+    .meta-value {
+        font-size: 12.5px;
+        color: var(--text);
+
+        &.mono {
+            font-family: var(--mono);
+            font-size: 12px;
+        }
+    }
+}
+
+.wp-env-footer {
+    display: flex;
+    gap: $space-1;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border-soft);
+    background: transparent;
+    border-radius: 0 0 var(--radius) var(--radius);
+}
+
+// Snapshot Table (SnapshotTable.jsx — now a .sk-dtable inside .wp-table-card)
+.wp-snapshot-table {
+    .snapshot-name-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .snapshot-name {
+        font-weight: 550;
+        font-size: 13px;
+        color: var(--text);
+    }
+
+    .snapshot-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--cyan);
+        background: var(--cyan-bg);
+        padding: 2px 7px;
+        border-radius: 5px;
+        width: fit-content;
+    }
+
+    .snapshot-desc {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-faint);
+    }
+
+    .snapshot-date {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-dim);
+    }
+
+    .mono {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-dim);
+    }
+
+    .compressed-badge {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 10px;
+        background: var(--green-bg);
+        color: var(--green);
+        padding: 1px 5px;
+        border-radius: 4px;
+        margin-left: $space-2;
+    }
+
+    .text-muted {
+        color: var(--text-ghost);
+        font-family: var(--mono);
+    }
+
+    .git-context {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-dim);
+
+        svg {
+            color: var(--text-faint);
+            flex-shrink: 0;
+        }
+
+        .git-context-sha {
+            color: var(--accent-bright);
+            background: var(--accent-bg);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .commit-msg {
+            font-size: 11.5px;
+            color: var(--text-faint);
+            margin-left: $space-1;
+        }
+    }
+}
+
+// Commit List
+.commit-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+    max-width: 800px;
+}
+
+.commit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-3;
+    padding: $space-3 $space-4;
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-md;
+    transition: all 0.15s ease;
+
+    &:hover {
+        border-color: $border-hover;
+    }
+
+    &.current {
+        border-color: fade($success-raw, 40%);
+        background: fade($success-raw, 4%);
+    }
+}
+
+.commit-icon {
+    color: $text-tertiary;
+    margin-top: 2px;
+
+    .current-icon {
+        color: $color-success;
+    }
+}
+
+.commit-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.commit-header {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    margin-bottom: $space-1;
+}
+
+.commit-sha {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+}
+
+.current-badge {
+    font-size: $font-size-xs;
+    background: $color-success;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: $radius-sm;
+}
+
+.commit-date {
+    font-size: $font-size-xs;
+    color: $text-tertiary;
+    margin-left: auto;
+}
+
+.commit-message {
+    font-size: $font-size-sm;
+    color: $text-primary;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.commit-author {
+    font-size: $font-size-xs;
+    color: $text-tertiary;
+}
+
+.commit-actions {
+    display: flex;
+    gap: $space-2;
+    flex-shrink: 0;
+}
+
+.commit-message-preview {
+    font-style: italic;
+    color: $text-secondary;
+    padding: $space-3;
+    background: $bg-tertiary;
+    border-radius: $radius-md;
+    margin: $space-3 0;
+}
+
+// Git Commits Section
+.git-commits-section {
+    margin-top: $space-6;
+    padding-top: $space-6;
+    border-top: 1px solid $border-subtle;
+}
+
+// Quick Actions (WP detail Overview — exclusive to this page)
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-2;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px $space-2;
+    background: var(--surface-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-size: 12.5px;
+    font-weight: $font-weight-medium;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.14s, border-color 0.14s, color 0.14s;
+
+    svg {
+        color: var(--text-faint);
+        flex-shrink: 0;
+        transition: color 0.14s;
+    }
+
+    &:hover:not(:disabled) {
+        background: var(--accent-bg-soft);
+        border-color: var(--accent-dim);
+        color: var(--text);
+
+        svg {
+            color: var(--accent-bright);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: default;
+    }
+}
+
+// Hint Box
+.hint-box {
+    padding: $space-4;
+    background: $bg-tertiary;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-md;
+    margin-top: $space-4;
+
+    p {
+        margin: 0;
+        color: $text-secondary;
+        font-size: $font-size-sm;
+
+        &:not(:last-child) {
+            margin-bottom: $space-2;
+        }
+    }
+}
+
+// Empty State Small
+.empty-state-small {
+    padding: $space-6;
+    text-align: center;
+    color: $text-tertiary;
+
+    p {
+        margin: 0;
+
+        &:not(:last-child) {
+            margin-bottom: $space-2;
+        }
+    }
+
+    .hint {
+        font-size: $font-size-sm;
+    }
+}
+
+// Spinning animation for sync button
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+// ============================================
+// SKELETON LOADING STATES
+// ============================================
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@mixin skeleton() {
+    background: linear-gradient(
+        90deg,
+        $bg-tertiary 25%,
+        fade($border-subtle-raw, 50%) 50%,
+        $bg-tertiary 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: $radius-md;
+}
+
+.skeleton {
+    @include skeleton();
+}
+
+// Skeleton Site Card
+.wp-site-card-skeleton {
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-lg;
+}
+
+.wp-site-card-skeleton-header {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-4;
+    border-bottom: 1px solid $border-subtle;
+}
+
+.wp-site-card-skeleton-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-md;
+    @include skeleton();
+}
+
+.wp-site-card-skeleton-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+}
+
+.wp-site-card-skeleton-name {
+    width: 60%;
+    height: 16px;
+    @include skeleton();
+}
+
+.wp-site-card-skeleton-url {
+    width: 80%;
+    height: 12px;
+    @include skeleton();
+}
+
+.wp-site-card-skeleton-status {
+    width: 64px;
+    height: 24px;
+    border-radius: $radius-full;
+    @include skeleton();
+}
+
+.wp-site-card-skeleton-body {
+    padding: $space-4;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-3;
+}
+
+.wp-site-card-skeleton-meta {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+}
+
+.wp-site-card-skeleton-label {
+    width: 50%;
+    height: 10px;
+    @include skeleton();
+}
+
+.wp-site-card-skeleton-value {
+    width: 70%;
+    height: 14px;
+    @include skeleton();
+}
+
+.wp-site-card-skeleton-footer {
+    display: flex;
+    gap: $space-2;
+    padding: $space-3 $space-4;
+    border-top: 1px solid $border-subtle;
+    background: $bg-tertiary;
+    border-radius: 0 0 $radius-lg $radius-lg;
+}
+
+.wp-site-card-skeleton-btn {
+    flex: 1;
+    height: 32px;
+    @include skeleton();
+}
+
+// Skeleton Environment Card
+.wp-env-card-skeleton {
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-lg;
+}
+
+.wp-env-card-skeleton-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-4;
+    border-bottom: 1px solid $border-subtle;
+}
+
+.wp-env-card-skeleton-badge {
+    width: 60px;
+    height: 20px;
+    border-radius: $radius-sm;
+    @include skeleton();
+}
+
+.wp-env-card-skeleton-status {
+    width: 64px;
+    height: 20px;
+    border-radius: $radius-sm;
+    @include skeleton();
+}
+
+.wp-env-card-skeleton-body {
+    padding: $space-4;
+}
+
+.wp-env-card-skeleton-url {
+    width: 70%;
+    height: 14px;
+    margin-bottom: $space-3;
+    @include skeleton();
+}
+
+.wp-env-card-skeleton-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-2;
+}
+
+.wp-env-card-skeleton-meta-item {
+    .skeleton-label {
+        width: 40%;
+        height: 10px;
+        margin-bottom: 4px;
+        @include skeleton();
+    }
+
+    .skeleton-value {
+        width: 60%;
+        height: 14px;
+        @include skeleton();
+    }
+}
+
+.wp-env-card-skeleton-footer {
+    display: flex;
+    gap: $space-2;
+    padding: $space-3 $space-4;
+    border-top: 1px solid $border-subtle;
+    background: $bg-tertiary;
+    border-radius: 0 0 $radius-lg $radius-lg;
+}
+
+// Skeleton Stat Card
+.docker-stat-card-skeleton {
+    background: $bg-card;
+    border: 1px solid $border-subtle;
+    border-radius: $radius-lg;
+    padding: $space-4;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+}
+
+.docker-stat-card-skeleton-label {
+    width: 60%;
+    height: 12px;
+    @include skeleton();
+}
+
+.docker-stat-card-skeleton-value {
+    width: 40%;
+    height: 28px;
+    @include skeleton();
+}
+
+.docker-stat-card-skeleton-meta {
+    width: 80%;
+    height: 12px;
+    @include skeleton();
+}
+
+// Skeleton Table Row
+.skeleton-table-row {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    padding: $space-3 $space-4;
+    border-bottom: 1px solid $border-subtle;
+
+    .skeleton-cell {
+        height: 16px;
+        @include skeleton();
+
+        &.cell-name { width: 25%; }
+        &.cell-tag { width: 15%; }
+        &.cell-size { width: 10%; }
+        &.cell-date { width: 15%; }
+        &.cell-actions { width: 20%; margin-left: auto; }
+    }
+}
+
+// Tab Content Loading
+.tab-loading {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+    padding: $space-4;
+}
+
+.tab-loading-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $space-2;
+}
+
+.tab-loading-title {
+    width: 120px;
+    height: 24px;
+    @include skeleton();
+}
+
+.tab-loading-btn {
+    width: 140px;
+    height: 36px;
+    border-radius: $radius-md;
+    @include skeleton();
+}
+
+// ============================================
+// WORDPRESS DETAIL PAGE SKELETON
+// Mirrors the real page chrome + Overview tab layout.
+// ============================================
+.wp-detail-page--skeleton {
+    .sk-topbar-skeleton {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 60px;
+        padding: 10px $space-4;
+        border-bottom: 1px solid var(--border-soft);
+
+        &__icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            @include skeleton();
+        }
+
+        &__title {
+            width: 160px;
+            height: 16px;
+            border-radius: 4px;
+            @include skeleton();
+        }
+
+        &__spacer { flex: 1; }
+
+        &__actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        &__btn {
+            width: 90px;
+            height: 32px;
+            border-radius: $radius-md;
+            @include skeleton();
+
+            &--primary { width: 110px; }
+        }
+    }
+
+    .wp-detail-skeleton-repo {
+        width: 220px;
+        height: 30px;
+        border-radius: $radius-full;
+        @include skeleton();
+    }
+
+    .app-detail-tab-skeleton {
+        width: 80px;
+        height: 32px;
+        border-radius: 7px;
+        @include skeleton();
+    }
+
+    .wp-kpis--skeleton {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: $space-4;
+    }
+
+    .wp-detail-skeleton-kpi {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        padding: $space-4 $space-5;
+        display: flex;
+        flex-direction: column;
+        gap: $space-2;
+
+        &__label {
+            width: 70%;
+            height: 11px;
+            border-radius: 3px;
+            @include skeleton();
+        }
+
+        &__value {
+            width: 45%;
+            height: 26px;
+            border-radius: 4px;
+            @include skeleton();
+        }
+    }
+
+    .wp-detail-skeleton-panel {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+
+        .app-panel-header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            padding: 12px 17px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .app-panel-body {
+            padding: $space-4 17px;
+        }
+    }
+
+    .wp-detail-skeleton-chart {
+        height: 250px;
+        border-radius: $radius-md;
+        @include skeleton();
+    }
+
+    .wp-detail-skeleton-activity {
+        display: flex;
+        flex-direction: column;
+        gap: $space-3;
+
+        &__row {
+            display: flex;
+            align-items: center;
+            gap: $space-3;
+        }
+
+        &__lines {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    .wp-detail-skeleton-rows {
+        display: flex;
+        flex-direction: column;
+        gap: $space-3;
+    }
+
+    .wp-detail-skeleton-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: $space-4;
+    }
+}
+
+// ============================================
+// ERROR STATES
+// ============================================
+
+.error-boundary,
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $space-8;
+    text-align: center;
+    min-height: 200px;
+}
+
+.error-boundary-icon,
+.error-state-icon {
+    color: $color-danger;
+    margin-bottom: $space-4;
+    padding: $space-3;
+    background: fade($danger-raw, 10%);
+    border-radius: 50%;
+}
+
+.error-boundary h3,
+.error-state-title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin: 0 0 $space-2;
+}
+
+.error-boundary-message,
+.error-state-message {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0 0 $space-4;
+    max-width: 400px;
+}
+
+.error-state-compact {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-3 $space-4;
+    background: fade($danger-raw, 8%);
+    border: 1px solid fade($danger-raw, 20%);
+    border-radius: $radius-md;
+    color: $color-danger;
+    font-size: $font-size-sm;
+
+    svg {
+        flex-shrink: 0;
+    }
+
+    span {
+        flex: 1;
+    }
+
+    .btn {
+        flex-shrink: 0;
+    }
+}
+
+// ============================================
+// CONFIRM DIALOG ENHANCEMENTS
+// ============================================
+
+.confirm-dialog-details {
+    margin-top: $space-3;
+    padding: $space-3;
+    background: $bg-tertiary;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    text-align: left;
+
+    ul {
+        margin: 0;
+        padding-left: $space-4;
+
+        li {
+            margin-bottom: $space-1;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    strong {
+        color: $text-primary;
+    }
+
+    code {
+        background: $bg-code;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: $font-family-mono;
+        font-size: 0.9em;
+    }
+}
+
+// Environment Preview URL in Create Modal
+.env-preview-url {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-3;
+    background: fade($success-raw, 8%);
+    border: 1px solid fade($success-raw, 20%);
+    border-radius: $radius-md;
+    margin-bottom: $space-4;
+
+    .preview-label {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+    }
+
+    .preview-url {
+        font-family: $font-family-mono;
+        font-size: $font-size-sm;
+        color: $color-success;
+        font-weight: $font-weight-medium;
+    }
+}
+
+.form-hint-domain {
+    code {
+        background: $bg-code;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: $font-family-mono;
+        font-size: 0.9em;
+    }
+}
+
+.confirm-dialog-input {
+    margin-top: $space-4;
+    text-align: left;
+
+    label {
+        display: block;
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        margin-bottom: $space-2;
+
+        strong {
+            color: $text-primary;
+            font-family: $font-family-mono;
+        }
+    }
+
+    input {
+        width: 100%;
+        padding: $space-3;
+        border: 1px solid $border-subtle;
+        border-radius: $radius-md;
+        font-size: $font-size-base;
+        background: $bg-input;
+        color: $text-primary;
+
+        &:focus {
+            outline: none;
+            border-color: $color-primary;
+            box-shadow: 0 0 0 3px fade($accent-primary-raw, 15%);
+        }
+
+        &::placeholder {
+            color: $text-tertiary;
+        }
+    }
+}
+
+// ============================================
+// RESOURCE ADVISORY - INLINE CAPACITY WARNING
+// ============================================
+// Replaces the old blocked-state gate. Warns at the point of action and lets
+// the operator proceed; nothing here hides a control.
+
+.resource-advisory {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-3;
+    padding: $space-4;
+    margin-bottom: $space-4;
+    background: fade($warning-raw, 8%);
+    border: 1px solid $color-warning;
+    border-radius: $radius-md;
+
+    &__icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: $color-warning;
+    }
+
+    &__title {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-bold;
+        color: $text-primary;
+        margin-bottom: $space-1;
+    }
+
+    &__text {
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        line-height: $line-height-normal;
+        margin: 0;
+    }
+
+    &__list {
+        margin: $space-2 0 0;
+        padding-left: $space-4;
+        font-size: $font-size-xs;
+        color: $text-tertiary;
+    }
+}
+
+// One-time admin credentials banner (after site create)
+.wp-creds-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+    margin: 0 $space-4 $space-4;
+    padding: $space-4;
+    background: fade($success-raw, 8%);
+    border: 1px solid fade($success-raw, 25%);
+    border-radius: $radius-md;
+
+    .wp-creds-banner-text {
+        display: flex;
+        flex-direction: column;
+        gap: $space-1;
+        font-size: $font-size-sm;
+
+        code {
+            font-family: $font-family-mono;
+            background: $bg-tertiary;
+            padding: 1px 6px;
+            border-radius: 3px;
+        }
+    }
+}
+
+// ============================================
+// SITE HEALTH + SSL PANEL HELPERS (Overview tab)
+// ============================================
+
+.app-health-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+}
+
+.app-health-disk {
+    margin-top: $space-4;
+
+    .app-info-label {
+        display: block;
+        margin-bottom: $space-2;
+    }
+}
+
+.ssl-action-btn {
+    margin-top: $space-3;
+}
+
+// Plugin / Theme card grids (WP detail — replace the dense asset tables)
+.wp-detail-page {
+    .wp-asset-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 14px;
+    }
+
+    .wp-asset-card {
+        display: flex;
+        gap: 13px;
+        align-items: flex-start;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        padding: 16px;
+        transition: border-color 0.15s;
+
+        &:hover { border-color: var(--border-strong); }
+        &.is-active { border-color: var(--accent-dim); }
+
+        &__body { flex: 1; min-width: 0; }
+        &__name { font-weight: 600; font-size: 14px; }
+        &__sub {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-faint);
+            margin-top: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        &__foot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        &__ver { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+
+        &__toggle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        &__state {
+            font-family: var(--mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-faint);
+            &.is-on { color: var(--green); }
+        }
+    }
+
+    .wp-update-flag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--amber);
+        background: var(--amber-bg);
+        padding: 2px 7px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.12s;
+
+        &:hover { opacity: 0.85; }
+        &:disabled { opacity: 0.55; cursor: default; }
+
+        // Library-backed update uses the accent tone to distinguish it from the
+        // generic wp.org update flag.
+        &--library {
+            color: var(--accent);
+            background: var(--accent-bg, rgba(99, 102, 241, 0.12));
+        }
+    }
+
+    // "Managed" badge on plugins tracked by the global plugin library.
+    .wp-managed-pill {
+        display: inline-block;
+        margin-left: 7px;
+        font-size: 9.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--accent);
+        background: var(--accent-bg, rgba(99, 102, 241, 0.12));
+        padding: 1px 6px;
+        border-radius: 4px;
+        vertical-align: middle;
+    }
+
+    .wp-theme-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 14px;
+    }
+
+    .wp-theme-card {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition: border-color 0.15s, transform 0.15s;
+
+        &:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+        &.is-active { border-color: var(--accent-dim); }
+
+        &__shot {
+            position: relative;
+            height: 128px;
+            display: grid;
+            place-items: center;
+            border-bottom: 1px solid var(--border-soft);
+            background:
+                repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.018) 0 12px, transparent 12px 24px),
+                var(--surface-2);
+
+            svg { color: var(--text-ghost); }
+            .pill { position: absolute; top: 10px; right: 10px; }
+        }
+
+        &__meta { padding: 14px 16px; }
+        &__name { font-weight: 600; font-size: 14px; }
+        &__sub {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-faint);
+            margin-top: 3px;
+        }
+        &__actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        &__current {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--green);
+        }
+    }
+}
+
+// Change Site URL modal (URL-swap tool)
+.wp-url-swap {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 0 8px;
+
+    &__warning {
+        display: flex;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: var(--radius);
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--text-faint);
+
+        svg { flex-shrink: 0; color: var(--amber); margin-top: 1px; }
+    }
+
+    &__fromto {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        code {
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--surface-2);
+            border: 1px solid var(--border-soft);
+            color: var(--text-faint);
+            word-break: break-all;
+
+            &.is-new { color: var(--green); border-color: var(--accent-dim); }
+        }
+        svg { color: var(--text-ghost); flex-shrink: 0; }
+    }
+
+    &__keep {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+
+        > span {
+            display: flex;
+            flex-direction: column;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        small {
+            font-weight: 400;
+            font-size: 11.5px;
+            color: var(--text-faint);
+            margin-top: 2px;
+        }
+    }
+
+    &__preview {
+        border-top: 1px solid var(--border-soft);
+        padding-top: 12px;
+    }
+
+    &__preview-total {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    &__preview-pairs {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11.5px;
+
+            code {
+                font-family: var(--mono);
+                color: var(--text-faint);
+                word-break: break-all;
+            }
+            svg { color: var(--text-ghost); flex-shrink: 0; }
+        }
+    }
+
+    &__count {
+        margin-left: auto;
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        color: var(--text-faint);
+        flex-shrink: 0;
+    }
+
+    &__preview-error {
+        font-size: 12.5px;
+        color: var(--red);
+    }
+
+    &__result {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+
+        svg { color: var(--green); flex-shrink: 0; }
+        code { font-family: var(--mono); color: var(--green); word-break: break-all; }
+    }
+
+    &__dns-manual {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 12.5px;
+    }
+
+    &__record {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        color: var(--text);
+        word-break: break-all;
+    }
+}
+
+// Pipelines list — the few cells the shared list does not already style.
+.wp-projects-page {
+    &__envs {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    &__envcount {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-right: $space-1;
+        color: $text-secondary;
+        font-family: var(--mono);
+        font-size: 12px;
+    }
+
+    &__git {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: $text-secondary;
+        font-size: $font-size-sm;
+
+        svg { color: $text-tertiary; }
+    }
+}

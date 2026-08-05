@@ -1,0 +1,269 @@
+// ============================================
+// SERVERKIT DESIGN SYSTEM - VARIABLES
+// ============================================
+// Theme-sensitive colors use CSS custom properties for runtime theming.
+// Raw values (*-raw) are kept for SCSS compile-time functions like fade().
+// ============================================
+
+$white: #e9ebf0;
+$black: #0a0b0e;
+
+// --------------------------------------------
+// COLORS - Background (theme-sensitive)
+// --------------------------------------------
+// Raw values for SCSS functions (dark theme defaults).
+// Remapped to the redesign "infra console" surface ramp — see
+// docs/REDESIGN_MAP.md §1.1. var()-backed tokens below carry the runtime value.
+$bg-body-raw: #0a0b0e;
+$bg-sidebar-raw: #0d0f15;
+$bg-card-raw: #101218;
+$bg-hover-raw: #1a1e27;
+$bg-elevated-raw: #161922;
+$bg-secondary-raw: #161922;
+$bg-tertiary-raw: #1c2029;
+
+// Themed values using CSS custom properties
+$bg-body: var(--bg-body);
+$bg-sidebar: var(--bg-sidebar);
+$bg-card: var(--bg-card);
+$bg-hover: var(--bg-hover);
+$bg-elevated: var(--bg-elevated);
+$bg-secondary: var(--bg-secondary);
+$bg-tertiary: var(--bg-tertiary);
+
+// --------------------------------------------
+// COLORS - Borders (theme-sensitive)
+// --------------------------------------------
+// Raw values for SCSS functions
+$border-default-raw: #23272f;
+$border-subtle-raw: #191c23;
+$border-active-raw: #2c313b;
+$border-hover-raw: #2c313b;
+
+// Themed values using CSS custom properties
+$border-default: var(--border-default);
+$border-subtle: var(--border-subtle);
+$border-active: var(--border-active);
+$border-hover: var(--border-hover);
+
+// --------------------------------------------
+// COLORS - Text (theme-sensitive)
+// --------------------------------------------
+// Raw values feed compile-time SCSS only (e.g. `fade()` for translucent
+// background washes), since fade() can't operate on a CSS var(). These are
+// the neutral zinc ramp and are intentionally NOT the same as the runtime
+// --text-* custom properties, which were lightened for on-surface text
+// legibility (see _theme-variables.scss). Rendered text color always comes
+// from the var()-backed $text-* tokens below; only low-opacity fills read
+// from these raws, where the exact base tone is visually negligible.
+$text-primary-raw: #e9ebf0;
+$text-secondary-raw: #9aa1af;
+$text-tertiary-raw: #646b7a;
+
+// Themed values using CSS custom properties
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-tertiary: var(--text-tertiary);
+
+// --------------------------------------------
+// COLORS - Accent
+// --------------------------------------------
+// Raw values for SCSS compile-time functions (fade, darken, etc.)
+$accent-primary-raw: #6d7cff;
+$accent-hover-raw: #5a67e8;
+$accent-glow-raw: rgba(109, 124, 255, 0.35);
+$accent-shadow-raw: rgba(109, 124, 255, 0.3);
+
+// Themed values using CSS custom properties (runtime-switchable)
+$accent-primary: var(--accent-primary);
+$accent-hover: var(--accent-hover);
+$accent-glow: var(--accent-glow);
+$accent-shadow: var(--accent-shadow);
+
+// Brighter/dimmer accent stops (redesign) — var()-backed so they track the
+// user's/workspace's runtime accent (set by ThemeContext).
+$accent-bright: var(--accent-bright);
+$accent-dim: var(--accent-dim);
+$accent-bg: var(--accent-bg);
+$accent-bg-soft: var(--accent-bg-soft);
+
+// --------------------------------------------
+// COLORS - Semantic
+// --------------------------------------------
+// Redesign "infra console" semantic palette. $success/$warning/$danger/$info
+// are var()-backed so runtime themes (plan 60: --green/--amber/--red/--cyan)
+// recolor them; the *-raw hex twins feed SCSS compile-time functions
+// (fade()/rgba()/darken()) that can't operate on a var().
+$success-raw: #3ddc97;
+$warning-raw: #f5b945;
+$danger-raw: #fb6f6f;
+$info-raw: #49c7f0;
+
+$success: var(--green, #3ddc97);
+$success-bg: rgba(61, 220, 151, 0.12);
+$success-border: rgba(61, 220, 151, 0.22);
+
+$warning: var(--amber, #f5b945);
+$warning-bg: rgba(245, 185, 69, 0.12);
+$warning-border: rgba(245, 185, 69, 0.22);
+
+$danger: var(--red, #fb6f6f);
+$danger-hover: #e95f5f;
+$danger-bg: rgba(251, 111, 111, 0.12);
+$danger-border: rgba(251, 111, 111, 0.22);
+
+$info: var(--cyan, #49c7f0);
+$info-bg: rgba(73, 199, 240, 0.12);
+$info-border: rgba(73, 199, 240, 0.22);
+
+$cyan: #49c7f0;
+$cyan-bg: rgba(73, 199, 240, 0.12);
+$violet: #b07bf5;
+$violet-bg: rgba(176, 123, 245, 0.12);
+
+// --------------------------------------------
+// COLORS - Brand (Database/Docker icons)
+// --------------------------------------------
+$color-mysql: #f29111;
+$color-mysql-secondary: #00758f;
+$color-postgresql: #336791;
+$color-postgresql-secondary: #5f9ab8;
+$color-mariadb: #c0765a;
+$color-mongodb: #00ed64;
+$color-redis: #ff4438;
+$color-docker: #2496ed;
+$color-php: #777bb4;
+$color-python: #3776ab;
+$color-wordpress: #21759b;
+$color-flask: #000000;
+$color-django: #092e20;
+
+// --------------------------------------------
+// COLORS - UI Accents
+// --------------------------------------------
+$color-star: #f59e0b;
+
+// --------------------------------------------
+// TYPOGRAPHY
+// --------------------------------------------
+// var()-backed so runtime themes (plan 60: --sans/--mono) can swap the stacks.
+$font-main: var(--sans, 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif);
+$font-mono: var(--mono, 'IBM Plex Mono', ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace);
+
+$font-size-xs: 10px;
+$font-size-sm: 12px;
+$font-size-base: 14px;
+$font-size-md: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.6;
+
+// --------------------------------------------
+// SPACING
+// --------------------------------------------
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+
+// Canonical spacing aliases
+$spacing-xs: $space-1;
+$spacing-sm: $space-2;
+$spacing-md: $space-4;
+$spacing-lg: $space-6;
+$spacing-xl: $space-8;
+
+// --------------------------------------------
+// BORDER RADIUS
+// --------------------------------------------
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-full: 9999px;
+
+// --------------------------------------------
+// SHADOWS (theme-sensitive)
+// --------------------------------------------
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);
+$shadow-accent: 0 4px 12px $accent-shadow;
+
+// --------------------------------------------
+// TRANSITIONS
+// --------------------------------------------
+$transition-fast: 0.15s ease;
+$transition-base: 0.2s ease;
+$transition-slow: 0.3s ease;
+
+// Easing curves — natural deceleration. No bounce/elastic.
+$ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+$ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+$ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+// --------------------------------------------
+// LAYOUT
+// --------------------------------------------
+$sidebar-width: 250px;
+$sidebar-rail-width: 64px;
+$header-height: 64px;
+$mobile-header-height: 56px;
+$sidebar-header-height: 70px;
+$sidebar-logo-size: 42px;
+$sidebar-icon-size: 28px;
+
+// --------------------------------------------
+// Z-INDEX
+// --------------------------------------------
+$z-dropdown: 10;
+$z-sticky: 20;
+$z-fixed: 30;
+$z-modal-backdrop: 40;
+$z-modal: 50;
+$z-tooltip: 60;
+
+// --------------------------------------------
+// BREAKPOINTS
+// --------------------------------------------
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+
+// --------------------------------------------
+// DEPRECATED — use the canonical names above
+// --------------------------------------------
+$font-family-mono: $font-mono;
+$color-success: $success;
+$color-warning: $warning;
+$color-danger: $danger;
+$color-info: $info;
+$color-primary: $accent-primary;
+$bg-code: $bg-tertiary;
+$bg-input: $bg-card;
+$border-color: $border-default;
+$card-bg: $bg-card;
+$hover-bg: $bg-hover;
+$primary-color: $accent-primary;
+$text-muted: $text-tertiary;
+$success-color: $success;
+$warning-color: $warning;
+$danger-color: $danger;

@@ -1,0 +1,203 @@
+import { useState, useEffect } from 'react';
+import { Palette } from 'lucide-react';
+import wordpressApi from '../../../services/wordpress';
+import { useToast } from 'serverkit-sdk';
+import { ErrorState } from 'serverkit-sdk';
+import { EmptyState } from 'serverkit-sdk';
+import { Pill } from 'serverkit-sdk';
+import { Button } from 'serverkit-sdk';
+import { Input } from 'serverkit-sdk';
+import { SkeletonBoundary } from 'serverkit-sdk';
+import { ListItemSkeleton } from './wpDetailShared';
+
+// Themes Tab
+const ThemesTab = ({ siteId }) => {
+    const toast = useToast();
+    const [themes, setThemes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [installing, setInstalling] = useState(false);
+    const [updating, setUpdating] = useState(null); // theme name being updated, or 'all'
+    const [newTheme, setNewTheme] = useState('');
+    const [activating, setActivating] = useState(null); // theme name being activated
+
+    useEffect(() => {
+        loadThemes();
+    }, [siteId]);
+
+    async function loadThemes() {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await wordpressApi.getThemes(siteId);
+            setThemes(data.themes || []);
+        } catch (err) {
+            console.error('Failed to load themes:', err);
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleInstall(e) {
+        e.preventDefault();
+        if (!newTheme.trim()) return;
+
+        setInstalling(true);
+        try {
+            await wordpressApi.installTheme(siteId, { slug: newTheme.trim() });
+            toast.success('Theme installed successfully');
+            setNewTheme('');
+            loadThemes();
+        } catch (err) {
+            toast.error(err.message || 'Failed to install theme');
+        } finally {
+            setInstalling(false);
+        }
+    }
+
+    async function handleUpdate(themeName) {
+        setUpdating(themeName || 'all');
+        toast.info(themeName ? `Updating ${themeName}...` : 'Updating all themes...', { duration: 4000 });
+        try {
+            const res = await wordpressApi.updateThemes(siteId, themeName ? [themeName] : undefined);
+            if (res.success === false) {
+                toast.error(res.error || 'Theme update failed');
+                return;
+            }
+            toast.success(res.message || 'Themes updated');
+            loadThemes();
+        } catch (err) {
+            toast.error(err.message || 'Theme update failed');
+        } finally {
+            setUpdating(null);
+        }
+    }
+
+    async function handleActivate(theme) {
+        setActivating(theme.name);
+        try {
+            const res = await wordpressApi.activateTheme(siteId, theme.name);
+            if (res && res.success === false) {
+                toast.error(res.error || `Failed to activate ${theme.name}`);
+                return;
+            }
+            toast.success(`${theme.title || theme.name} activated`);
+            loadThemes();
+        } catch (err) {
+            toast.error(err.message || 'Failed to activate theme');
+        } finally {
+            setActivating(null);
+        }
+    }
+
+    if (loading) {
+        return (
+            <SkeletonBoundary loading skeleton={(
+                <div className="themes-tab">
+                    <div className="section-header">
+                        <div className="skeleton" style={{ width: 80, height: 24 }} />
+                    </div>
+                    <div className="skeleton" style={{ height: 44, borderRadius: 6, marginBottom: 16 }} />
+                    <div className="themes-list">
+                        <ListItemSkeleton />
+                        <ListItemSkeleton />
+                        <ListItemSkeleton />
+                    </div>
+                </div>
+            )} />
+        );
+    }
+
+    if (error) {
+        return (
+            <ErrorState
+                title="Failed to load themes"
+                error={error}
+                onRetry={loadThemes}
+            />
+        );
+    }
+
+    return (
+        <div className="themes-tab">
+            <div className="section-header">
+                <h3>Themes</h3>
+            </div>
+
+            <form className="install-form" onSubmit={handleInstall}>
+                <Input
+                    type="text"
+                    value={newTheme}
+                    onChange={(e) => setNewTheme(e.target.value)}
+                    placeholder="Theme slug (e.g., twentytwentyfour)"
+                />
+                <Button type="submit" disabled={installing}>
+                    {installing ? 'Installing...' : 'Install Theme'}
+                </Button>
+            </form>
+
+            {themes.some(t => t.update === 'available') && (
+                <div className="bulk-update-bar">
+                    <span>{themes.filter(t => t.update === 'available').length} theme update(s) available</span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleUpdate(null)}
+                        disabled={updating !== null}
+                    >
+                        {updating === 'all' ? 'Updating...' : 'Update all'}
+                    </Button>
+                </div>
+            )}
+
+            {themes.length === 0 ? (
+                <EmptyState icon={Palette} title="No themes installed" description="Install a theme by entering its slug above." />
+            ) : (
+                <div className="wp-theme-grid">
+                    {themes.map(theme => {
+                        const isActive = theme.status === 'active';
+                        return (
+                            <div className={`wp-theme-card ${isActive ? 'is-active' : ''}`} key={theme.name}>
+                                <div className="wp-theme-card__shot">
+                                    <Palette size={26} />
+                                    {isActive && <Pill kind="green">Active</Pill>}
+                                </div>
+                                <div className="wp-theme-card__meta">
+                                    <div className="wp-theme-card__name">{theme.title || theme.name}</div>
+                                    <div className="wp-theme-card__sub">{theme.name} · v{theme.version}</div>
+                                    <div className="wp-theme-card__actions">
+                                        {isActive ? (
+                                            <span className="wp-theme-card__current">Current theme</span>
+                                        ) : (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleActivate(theme)}
+                                                disabled={activating === theme.name}
+                                            >
+                                                {activating === theme.name ? 'Activating…' : 'Activate'}
+                                            </Button>
+                                        )}
+                                        {theme.update === 'available' && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => handleUpdate(theme.name)}
+                                                disabled={updating !== null}
+                                            >
+                                                {updating === theme.name ? 'Updating…' : 'Update'}
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ThemesTab;
