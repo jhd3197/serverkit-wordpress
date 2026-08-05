@@ -77,7 +77,13 @@ def test_models_come_from_core():
     from app.models.wordpress_site import WordPressSite
     assert WordPressSite.__tablename__ == 'wordpress_sites'
     assert WordPressSite.__module__ == 'app.models.wordpress_site'
-    assert not hasattr(_wp_support.load_ext()['wordpress'], 'db')
+    # The extension ships no models module and declares no models: entry —
+    # its tables are the core seam, not ext_<slug>_* tables.
+    import importlib
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module(f'app.plugins.{SLUG}.models')
+    with open(os.path.join(EXT_DIR, 'plugin.json'), encoding='utf-8') as f:
+        assert 'models' not in json.load(f)
 
 
 def test_wordpress_blueprints_registered(app):
