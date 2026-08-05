@@ -61,6 +61,9 @@ def _register_backup_kind():
         restore=_backup_restore,
         label='WordPress site',
         restore_scopes=['full', 'files', 'database', 'tables'],
+        # Registrant slug: lets core tear this kind down on disable/uninstall
+        # and stops any other extension shadowing it (audit F1/F5).
+        source=SLUG,
     )
 
 
@@ -152,7 +155,8 @@ def _register_event_types():
 
 def _register_template_provider():
     from app.services.template_service import TemplateService
-    TemplateService.register_template_provider(SLUG, validate=_validate_wp_template)
+    TemplateService.register_template_provider(
+        SLUG, validate=_validate_wp_template, registrant=SLUG)
 
 
 def _validate_wp_template(template_id, variables):
