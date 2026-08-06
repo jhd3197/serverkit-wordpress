@@ -4,6 +4,8 @@
   <img src="assets/logo.png" alt="ServerKit WordPress logo" width="96" align="right" />
 </p>
 
+[![Install in ServerKit](https://serverkit.ai/badge/install.svg)](https://serverkit.ai/i/ext/serverkit-wordpress)
+
 The full WordPress suite for [ServerKit](https://github.com/jhd3197/ServerKit) —
 a first-party extension. One-click WordPress hosting on your own server:
 
@@ -20,10 +22,20 @@ a first-party extension. One-click WordPress hosting on your own server:
 
 ## Install
 
+[**Install in ServerKit →**](https://serverkit.ai/i/ext/serverkit-wordpress)
+
+Name your panel once and that link opens it straight to the install
+confirmation; it is remembered in your browser, so every later install is a
+single click. Your panel does the installing — serverkit.ai never connects to
+it, and the panel's own consent and signature checks still run.
+
+From inside the panel instead:
+
 - **Onboarding wizard:** pick the WordPress use case on a fresh panel and it's
   installed for you.
-- **Marketplace:** ServerKit → Marketplace → find "WordPress" → Install.
-- **Zip:** panel → Marketplace → Plugins → Upload Zip (release asset).
+- **Extensions page:** ServerKit → Extensions → find "WordPress" → Install.
+- **Zip or URL:** Extensions → *Install manually* → paste this repo's URL or
+  upload the release zip.
 
 Requires ServerKit ≥ 1.7.81 (panel SDK ^1.2.0). API prefixes and route shapes
 are unchanged from the pre-extraction builtin (`/api/v1/wordpress*`), so the
