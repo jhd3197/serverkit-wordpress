@@ -4,7 +4,7 @@
   <img src="assets/logo.png" alt="ServerKit WordPress logo" width="96" align="right" />
 </p>
 
-[![Install in ServerKit](https://serverkit.ai/badge/install.svg)](https://serverkit.ai/i/ext/serverkit-wordpress)
+[<img src="https://serverkit.ai/badge/install.png" alt="Install in ServerKit" width="240">](https://serverkit.ai/i/ext/serverkit-wordpress)
 
 The full WordPress suite for [ServerKit](https://github.com/jhd3197/ServerKit) —
 a first-party extension. One-click WordPress hosting on your own server:
