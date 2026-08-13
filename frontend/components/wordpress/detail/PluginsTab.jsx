@@ -81,7 +81,7 @@ const PluginsTab = ({ siteId }) => {
 
         setInstalling(true);
         try {
-            await wordpressApi.installPlugin(siteId, { slug: newPlugin.trim() });
+            await wordpressApi.installPlugin(siteId, { plugin: newPlugin.trim() });
             toast.success('Plugin installed successfully');
             setNewPlugin('');
             loadPlugins();

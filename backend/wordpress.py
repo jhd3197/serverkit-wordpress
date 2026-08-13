@@ -1006,12 +1006,18 @@ def install_plugin(app_id):
     if not app:
         return jsonify({'error': 'Application not found'}), 404
 
-    if not data or 'plugin' not in data:
+    # Accept the canonical 'plugin' key AND the 'slug' alias: the detail-page
+    # PluginsTab has always POSTed {slug}, so every free-text install 400ed
+    # with "plugin is required". Reading both keeps already-shipped panel
+    # frontends working without a lockstep release.
+    data = data or {}
+    plugin = str(data.get('plugin') or data.get('slug') or '').strip()
+    if not plugin:
         return jsonify({'error': 'plugin is required'}), 400
 
     result = WordPressService.install_plugin(
         app.root_path,
-        data['plugin'],
+        plugin,
         data.get('activate', True)
     )
     return jsonify(result), 200 if result['success'] else 400
@@ -1105,12 +1111,18 @@ def install_theme(app_id):
     if not app:
         return jsonify({'error': 'Application not found'}), 404
 
-    if not data or 'theme' not in data:
+    # Accept the canonical 'theme' key AND the 'slug' alias: the detail-page
+    # ThemesTab has always POSTed {slug}, so every free-text install 400ed
+    # with "theme is required". Reading both keeps already-shipped panel
+    # frontends working without a lockstep release.
+    data = data or {}
+    theme = str(data.get('theme') or data.get('slug') or '').strip()
+    if not theme:
         return jsonify({'error': 'theme is required'}), 400
 
     result = WordPressService.install_theme(
         app.root_path,
-        data['theme'],
+        theme,
         data.get('activate', False)
     )
     return jsonify(result), 200 if result['success'] else 400

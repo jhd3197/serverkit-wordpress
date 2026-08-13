@@ -45,7 +45,7 @@ const ThemesTab = ({ siteId }) => {
 
         setInstalling(true);
         try {
-            await wordpressApi.installTheme(siteId, { slug: newTheme.trim() });
+            await wordpressApi.installTheme(siteId, { theme: newTheme.trim() });
             toast.success('Theme installed successfully');
             setNewTheme('');
             loadThemes();
