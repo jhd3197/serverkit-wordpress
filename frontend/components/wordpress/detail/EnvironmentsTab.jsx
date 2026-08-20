@@ -10,9 +10,11 @@ import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { EnvironmentCardSkeleton } from './wpDetailShared';
+import { useTranslation } from 'serverkit-sdk';
 
 // Environments Tab
 const EnvironmentsTab = ({ siteId, site, onUpdate }) => {
+    const { t } = useTranslation();
     const toast = useToast();
     const [environments, setEnvironments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,36 +40,36 @@ const EnvironmentsTab = ({ siteId, site, onUpdate }) => {
     }
 
     async function handleCreateEnvironment(data) {
-        toast.info('Creating environment... This may take a moment.', { duration: 5000 });
+        toast.info(t('wp.environmentsTab.creatingEnvironmentThisMayTakeA', 'Creating environment... This may take a moment.'), { duration: 5000 });
         try {
             await wordpressApi.createEnvironment(siteId, data);
-            toast.success('Environment created successfully');
+            toast.success(t('wp.environmentsTab.environmentCreatedSuccessfully', 'Environment created successfully'));
             loadEnvironments();
             setShowCreateModal(false);
         } catch (err) {
-            toast.error(err.message || 'Failed to create environment');
+            toast.error(err.message || t('wp.environmentsTab.failedToCreateEnvironment', 'Failed to create environment'));
         }
     }
 
     async function handleSync(envId) {
-        toast.info('Syncing from production...', { duration: 3000 });
+        toast.info(t('wp.environmentsTab.syncingFromProduction', 'Syncing from production...'), { duration: 3000 });
         try {
             await wordpressApi.syncEnvironment(siteId, { environment_id: envId });
-            toast.success('Environment synced from production');
+            toast.success(t('wp.environmentsTab.environmentSyncedFromProduction', 'Environment synced from production'));
             loadEnvironments();
         } catch (err) {
-            toast.error(err.message || 'Failed to sync environment');
+            toast.error(err.message || t('wp.environmentsTab.failedToSyncEnvironment', 'Failed to sync environment'));
         }
     }
 
     async function handleDelete(envId) {
-        toast.info('Deleting environment...', { duration: 2000 });
+        toast.info(t('wp.environmentsTab.deletingEnvironment', 'Deleting environment...'), { duration: 2000 });
         try {
             await wordpressApi.deleteEnvironment(siteId, envId);
-            toast.success('Environment deleted');
+            toast.success(t('wp.environmentsTab.environmentDeleted', 'Environment deleted'));
             loadEnvironments();
         } catch (err) {
-            toast.error(err.message || 'Failed to delete environment');
+            toast.error(err.message || t('wp.environmentsTab.failedToDeleteEnvironment', 'Failed to delete environment'));
         }
     }
 
@@ -91,7 +93,7 @@ const EnvironmentsTab = ({ siteId, site, onUpdate }) => {
     if (error) {
         return (
             <ErrorState
-                title="Failed to load environments"
+                title={t('wp.environmentsTab.failedToLoadEnvironments', 'Failed to load environments')}
                 error={error}
                 onRetry={loadEnvironments}
             />
@@ -107,10 +109,10 @@ const EnvironmentsTab = ({ siteId, site, onUpdate }) => {
     return (
         <div className="environments-tab">
             <div className="section-header">
-                <h3>Environments</h3>
+                <h3>{t('wp.environmentsTab.environments', 'Environments')}</h3>
                 {canCreateMore && (
                     <Button onClick={() => setShowCreateModal(true)}>
-                        <Plus size={14} /> Create Environment
+                        <Plus size={14} /> {t('wp.environmentsTab.createEnvironment', 'Create Environment')}
                     </Button>
                 )}
             </div>
@@ -149,7 +151,7 @@ const EnvironmentsTab = ({ siteId, site, onUpdate }) => {
                         onClick={() => setShowCreateModal(true)}
                     >
                         <span className="wp-env-add-tile__icon"><Plus size={22} /></span>
-                        <span className="wp-env-add-tile__title">Create environment</span>
+                        <span className="wp-env-add-tile__title">{t('wp.environmentsTab.createEnvironment2', 'Create environment')}</span>
                         <span className="wp-env-add-tile__hint">
                             {childEnvs.length === 0
                                 ? 'Spin up a dev or staging copy to test changes safely before deploying to production.'
@@ -174,6 +176,7 @@ const EnvironmentsTab = ({ siteId, site, onUpdate }) => {
 
 // Create Environment Modal
 export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, hasStaging = false, hasDev = false }) => {
+    const { t } = useTranslation();
     // Default to whichever type is still available
     const defaultType = !hasDev ? 'development' : !hasStaging ? 'staging' : 'development';
     const [formData, setFormData] = useState({
@@ -225,30 +228,30 @@ export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, ha
     }
 
     return (
-        <Modal open onClose={onClose} title="Create Environment">
+        <Modal open onClose={onClose} title={t('wp.environmentsTab.createEnvironment3', 'Create Environment')}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <Label>Environment Type</Label>
+                    <Label>{t('wp.environmentsTab.environmentType', 'Environment Type')}</Label>
                     <select name="type" value={formData.type} onChange={handleChange}>
-                        {!hasDev && <option value="development">Development</option>}
-                        {!hasStaging && <option value="staging">Staging</option>}
+                        {!hasDev && <option value="development">{t('wp.environmentsTab.development', 'Development')}</option>}
+                        {!hasStaging && <option value="staging">{t('wp.environmentsTab.staging', 'Staging')}</option>}
                     </select>
                 </div>
 
                 <div className="form-group">
-                    <Label>Environment Name *</Label>
+                    <Label>{t('wp.environmentsTab.environmentName', 'Environment Name *')}</Label>
                     <Input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="My Site Dev"
+                        placeholder={t('wp.environmentsTab.mySiteDev', 'My Site Dev')}
                         required
                     />
                 </div>
 
                 <div className="form-group">
-                    <Label>Domain</Label>
+                    <Label>{t('wp.environmentsTab.domain', 'Domain')}</Label>
                     <Input
                         type="text"
                         name="domain"
@@ -258,17 +261,17 @@ export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, ha
                     />
                     {suggestedDomain && !formData.domain && (
                         <span className="form-hint form-hint-domain">
-                            Will use: <code>{suggestedDomain}</code>
+                            {t('wp.environmentsTab.willUse', 'Will use:')} <code>{suggestedDomain}</code>
                         </span>
                     )}
                     {!suggestedDomain && !formData.domain && (
-                        <span className="form-hint">Enter a domain or leave empty to auto-generate</span>
+                        <span className="form-hint">{t('wp.environmentsTab.enterADomainOrLeaveEmpty', 'Enter a domain or leave empty to auto-generate')}</span>
                     )}
                 </div>
 
                 {displayDomain && (
                     <div className="env-preview-url">
-                        <span className="preview-label">Environment URL:</span>
+                        <span className="preview-label">{t('wp.environmentsTab.environmentUrl', 'Environment URL:')}</span>
                         <span className="preview-url">https://{displayDomain}</span>
                     </div>
                 )}
@@ -281,23 +284,23 @@ export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, ha
                             checked={formData.cloneDb}
                             onChange={handleChange}
                         />
-                        <span>Clone production database</span>
+                        <span>{t('wp.environmentsTab.cloneProductionDatabase', 'Clone production database')}</span>
                     </label>
                 </div>
 
                 <div className="form-group">
-                    <Label>Sync Schedule (optional)</Label>
+                    <Label>{t('wp.environmentsTab.syncScheduleOptional', 'Sync Schedule (optional)')}</Label>
                     <select name="syncSchedule" value={formData.syncSchedule} onChange={handleChange}>
-                        <option value="">No automatic sync</option>
-                        <option value="0 3 * * 0">Weekly (Sunday 3am)</option>
-                        <option value="0 3 * * *">Daily (3am)</option>
+                        <option value="">{t('wp.environmentsTab.noAutomaticSync', 'No automatic sync')}</option>
+                        <option value="0 3 * * 0">{t('wp.environmentsTab.weeklySunday3am', 'Weekly (Sunday 3am)')}</option>
+                        <option value="0 3 * * *">{t('wp.environmentsTab.daily3am', 'Daily (3am)')}</option>
                     </select>
-                    <span className="form-hint">Automatically sync database from production</span>
+                    <span className="form-hint">{t('wp.environmentsTab.automaticallySyncDatabaseFromProduction', 'Automatically sync database from production')}</span>
                 </div>
 
                 <div className="modal-actions">
                     <Button type="button" variant="outline" onClick={onClose}>
-                        Cancel
+                        {t('wp.environmentsTab.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
                         {loading ? 'Creating...' : 'Create Environment'}

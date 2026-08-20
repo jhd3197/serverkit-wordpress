@@ -4,18 +4,20 @@ import { Spinner } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const QUICK_COMMANDS = [
-    { label: 'Plugin List', command: 'wp plugin list --format=table' },
-    { label: 'Cache Flush', command: 'wp cache flush' },
-    { label: 'DB Check', command: 'wp db check' },
-    { label: 'Site URL', command: 'wp option get siteurl' },
+    { labelKey: 'wp.wpCliTerminal.pluginList', label: 'Plugin List', command: 'wp plugin list --format=table' },
+    { labelKey: 'wp.wpCliTerminal.cacheFlush', label: 'Cache Flush', command: 'wp cache flush' },
+    { labelKey: 'wp.wpCliTerminal.dbCheck', label: 'DB Check', command: 'wp db check' },
+    { labelKey: 'wp.wpCliTerminal.siteUrl', label: 'Site URL', command: 'wp option get siteurl' },
 ];
 
 const HISTORY_KEY = 'wp_cli_history';
 const MAX_HISTORY = 50;
 
 const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
+    const { t } = useTranslation();
     const [command, setCommand] = useState('');
     const [output, setOutput] = useState([]);
     const [executing, setExecuting] = useState(false);
@@ -94,7 +96,7 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
     const envName = environment?.name || 'Environment';
 
     return (
-        <Modal open={true} onClose={onClose} title={`WP-CLI - ${envName}`} className="wpcli-terminal-modal">
+        <Modal open={true} onClose={onClose} title={t('wp.wpCliTerminal.wpCli', 'WP-CLI - {{envName}}', { envName: envName })} className="wpcli-terminal-modal">
             <div className="wpcli-quick-actions">
                 {QUICK_COMMANDS.map(qc => (
                     <Button
@@ -111,7 +113,7 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowHistory(!showHistory)}
-                    title="Command history"
+                    title={t('wp.wpCliTerminal.commandHistory', 'Command history')}
                 >
                     <Clock size={12} />
                 </Button>
@@ -138,7 +140,7 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
             <div className="wpcli-output" ref={outputRef}>
                 {output.length === 0 && (
                     <div className="wpcli-output-empty">
-                        Enter a WP-CLI command below or use the quick actions above.
+                        {t('wp.wpCliTerminal.enterAWpCliCommandBelow', 'Enter a WP-CLI command below or use the quick actions above.')}
                     </div>
                 )}
                 {output.map((entry, i) => (
@@ -160,7 +162,7 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
                 {executing && (
                     <div className="wpcli-executing">
                         <Spinner size="sm" />
-                        <span>Executing...</span>
+                        <span>{t('wp.wpCliTerminal.executing', 'Executing...')}</span>
                     </div>
                 )}
             </div>
@@ -173,7 +175,7 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
                     value={command}
                     onChange={e => setCommand(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="wp plugin list --format=table"
+                    placeholder={t('wp.wpCliTerminal.wpPluginListFormatTable', 'wp plugin list --format=table')}
                     disabled={executing}
                     className="wpcli-input"
                 />

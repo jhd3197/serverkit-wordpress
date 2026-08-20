@@ -8,9 +8,13 @@ import react from '@vitejs/plugin-react';
 // inlined via the runtime entry's `?inline` imports, so there is no separate
 // stylesheet asset. lucide-react, recharts and socket.io-client ARE bundled
 // (the panel does not share them with runtime extensions).
+// i18next/react-i18next are externalized for the same reason React is: a
+// second copy would be a SEPARATE, uninitialised instance, so every t() here
+// would render its English default forever and nothing would report it. The
+// panel shares them through its import map (SDK >= 1.3.0).
 const EXTERNAL = [
     'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime',
-    'react-router-dom', 'serverkit-sdk',
+    'react-router-dom', 'i18next', 'react-i18next', 'serverkit-sdk',
 ];
 
 export default defineConfig({

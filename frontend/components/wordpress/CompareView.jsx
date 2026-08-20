@@ -4,8 +4,10 @@ import wordpressApi from '../../services/wordpress';
 import { Spinner } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const CompareView = ({ projectId, envA, envB, onClose }) => {
+    const { t } = useTranslation();
     const [comparison, setComparison] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -33,7 +35,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
     const envBType = envB?.environment_type || 'development';
 
     return (
-        <Modal open={true} onClose={onClose} title="Compare Environments" size="xl">
+        <Modal open={true} onClose={onClose} title={t('wp.compareView.compareEnvironments', 'Compare Environments')} size="xl">
             <div className="compare-header">
                 <div className={`compare-env-pill ${envAType}`}>
                     <span className="compare-env-type">{envAType}</span>
@@ -53,7 +55,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                 {loading && (
                     <div className="compare-loading">
                         <Spinner size="md" />
-                        <span>Comparing environments...</span>
+                        <span>{t('wp.compareView.comparingEnvironments', 'Comparing environments...')}</span>
                     </div>
                 )}
 
@@ -61,7 +63,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                     <div className="alert alert-danger">
                         <p>{error}</p>
                         <Button size="sm" onClick={loadComparison}>
-                            Retry
+                            {t('wp.compareView.retry', 'Retry')}
                         </Button>
                     </div>
                 )}
@@ -69,9 +71,9 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                 {!loading && !error && comparison && (
                     <>
                         {/* Version Comparison */}
-                        <CompareSection title="Versions">
+                        <CompareSection title={t('wp.compareView.versions', 'Versions')}>
                             <CompareRow
-                                label="WordPress"
+                                label={t('wp.compareView.wordpress', 'WordPress')}
                                 valueA={comparison.env_a?.wp_version}
                                 valueB={comparison.env_b?.wp_version}
                             />
@@ -81,7 +83,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                                 valueB={comparison.env_b?.php_version}
                             />
                             <CompareRow
-                                label="Active Theme"
+                                label={t('wp.compareView.activeTheme', 'Active Theme')}
                                 valueA={comparison.env_a?.active_theme}
                                 valueB={comparison.env_b?.active_theme}
                             />
@@ -90,7 +92,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                         {/* Plugins Comparison */}
                         {comparison.plugins && (
                             <CompareSection
-                                title="Plugins"
+                                title={t('wp.compareView.plugins', 'Plugins')}
                                 summary={getPluginSummary(comparison.plugins)}
                             >
                                 {comparison.plugins.map(plugin => (
@@ -103,7 +105,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                                     />
                                 ))}
                                 {comparison.plugins.length === 0 && (
-                                    <div className="compare-empty-row">No plugin data available</div>
+                                    <div className="compare-empty-row">{t('wp.compareView.noPluginDataAvailable', 'No plugin data available')}</div>
                                 )}
                             </CompareSection>
                         )}
@@ -111,7 +113,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                         {/* Themes Comparison */}
                         {comparison.themes && (
                             <CompareSection
-                                title="Themes"
+                                title={t('wp.compareView.themes', 'Themes')}
                                 summary={getThemeSummary(comparison.themes)}
                             >
                                 {comparison.themes.map(theme => (
@@ -124,7 +126,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                                     />
                                 ))}
                                 {comparison.themes.length === 0 && (
-                                    <div className="compare-empty-row">No theme data available</div>
+                                    <div className="compare-empty-row">{t('wp.compareView.noThemeDataAvailable', 'No theme data available')}</div>
                                 )}
                             </CompareSection>
                         )}
@@ -133,7 +135,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
             </div>
 
             <div className="modal-actions">
-                <Button variant="outline" onClick={onClose}>Close</Button>
+                <Button variant="outline" onClick={onClose}>{t('wp.compareView.close', 'Close')}</Button>
             </div>
         </Modal>
     );

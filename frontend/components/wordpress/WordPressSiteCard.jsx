@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Settings, Copy, Trash2 } from 'lucide-react';
 import { ConfirmDialog } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const WordPressSiteCard = ({ site, onDelete }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const isRunning = site.status === 'running';
@@ -64,26 +66,26 @@ const WordPressSiteCard = ({ site, onDelete }) => {
             <div className="wp-site-card-body">
                 <div className="wp-site-meta">
                     <div className="wp-site-meta-item">
-                        <span className="meta-label">Version</span>
+                        <span className="meta-label">{t('wp.wordPressSiteCard.version', 'Version')}</span>
                         <span className="meta-value">{site.wp_version || 'Unknown'}</span>
                     </div>
                     <div className="wp-site-meta-item">
-                        <span className="meta-label">Environments</span>
+                        <span className="meta-label">{t('wp.wordPressSiteCard.environments', 'Environments')}</span>
                         <span className="meta-value">{getEnvironmentCount() + 1}</span>
                     </div>
                     {site.git_repo_url && (
                         <div className="wp-site-meta-item">
-                            <span className="meta-label">Git</span>
-                            <span className="meta-value git-connected">Connected</span>
+                            <span className="meta-label">{t('wp.wordPressSiteCard.git', 'Git')}</span>
+                            <span className="meta-value git-connected">{t('wp.wordPressSiteCard.connected', 'Connected')}</span>
                         </div>
                     )}
                 </div>
 
                 {site.is_production && (
-                    <span className="wp-site-badge production">Production</span>
+                    <span className="wp-site-badge production">{t('wp.wordPressSiteCard.production', 'Production')}</span>
                 )}
                 {!site.is_production && site.production_site_id && (
-                    <span className="wp-site-badge development">Development</span>
+                    <span className="wp-site-badge development">{t('wp.wordPressSiteCard.development', 'Development')}</span>
                 )}
             </div>
 
@@ -93,35 +95,35 @@ const WordPressSiteCard = ({ site, onDelete }) => {
                     size="sm"
                     onClick={handleVisitSite}
                     disabled={!site.url}
-                    title="Visit Site"
+                    title={t('wp.wordPressSiteCard.visitSite', 'Visit Site')}
                 >
                     <ExternalLink size={14} />
-                    Visit
+                    {t('wp.wordPressSiteCard.visit', 'Visit')}
                 </Button>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleOpenDashboard}
                     disabled={!site.url}
-                    title="Open Dashboard"
+                    title={t('wp.wordPressSiteCard.openDashboard', 'Open Dashboard')}
                 >
                     <Settings size={14} />
-                    Dashboard
+                    {t('wp.wordPressSiteCard.dashboard', 'Dashboard')}
                 </Button>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleManage}
-                    title="Manage Site"
+                    title={t('wp.wordPressSiteCard.manageSite', 'Manage Site')}
                 >
                     <Copy size={14} />
-                    Manage
+                    {t('wp.wordPressSiteCard.manage', 'Manage')}
                 </Button>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleDelete}
-                    title="Delete Site"
+                    title={t('wp.wordPressSiteCard.deleteSite', 'Delete Site')}
                     className="text-destructive hover:text-destructive"
                 >
                     <Trash2 size={14} />
@@ -130,18 +132,18 @@ const WordPressSiteCard = ({ site, onDelete }) => {
 
             <ConfirmDialog
                 isOpen={showDeleteConfirm}
-                title="Delete WordPress Site"
-                message={`Are you sure you want to delete "${site.name}"? This action cannot be undone.`}
+                title={t('wp.wordPressSiteCard.deleteWordpressSite', 'Delete WordPress Site')}
+                message={t('wp.wordPressSiteCard.areYouSureYouWantTo', 'Are you sure you want to delete "{{name}}"? This action cannot be undone.', { name: site.name })}
                 details={
                     <ul>
-                        <li>All site files will be permanently deleted</li>
-                        <li>Database <code>{site.db_name || 'associated database'}</code> will be removed</li>
+                        <li>{t('wp.wordPressSiteCard.allSiteFilesWillBePermanently', 'All site files will be permanently deleted')}</li>
+                        <li>{t('wp.wordPressSiteCard.database', 'Database')} <code>{site.db_name || 'associated database'}</code> {t('wp.wordPressSiteCard.willBeRemoved', 'will be removed')}</li>
                         {site.environments?.length > 0 && (
-                            <li>{site.environments.length} linked environment(s) will also be deleted</li>
+                            <li>{site.environments.length} {t('wp.wordPressSiteCard.linkedEnvironmentSWillAlsoBe', 'linked environment(s) will also be deleted')}</li>
                         )}
                     </ul>
                 }
-                confirmText="Delete Site"
+                confirmText={t('wp.wordPressSiteCard.deleteSite2', 'Delete Site')}
                 variant="danger"
                 requireConfirmation={site.name}
                 onConfirm={confirmDelete}

@@ -5,6 +5,7 @@ import wordpressApi from '../services/wordpress';
 import { useToast } from 'serverkit-sdk';
 import { ResourceListPage } from 'serverkit-sdk';
 import { Pill, ServiceTile, EnvTag } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 // Environment badges, in promotion order — production is always present, the
 // rest only when the project actually has them.
@@ -18,6 +19,7 @@ const ENV_TAGS = [
 // projects HAVE a pipeline; the run history of what was promoted and when lives
 // in Deploy Activity, which answers a different question.
 const WordPressProjects = () => {
+    const { t } = useTranslation();
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -36,7 +38,7 @@ const WordPressProjects = () => {
             setProjects(data.projects || []);
         } catch (err) {
             console.error('Failed to load projects:', err);
-            toast.error('Failed to load WordPress projects');
+            toast.error(t('wp.wordPressProjects.failedToLoadWordpressProjects', 'Failed to load WordPress projects'));
         } finally {
             setLoading(false);
         }
@@ -59,7 +61,7 @@ const WordPressProjects = () => {
     const columns = [
         {
             key: 'name',
-            header: 'Project',
+            headerKey: 'wp.wordPressProjects.project', header: 'Project',
             render: (p) => (
                 <div className="sk-cell-name">
                     <ServiceTile name={p.name} size={30} aria-hidden="true" />
@@ -72,7 +74,7 @@ const WordPressProjects = () => {
         },
         {
             key: 'environments',
-            header: 'Environments',
+            headerKey: 'wp.wordPressProjects.environments', header: 'Environments',
             render: (p) => (
                 <span className="wp-projects-page__envs">
                     <span className="wp-projects-page__envcount">
@@ -90,22 +92,22 @@ const WordPressProjects = () => {
         },
         {
             key: 'version',
-            header: 'Version',
+            headerKey: 'wp.wordPressProjects.version', header: 'Version',
             cellClassName: 'sk-cell-mono',
             render: (p) => (p.wp_version ? `WP ${p.wp_version}` : '—'),
         },
         {
             key: 'source',
-            header: 'Source',
+            headerKey: 'wp.wordPressProjects.source', header: 'Source',
             render: (p) => (
                 p.git_repo_url
-                    ? <span className="wp-projects-page__git"><GitBranch size={12} /> Git connected</span>
+                    ? <span className="wp-projects-page__git"><GitBranch size={12} /> {t('wp.wordPressProjects.gitConnected', 'Git connected')}</span>
                     : <span className="wp-list__dash">—</span>
             ),
         },
         {
             key: 'status',
-            header: 'Status',
+            headerKey: 'wp.wordPressProjects.status', header: 'Status',
             render: (p) => (
                 <Pill kind={p.status === 'running' ? 'green' : 'gray'}>
                     {p.status === 'running' ? 'Running' : 'Stopped'}
@@ -125,9 +127,9 @@ const WordPressProjects = () => {
             keyField="id"
             onRowClick={(p) => navigate(`/wordpress/pipelines/${p.id}`)}
             filters={[
-                { value: 'all', label: 'All', count: projects.length },
-                { value: 'running', label: 'Running', count: runningCount },
-                { value: 'stopped', label: 'Stopped', count: projects.length - runningCount },
+                { value: 'all', labelKey: 'wp.wordPressProjects.all', label: 'All', count: projects.length },
+                { value: 'running', labelKey: 'wp.wordPressProjects.running', label: 'Running', count: runningCount },
+                { value: 'stopped', labelKey: 'wp.wordPressProjects.stopped', label: 'Stopped', count: projects.length - runningCount },
             ]}
             activeFilter={statusFilter}
             onFilterChange={setStatusFilter}
@@ -155,20 +157,20 @@ const WordPressProjects = () => {
                     </div>
 
                     <div className="services-card__domain">
-                        {domainOf(p) || <span className="wp-list__dash">No domain</span>}
+                        {domainOf(p) || <span className="wp-list__dash">{t('wp.wordPressProjects.noDomain', 'No domain')}</span>}
                     </div>
 
                     <div className="services-card__stats">
                         <div>
-                            <span className="l">Environments</span>
+                            <span className="l">{t('wp.wordPressProjects.environments2', 'Environments')}</span>
                             <span className="v">{envCount(p)}</span>
                         </div>
                         <div>
-                            <span className="l">Source</span>
+                            <span className="l">{t('wp.wordPressProjects.source2', 'Source')}</span>
                             <span className="v">{p.git_repo_url ? 'Git' : 'Local'}</span>
                         </div>
                         <div>
-                            <span className="l">Status</span>
+                            <span className="l">{t('wp.wordPressProjects.status2', 'Status')}</span>
                             <span className="v">{p.status === 'running' ? 'Running' : 'Stopped'}</span>
                         </div>
                     </div>

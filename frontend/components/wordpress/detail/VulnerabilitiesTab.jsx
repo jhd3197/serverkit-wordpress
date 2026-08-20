@@ -6,10 +6,13 @@ import { KpiBand, MetricCard } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton } from './wpDetailShared';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Vulnerabilities Tab — cross-references plugin/theme/core versions against the
 // keyless WPVulnerability community feed (#28). On-demand background scan + poll.
 const VulnerabilitiesTab = ({ siteId }) => {
+    const { t } = useTranslation();
+    const { formatDateTime } = useFormat();
     const toast = useToast();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -20,7 +23,7 @@ const VulnerabilitiesTab = ({ siteId }) => {
             const res = await wordpressApi.getVulnerabilities(siteId);
             setData(res);
         } catch (err) {
-            toast.error(err.message || 'Failed to load vulnerabilities');
+            toast.error(err.message || t('wp.vulnerabilitiesTab.failedToLoadVulnerabilities', 'Failed to load vulnerabilities'));
         } finally {
             setLoading(false);
         }
@@ -37,10 +40,10 @@ const VulnerabilitiesTab = ({ siteId }) => {
         setScanning(true);
         try {
             await wordpressApi.scanVulnerabilities(siteId);
-            toast.info('Vulnerability scan started…');
+            toast.info(t('wp.vulnerabilitiesTab.vulnerabilityScanStarted', 'Vulnerability scan started…'));
             await load();
         } catch (err) {
-            toast.error(err.message || 'Failed to start scan');
+            toast.error(err.message || t('wp.vulnerabilitiesTab.failedToStartScan', 'Failed to start scan'));
         } finally {
             setScanning(false);
         }
@@ -56,7 +59,7 @@ const VulnerabilitiesTab = ({ siteId }) => {
         <div className="app-overview-grid">
             <div className="app-overview-left">
                 <div className="app-panel">
-                    <div className="app-panel-header">Vulnerability scan</div>
+                    <div className="app-panel-header">{t('wp.vulnerabilitiesTab.vulnerabilityScan', 'Vulnerability scan')}</div>
                     <div className="app-panel-body">
                         <div className="app-detail-actions">
                             <Button size="sm" onClick={handleScan} disabled={scanning || running}>
@@ -64,22 +67,22 @@ const VulnerabilitiesTab = ({ siteId }) => {
                             </Button>
                         </div>
                         <div className="app-info-grid">
-                            <div className="app-info-item"><span className="app-info-label">Last scan</span><span className="app-info-value">{data?.scanned_at ? new Date(data.scanned_at).toLocaleString() : 'Never'}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">Findings</span><span className="app-info-value">{summary.total ?? 0}</span></div>
+                            <div className="app-info-item"><span className="app-info-label">{t('wp.vulnerabilitiesTab.lastScan', 'Last scan')}</span><span className="app-info-value">{data?.scanned_at ? formatDateTime(data.scanned_at) : 'Never'}</span></div>
+                            <div className="app-info-item"><span className="app-info-label">{t('wp.vulnerabilitiesTab.findings', 'Findings')}</span><span className="app-info-value">{summary.total ?? 0}</span></div>
                         </div>
-                        {data?.scan_error && <p className="hint">Last scan error: {data.scan_error}</p>}
-                        <p className="hint">Cross-references installed plugin, theme, and core versions against the WPVulnerability community database. Re-run after updating.</p>
+                        {data?.scan_error && <p className="hint">{t('wp.vulnerabilitiesTab.lastScanError', 'Last scan error:')} {data.scan_error}</p>}
+                        <p className="hint">{t('wp.vulnerabilitiesTab.crossReferencesInstalledPluginThemeAnd', 'Cross-references installed plugin, theme, and core versions against the WPVulnerability community database. Re-run after updating.')}</p>
                     </div>
                 </div>
 
                 {data?.scanned_at && (
                     <KpiBand>
-                        <MetricCard icon={<AlertTriangle size={16} />} tone="red" value={summary.critical ?? 0} label="Critical" />
-                        <MetricCard icon={<AlertTriangle size={16} />} tone="red" value={summary.high ?? 0} label="High" />
-                        <MetricCard icon={<AlertTriangle size={16} />} tone="amber" value={summary.medium ?? 0} label="Medium" />
-                        <MetricCard icon={<AlertTriangle size={16} />} tone="cyan" value={summary.low ?? 0} label="Low" />
+                        <MetricCard icon={<AlertTriangle size={16} />} tone="red" value={summary.critical ?? 0} label={t('wp.vulnerabilitiesTab.critical', 'Critical')} />
+                        <MetricCard icon={<AlertTriangle size={16} />} tone="red" value={summary.high ?? 0} label={t('wp.vulnerabilitiesTab.high', 'High')} />
+                        <MetricCard icon={<AlertTriangle size={16} />} tone="amber" value={summary.medium ?? 0} label={t('wp.vulnerabilitiesTab.medium', 'Medium')} />
+                        <MetricCard icon={<AlertTriangle size={16} />} tone="cyan" value={summary.low ?? 0} label={t('wp.vulnerabilitiesTab.low', 'Low')} />
                         {summary.unknown > 0 && (
-                            <MetricCard icon={<AlertTriangle size={16} />} tone="violet" value={summary.unknown} label="Unrated" />
+                            <MetricCard icon={<AlertTriangle size={16} />} tone="violet" value={summary.unknown} label={t('wp.vulnerabilitiesTab.unrated', 'Unrated')} />
                         )}
                     </KpiBand>
                 )}
@@ -92,16 +95,16 @@ const VulnerabilitiesTab = ({ siteId }) => {
                     </div>
                 ) : (
                     <div className="app-panel">
-                        <div className="app-panel-header">Findings</div>
+                        <div className="app-panel-header">{t('wp.vulnerabilitiesTab.findings2', 'Findings')}</div>
                         <table className="sk-dtable wp-vuln-table">
                             <thead>
                                 <tr>
-                                    <th>Severity</th>
-                                    <th>Component</th>
-                                    <th>Issue</th>
-                                    <th>Installed</th>
-                                    <th>Fixed in</th>
-                                    <th>Advisory</th>
+                                    <th>{t('wp.vulnerabilitiesTab.severity', 'Severity')}</th>
+                                    <th>{t('wp.vulnerabilitiesTab.component', 'Component')}</th>
+                                    <th>{t('wp.vulnerabilitiesTab.issue', 'Issue')}</th>
+                                    <th>{t('wp.vulnerabilitiesTab.installed', 'Installed')}</th>
+                                    <th>{t('wp.vulnerabilitiesTab.fixedIn', 'Fixed in')}</th>
+                                    <th>{t('wp.vulnerabilitiesTab.advisory', 'Advisory')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,7 +120,7 @@ const VulnerabilitiesTab = ({ siteId }) => {
                                         <td>
                                             {v.fixed_in
                                                 ? <span className="wp-fix-chip">{v.fixed_in}</span>
-                                                : <span className="wp-no-fix">no fix yet</span>}
+                                                : <span className="wp-no-fix">{t('wp.vulnerabilitiesTab.noFixYet', 'no fix yet')}</span>}
                                         </td>
                                         <td>
                                             {v.reference_url

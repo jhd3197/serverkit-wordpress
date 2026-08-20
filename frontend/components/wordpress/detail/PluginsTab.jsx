@@ -10,9 +10,11 @@ import { Input } from 'serverkit-sdk';
 import { Switch } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { ListItemSkeleton } from './wpDetailShared';
+import { useTranslation } from 'serverkit-sdk';
 
 // Plugins Tab
 const PluginsTab = ({ siteId }) => {
+    const { t } = useTranslation();
     const toast = useToast();
     const [plugins, setPlugins] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -62,14 +64,14 @@ const PluginsTab = ({ siteId }) => {
         const m = managed[slug];
         if (!m) return;
         setUpdating(slug);
-        toast.info(`Updating ${slug} from library…`, { duration: 4000 });
+        toast.info(t('wp.pluginsTab.updatingFromLibrary', 'Updating {{slug}} from library…', { slug: slug }), { duration: 4000 });
         try {
             const res = await wordpressApi.installLibraryPluginOnSite(m.plugin_id, siteId, m.status === 'active');
-            if (res.success === false) { toast.error(res.error || 'Library update failed'); return; }
-            toast.success(`${slug} updated to library version`);
+            if (res.success === false) { toast.error(res.error || t('wp.pluginsTab.libraryUpdateFailed', 'Library update failed')); return; }
+            toast.success(t('wp.pluginsTab.updatedToLibraryVersion', '{{slug}} updated to library version', { slug: slug }));
             loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Library update failed');
+            toast.error(err.message || t('wp.pluginsTab.libraryUpdateFailed2', 'Library update failed'));
         } finally {
             setUpdating(null);
         }
@@ -82,11 +84,11 @@ const PluginsTab = ({ siteId }) => {
         setInstalling(true);
         try {
             await wordpressApi.installPlugin(siteId, { plugin: newPlugin.trim() });
-            toast.success('Plugin installed successfully');
+            toast.success(t('wp.pluginsTab.pluginInstalledSuccessfully', 'Plugin installed successfully'));
             setNewPlugin('');
             loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Failed to install plugin');
+            toast.error(err.message || t('wp.pluginsTab.failedToInstallPlugin', 'Failed to install plugin'));
         } finally {
             setInstalling(false);
         }
@@ -94,17 +96,17 @@ const PluginsTab = ({ siteId }) => {
 
     async function handleUpdate(pluginName) {
         setUpdating(pluginName || 'all');
-        toast.info(pluginName ? `Updating ${pluginName}...` : 'Updating all plugins...', { duration: 4000 });
+        toast.info(pluginName ? t('wp.pluginsTab.updating', 'Updating {{pluginName}}...', { pluginName: pluginName }) : t('wp.pluginsTab.updatingAllPlugins', 'Updating all plugins...'), { duration: 4000 });
         try {
             const res = await wordpressApi.updatePlugins(siteId, pluginName ? [pluginName] : undefined);
             if (res.success === false) {
-                toast.error(res.error || 'Plugin update failed');
+                toast.error(res.error || t('wp.pluginsTab.pluginUpdateFailed', 'Plugin update failed'));
                 return;
             }
-            toast.success(res.message || 'Plugins updated');
+            toast.success(res.message || t('wp.pluginsTab.pluginsUpdated', 'Plugins updated'));
             loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Plugin update failed');
+            toast.error(err.message || t('wp.pluginsTab.pluginUpdateFailed2', 'Plugin update failed'));
         } finally {
             setUpdating(null);
         }
@@ -118,13 +120,13 @@ const PluginsTab = ({ siteId }) => {
                 ? await wordpressApi.activatePlugin(siteId, plugin.name)
                 : await wordpressApi.deactivatePlugin(siteId, plugin.name);
             if (res && res.success === false) {
-                toast.error(res.error || `Failed to ${activating ? 'activate' : 'deactivate'} ${plugin.name}`);
+                toast.error(res.error || t('wp.pluginsTab.failedTo', 'Failed to {{value}} {{name}}', { value: activating ? 'activate' : 'deactivate', name: plugin.name }));
                 return;
             }
             toast.success(`${plugin.title || plugin.name} ${activating ? 'activated' : 'deactivated'}`);
             loadPlugins();
         } catch (err) {
-            toast.error(err.message || `Failed to ${activating ? 'activate' : 'deactivate'} plugin`);
+            toast.error(err.message || t('wp.pluginsTab.failedToPlugin', 'Failed to {{value}} plugin', { value: activating ? 'activate' : 'deactivate' }));
         } finally {
             setToggling(null);
         }
@@ -151,7 +153,7 @@ const PluginsTab = ({ siteId }) => {
     if (error) {
         return (
             <ErrorState
-                title="Failed to load plugins"
+                title={t('wp.pluginsTab.failedToLoadPlugins', 'Failed to load plugins')}
                 error={error}
                 onRetry={loadPlugins}
             />
@@ -161,7 +163,7 @@ const PluginsTab = ({ siteId }) => {
     return (
         <div className="plugins-tab">
             <div className="section-header">
-                <h3>Plugins</h3>
+                <h3>{t('wp.pluginsTab.plugins', 'Plugins')}</h3>
             </div>
 
             <form className="install-form" onSubmit={handleInstall}>
@@ -169,7 +171,7 @@ const PluginsTab = ({ siteId }) => {
                     type="text"
                     value={newPlugin}
                     onChange={(e) => setNewPlugin(e.target.value)}
-                    placeholder="Plugin slug (e.g., akismet, woocommerce)"
+                    placeholder={t('wp.pluginsTab.pluginSlugEGAkismetWoocommerce', 'Plugin slug (e.g., akismet, woocommerce)')}
                 />
                 <Button type="submit" disabled={installing}>
                     {installing ? 'Installing...' : 'Install Plugin'}
@@ -178,7 +180,7 @@ const PluginsTab = ({ siteId }) => {
 
             {plugins.some(p => p.update === 'available') && (
                 <div className="bulk-update-bar">
-                    <span>{plugins.filter(p => p.update === 'available').length} plugin update(s) available</span>
+                    <span>{plugins.filter(p => p.update === 'available').length} {t('wp.pluginsTab.pluginUpdateSAvailable', 'plugin update(s) available')}</span>
                     <Button
                         variant="outline"
                         size="sm"
@@ -191,7 +193,7 @@ const PluginsTab = ({ siteId }) => {
             )}
 
             {plugins.length === 0 ? (
-                <EmptyState icon={Package} title="No plugins installed" description="Install a plugin by entering its slug above." />
+                <EmptyState icon={Package} title={t('wp.pluginsTab.noPluginsInstalled', 'No plugins installed')} description={t('wp.pluginsTab.installAPluginByEnteringIts', 'Install a plugin by entering its slug above.')} />
             ) : (
                 <div className="wp-asset-grid">
                     {plugins.map(plugin => {
@@ -203,7 +205,7 @@ const PluginsTab = ({ siteId }) => {
                                 <div className="wp-asset-card__body">
                                     <div className="wp-asset-card__name">
                                         {plugin.title || plugin.name}
-                                        {mgd && <span className="wp-managed-pill">Managed</span>}
+                                        {mgd && <span className="wp-managed-pill">{t('wp.pluginsTab.managed', 'Managed')}</span>}
                                     </div>
                                     <div className="wp-asset-card__sub">{plugin.name}</div>
                                     <div className="wp-asset-card__foot">
@@ -214,7 +216,7 @@ const PluginsTab = ({ siteId }) => {
                                                 className="wp-update-flag wp-update-flag--library"
                                                 onClick={() => handleLibraryUpdate(plugin.name)}
                                                 disabled={updating !== null}
-                                                title={`Library has v${mgd.library_version}`}
+                                                title={t('wp.pluginsTab.libraryHasV', 'Library has v{{libraryversion}}', { libraryversion: mgd.library_version })}
                                             >
                                                 <Download size={11} />
                                                 {updating === plugin.name ? 'Updating…' : `Update from library ${mgd.library_version}`}
@@ -237,7 +239,7 @@ const PluginsTab = ({ siteId }) => {
                                         checked={isActive}
                                         disabled={toggling === plugin.name}
                                         onCheckedChange={() => handleToggle(plugin)}
-                                        aria-label={isActive ? `Deactivate ${plugin.name}` : `Activate ${plugin.name}`}
+                                        aria-label={isActive ? t('wp.pluginsTab.deactivate', 'Deactivate {{name}}', { name: plugin.name }) : t('wp.pluginsTab.activate', 'Activate {{name}}', { name: plugin.name })}
                                     />
                                     <span className={`wp-asset-card__state ${isActive ? 'is-on' : ''}`}>
                                         {isActive ? 'Active' : 'Inactive'}

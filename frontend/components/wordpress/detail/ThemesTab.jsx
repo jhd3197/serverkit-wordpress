@@ -9,9 +9,11 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { ListItemSkeleton } from './wpDetailShared';
+import { useTranslation } from 'serverkit-sdk';
 
 // Themes Tab
 const ThemesTab = ({ siteId }) => {
+    const { t } = useTranslation();
     const toast = useToast();
     const [themes, setThemes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -46,11 +48,11 @@ const ThemesTab = ({ siteId }) => {
         setInstalling(true);
         try {
             await wordpressApi.installTheme(siteId, { theme: newTheme.trim() });
-            toast.success('Theme installed successfully');
+            toast.success(t('wp.themesTab.themeInstalledSuccessfully', 'Theme installed successfully'));
             setNewTheme('');
             loadThemes();
         } catch (err) {
-            toast.error(err.message || 'Failed to install theme');
+            toast.error(err.message || t('wp.themesTab.failedToInstallTheme', 'Failed to install theme'));
         } finally {
             setInstalling(false);
         }
@@ -58,17 +60,17 @@ const ThemesTab = ({ siteId }) => {
 
     async function handleUpdate(themeName) {
         setUpdating(themeName || 'all');
-        toast.info(themeName ? `Updating ${themeName}...` : 'Updating all themes...', { duration: 4000 });
+        toast.info(themeName ? t('wp.themesTab.updating', 'Updating {{themeName}}...', { themeName: themeName }) : t('wp.themesTab.updatingAllThemes', 'Updating all themes...'), { duration: 4000 });
         try {
             const res = await wordpressApi.updateThemes(siteId, themeName ? [themeName] : undefined);
             if (res.success === false) {
-                toast.error(res.error || 'Theme update failed');
+                toast.error(res.error || t('wp.themesTab.themeUpdateFailed', 'Theme update failed'));
                 return;
             }
-            toast.success(res.message || 'Themes updated');
+            toast.success(res.message || t('wp.themesTab.themesUpdated', 'Themes updated'));
             loadThemes();
         } catch (err) {
-            toast.error(err.message || 'Theme update failed');
+            toast.error(err.message || t('wp.themesTab.themeUpdateFailed2', 'Theme update failed'));
         } finally {
             setUpdating(null);
         }
@@ -79,13 +81,13 @@ const ThemesTab = ({ siteId }) => {
         try {
             const res = await wordpressApi.activateTheme(siteId, theme.name);
             if (res && res.success === false) {
-                toast.error(res.error || `Failed to activate ${theme.name}`);
+                toast.error(res.error || t('wp.themesTab.failedToActivate', 'Failed to activate {{name}}', { name: theme.name }));
                 return;
             }
             toast.success(`${theme.title || theme.name} activated`);
             loadThemes();
         } catch (err) {
-            toast.error(err.message || 'Failed to activate theme');
+            toast.error(err.message || t('wp.themesTab.failedToActivateTheme', 'Failed to activate theme'));
         } finally {
             setActivating(null);
         }
@@ -112,7 +114,7 @@ const ThemesTab = ({ siteId }) => {
     if (error) {
         return (
             <ErrorState
-                title="Failed to load themes"
+                title={t('wp.themesTab.failedToLoadThemes', 'Failed to load themes')}
                 error={error}
                 onRetry={loadThemes}
             />
@@ -122,7 +124,7 @@ const ThemesTab = ({ siteId }) => {
     return (
         <div className="themes-tab">
             <div className="section-header">
-                <h3>Themes</h3>
+                <h3>{t('wp.themesTab.themes', 'Themes')}</h3>
             </div>
 
             <form className="install-form" onSubmit={handleInstall}>
@@ -130,7 +132,7 @@ const ThemesTab = ({ siteId }) => {
                     type="text"
                     value={newTheme}
                     onChange={(e) => setNewTheme(e.target.value)}
-                    placeholder="Theme slug (e.g., twentytwentyfour)"
+                    placeholder={t('wp.themesTab.themeSlugEGTwentytwentyfour', 'Theme slug (e.g., twentytwentyfour)')}
                 />
                 <Button type="submit" disabled={installing}>
                     {installing ? 'Installing...' : 'Install Theme'}
@@ -139,7 +141,7 @@ const ThemesTab = ({ siteId }) => {
 
             {themes.some(t => t.update === 'available') && (
                 <div className="bulk-update-bar">
-                    <span>{themes.filter(t => t.update === 'available').length} theme update(s) available</span>
+                    <span>{themes.filter(t => t.update === 'available').length} {t('wp.themesTab.themeUpdateSAvailable', 'theme update(s) available')}</span>
                     <Button
                         variant="outline"
                         size="sm"
@@ -152,7 +154,7 @@ const ThemesTab = ({ siteId }) => {
             )}
 
             {themes.length === 0 ? (
-                <EmptyState icon={Palette} title="No themes installed" description="Install a theme by entering its slug above." />
+                <EmptyState icon={Palette} title={t('wp.themesTab.noThemesInstalled', 'No themes installed')} description={t('wp.themesTab.installAThemeByEnteringIts', 'Install a theme by entering its slug above.')} />
             ) : (
                 <div className="wp-theme-grid">
                     {themes.map(theme => {
@@ -161,14 +163,14 @@ const ThemesTab = ({ siteId }) => {
                             <div className={`wp-theme-card ${isActive ? 'is-active' : ''}`} key={theme.name}>
                                 <div className="wp-theme-card__shot">
                                     <Palette size={26} />
-                                    {isActive && <Pill kind="green">Active</Pill>}
+                                    {isActive && <Pill kind="green">{t('wp.themesTab.active', 'Active')}</Pill>}
                                 </div>
                                 <div className="wp-theme-card__meta">
                                     <div className="wp-theme-card__name">{theme.title || theme.name}</div>
-                                    <div className="wp-theme-card__sub">{theme.name} · v{theme.version}</div>
+                                    <div className="wp-theme-card__sub">{theme.name} {t('wp.themesTab.v', '· v')}{theme.version}</div>
                                     <div className="wp-theme-card__actions">
                                         {isActive ? (
-                                            <span className="wp-theme-card__current">Current theme</span>
+                                            <span className="wp-theme-card__current">{t('wp.themesTab.currentTheme', 'Current theme')}</span>
                                         ) : (
                                             <Button
                                                 variant="outline"

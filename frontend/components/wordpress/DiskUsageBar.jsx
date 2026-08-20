@@ -1,9 +1,11 @@
 import { HardDrive } from 'lucide-react';
 import { formatBytes } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const REFERENCE_THRESHOLD = 10 * 1024 * 1024 * 1024; // 10 GB reference
 
 const DiskUsageBar = ({ usage, showBreakdown = true, compact = false }) => {
+    const { t } = useTranslation();
     if (!usage) return null;
 
     const total = usage.total || 0;
@@ -23,7 +25,7 @@ const DiskUsageBar = ({ usage, showBreakdown = true, compact = false }) => {
 
     if (compact) {
         return (
-            <div className="disk-usage-compact" title={`Disk: ${formatBytes(total)}`}>
+            <div className="disk-usage-compact" title={t('wp.diskUsageBar.disk', 'Disk: {{value}}', { value: formatBytes(total) })}>
                 <HardDrive size={10} />
                 <span className="disk-usage-compact-text">{formatBytes(total)}</span>
             </div>
@@ -41,17 +43,17 @@ const DiskUsageBar = ({ usage, showBreakdown = true, compact = false }) => {
                 <div
                     className={`disk-usage-segment wordpress ${colorClass}`}
                     style={{ width: `${wpPercent}%` }}
-                    title={`WordPress: ${formatBytes(wordpress)}`}
+                    title={t('wp.diskUsageBar.wordpress', 'WordPress: {{value}}', { value: formatBytes(wordpress) })}
                 />
                 <div
                     className="disk-usage-segment mysql"
                     style={{ width: `${dbPercent}%` }}
-                    title={`MySQL: ${formatBytes(mysql)}`}
+                    title={t('wp.diskUsageBar.mysql', 'MySQL: {{value}}', { value: formatBytes(mysql) })}
                 />
                 <div
                     className="disk-usage-segment snapshots"
                     style={{ width: `${snapPercent}%` }}
-                    title={`Snapshots: ${formatBytes(snapshots)}`}
+                    title={t('wp.diskUsageBar.snapshots', 'Snapshots: {{value}}', { value: formatBytes(snapshots) })}
                 />
             </div>
 
@@ -59,15 +61,15 @@ const DiskUsageBar = ({ usage, showBreakdown = true, compact = false }) => {
                 <div className="disk-usage-legend">
                     <div className="disk-usage-legend-item">
                         <span className="disk-usage-legend-dot wordpress" />
-                        <span>WordPress {formatBytes(wordpress)}</span>
+                        <span>{t('wp.diskUsageBar.wordpress2', 'WordPress')} {formatBytes(wordpress)}</span>
                     </div>
                     <div className="disk-usage-legend-item">
                         <span className="disk-usage-legend-dot mysql" />
-                        <span>MySQL {formatBytes(mysql)}</span>
+                        <span>{t('wp.diskUsageBar.mysql2', 'MySQL')} {formatBytes(mysql)}</span>
                     </div>
                     <div className="disk-usage-legend-item">
                         <span className="disk-usage-legend-dot snapshots" />
-                        <span>Snapshots {formatBytes(snapshots)}</span>
+                        <span>{t('wp.diskUsageBar.snapshots2', 'Snapshots')} {formatBytes(snapshots)}</span>
                     </div>
                 </div>
             )}

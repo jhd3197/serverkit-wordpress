@@ -11,6 +11,7 @@ import DiskUsageBar from './DiskUsageBar';
 import { Button } from 'serverkit-sdk';
 import { Checkbox } from 'serverkit-sdk';
 import { formatRelativeTime } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const PipelineView = ({
     pipeline,
@@ -36,6 +37,7 @@ const PipelineView = ({
     bulkSelected,
     onBulkToggle,
 }) => {
+    const { t } = useTranslation();
     if (!pipeline) return null;
 
     const { production, environments = [] } = pipeline;
@@ -74,7 +76,7 @@ const PipelineView = ({
 
                 {/* Arrow: Dev -> Staging (Promote) */}
                 <PipelineArrow
-                    label="Promote"
+                    label={t('wp.pipelineView.promote', 'Promote')}
                     direction="forward"
                     disabled={!devEnv || !stagingEnv}
                     onClick={() => devEnv && stagingEnv && onPromote?.(devEnv, stagingEnv)}
@@ -108,7 +110,7 @@ const PipelineView = ({
 
                 {/* Arrow: Staging -> Production (Promote) */}
                 <PipelineArrow
-                    label="Promote"
+                    label={t('wp.pipelineView.promote2', 'Promote')}
                     direction="forward"
                     disabled={!stagingEnv}
                     onClick={() => stagingEnv && production && onPromote?.(stagingEnv, production)}
@@ -144,10 +146,10 @@ const PipelineView = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onSync?.(devEnv)}
-                            title="Pull production data into development"
+                            title={t('wp.pipelineView.pullProductionDataIntoDevelopment', 'Pull production data into development')}
                         >
                             <ArrowDownLeft size={14} />
-                            Pull from Prod
+                            {t('wp.pipelineView.pullFromProd', 'Pull from Prod')}
                         </Button>
                     </div>
                 )}
@@ -157,10 +159,10 @@ const PipelineView = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => onSync?.(stagingEnv)}
-                            title="Pull production data into staging"
+                            title={t('wp.pipelineView.pullProductionDataIntoStaging', 'Pull production data into staging')}
                         >
                             <ArrowDownLeft size={14} />
-                            Pull from Prod
+                            {t('wp.pipelineView.pullFromProd2', 'Pull from Prod')}
                         </Button>
                     </div>
                 )}
@@ -175,10 +177,10 @@ const PipelineView = ({
                             size="sm"
                             className="pipeline-compare-btn"
                             onClick={() => onCompare(devEnv, production)}
-                            title="Compare development vs production"
+                            title={t('wp.pipelineView.compareDevelopmentVsProduction', 'Compare development vs production')}
                         >
                             <GitCompare size={14} />
-                            Compare vs Prod
+                            {t('wp.pipelineView.compareVsProd', 'Compare vs Prod')}
                         </Button>
                     )}
                     {stagingEnv && (
@@ -187,10 +189,10 @@ const PipelineView = ({
                             size="sm"
                             className="pipeline-compare-btn"
                             onClick={() => onCompare(stagingEnv, production)}
-                            title="Compare staging vs production"
+                            title={t('wp.pipelineView.compareStagingVsProduction', 'Compare staging vs production')}
                         >
                             <GitCompare size={14} />
-                            Compare vs Prod
+                            {t('wp.pipelineView.compareVsProd2', 'Compare vs Prod')}
                         </Button>
                     )}
                     {devEnv && stagingEnv && (
@@ -199,10 +201,10 @@ const PipelineView = ({
                             size="sm"
                             className="pipeline-compare-btn"
                             onClick={() => onCompare(devEnv, stagingEnv)}
-                            title="Compare development vs staging"
+                            title={t('wp.pipelineView.compareDevelopmentVsStaging', 'Compare development vs staging')}
                         >
                             <GitCompare size={14} />
-                            Dev vs Staging
+                            {t('wp.pipelineView.devVsStaging', 'Dev vs Staging')}
                         </Button>
                     )}
                 </div>
@@ -213,7 +215,7 @@ const PipelineView = ({
                 <div className="pipeline-section-header">
                     <h4 className="pipeline-section-title">
                         <GitBranch size={16} />
-                        Multidev Environments
+                        {t('wp.pipelineView.multidevEnvironments', 'Multidev Environments')}
                         {multidevEnvs.length > 0 && (
                             <span className="pipeline-section-count">{multidevEnvs.length}</span>
                         )}
@@ -224,7 +226,7 @@ const PipelineView = ({
                         onClick={onCreateMultidev}
                     >
                         <Plus size={14} />
-                        New Multidev
+                        {t('wp.pipelineView.newMultidev', 'New Multidev')}
                     </Button>
                 </div>
                 {multidevEnvs.length > 0 ? (
@@ -251,11 +253,11 @@ const PipelineView = ({
                 ) : (
                     <div className="pipeline-multidev-empty">
                         <GitBranch size={24} />
-                        <p>No multidev environments yet</p>
-                        <span>Create branch-based environments for feature development and testing</span>
+                        <p>{t('wp.pipelineView.noMultidevEnvironmentsYet', 'No multidev environments yet')}</p>
+                        <span>{t('wp.pipelineView.createBranchBasedEnvironmentsForFeature', 'Create branch-based environments for feature development and testing')}</span>
                         <Button size="sm" onClick={onCreateMultidev}>
                             <Plus size={14} />
-                            Create Multidev
+                            {t('wp.pipelineView.createMultidev', 'Create Multidev')}
                         </Button>
                     </div>
                 )}
@@ -285,6 +287,7 @@ const PipelineCard = ({
     bulkSelected,
     onBulkToggle,
 }) => {
+    const { t } = useTranslation();
     const [showMenu, setShowMenu] = useState(false);
     const isRunning = env.status === 'running' || env.application?.status === 'running';
     const envType = env.environment_type || (isProduction ? 'production' : 'development');
@@ -322,48 +325,48 @@ const PipelineCard = ({
                             {isRunning ? (
                                 <>
                                     <button type="button" onClick={() => { onStop?.(env); setShowMenu(false); }}>
-                                        <Square size={12} /> Stop
+                                        <Square size={12} /> {t('wp.pipelineView.stop', 'Stop')}
                                     </button>
                                     <button type="button" onClick={() => { onRestart?.(env); setShowMenu(false); }}>
-                                        <RefreshCw size={12} /> Restart
+                                        <RefreshCw size={12} /> {t('wp.pipelineView.restart', 'Restart')}
                                     </button>
                                 </>
                             ) : (
                                 <button type="button" onClick={() => { onStart?.(env); setShowMenu(false); }}>
-                                    <Play size={12} /> Start
+                                    <Play size={12} /> {t('wp.pipelineView.start', 'Start')}
                                 </button>
                             )}
                             <button type="button" onClick={() => { onViewLogs?.(env); setShowMenu(false); }}>
-                                <FileText size={12} /> Logs
+                                <FileText size={12} /> {t('wp.pipelineView.logs', 'Logs')}
                             </button>
                             <div className="pipeline-card-menu-divider" />
                             <button type="button" onClick={() => { onResourceLimits?.(env); setShowMenu(false); }}>
-                                <Cpu size={12} /> Resources
+                                <Cpu size={12} /> {t('wp.pipelineView.resources', 'Resources')}
                             </button>
                             <button type="button" onClick={() => { onBasicAuth?.(env); setShowMenu(false); }}>
-                                <Shield size={12} /> Basic Auth
+                                <Shield size={12} /> {t('wp.pipelineView.basicAuth', 'Basic Auth')}
                             </button>
                             <button type="button" onClick={() => { onWpCli?.(env); setShowMenu(false); }}>
-                                <Terminal size={12} /> WP-CLI
+                                <Terminal size={12} /> {t('wp.pipelineView.wpCli', 'WP-CLI')}
                             </button>
                             {!isProduction && onAutoSync && (
                                 <button type="button" onClick={() => { onAutoSync?.(env); setShowMenu(false); }}>
-                                    <Clock size={12} /> Auto-Sync
+                                    <Clock size={12} /> {t('wp.pipelineView.autoSync', 'Auto-Sync')}
                                 </button>
                             )}
                             <div className="pipeline-card-menu-divider" />
                             {env.is_locked ? (
                                 <button type="button" onClick={() => { onUnlock?.(env); setShowMenu(false); }}>
-                                    <Unlock size={12} /> Unlock
+                                    <Unlock size={12} /> {t('wp.pipelineView.unlock', 'Unlock')}
                                 </button>
                             ) : (
                                 <button type="button" onClick={() => { onLock?.(env); setShowMenu(false); }}>
-                                    <Lock size={12} /> Lock
+                                    <Lock size={12} /> {t('wp.pipelineView.lock', 'Lock')}
                                 </button>
                             )}
                             {!isProduction && (
                                 <button type="button" className="danger" onClick={() => { onDelete?.(env); setShowMenu(false); }}>
-                                    <Trash2 size={12} /> Delete
+                                    <Trash2 size={12} /> {t('wp.pipelineView.delete', 'Delete')}
                                 </button>
                             )}
                         </div>
@@ -389,7 +392,7 @@ const PipelineCard = ({
                     )}
                     {env.last_sync && !isProduction && (
                         <span className="pipeline-meta-item">
-                            Synced {formatRelativeTime(env.last_sync)}
+                            {t('wp.pipelineView.synced', 'Synced')} {formatRelativeTime(env.last_sync)}
                         </span>
                     )}
                     {diskUsage && (
@@ -406,11 +409,11 @@ const PipelineCard = ({
                         rel="noopener noreferrer"
                         className="btn btn-ghost btn-sm"
                     >
-                        <ExternalLink size={12} /> Visit
+                        <ExternalLink size={12} /> {t('wp.pipelineView.visit', 'Visit')}
                     </a>
                 )}
                 <Button variant="ghost" size="sm" onClick={() => onViewLogs?.(env)}>
-                    <FileText size={12} /> Logs
+                    <FileText size={12} /> {t('wp.pipelineView.logs2', 'Logs')}
                 </Button>
             </div>
 
@@ -425,13 +428,14 @@ const PipelineCard = ({
 };
 
 const PipelineArrow = ({ label, direction, disabled, onClick }) => {
+    const { t } = useTranslation();
     return (
         <div className={`pipeline-arrow ${disabled ? 'disabled' : ''}`}>
             <button type="button"
                 className="pipeline-arrow-btn"
                 onClick={onClick}
                 disabled={disabled}
-                title={disabled ? 'Environment not available' : label}
+                title={disabled ? t('wp.pipelineView.environmentNotAvailable', 'Environment not available') : label}
             >
                 <ArrowRight size={16} />
                 <span className="pipeline-arrow-label">{label}</span>
@@ -458,6 +462,7 @@ const MultidevCard = ({
     onSync, onLock, onUnlock, onViewLogs,
     devEnv, stagingEnv, production
 }) => {
+    const { t } = useTranslation();
     const [showMenu, setShowMenu] = useState(false);
     const isRunning = env.status === 'running' || env.application?.status === 'running';
     const domain = env.application?.domains?.[0] || env.url || '';
@@ -490,34 +495,34 @@ const MultidevCard = ({
                             {isRunning ? (
                                 <>
                                     <button type="button" onClick={() => { onStop?.(env); setShowMenu(false); }}>
-                                        <Square size={12} /> Stop
+                                        <Square size={12} /> {t('wp.pipelineView.stop2', 'Stop')}
                                     </button>
                                     <button type="button" onClick={() => { onRestart?.(env); setShowMenu(false); }}>
-                                        <RefreshCw size={12} /> Restart
+                                        <RefreshCw size={12} /> {t('wp.pipelineView.restart2', 'Restart')}
                                     </button>
                                 </>
                             ) : (
                                 <button type="button" onClick={() => { onStart?.(env); setShowMenu(false); }}>
-                                    <Play size={12} /> Start
+                                    <Play size={12} /> {t('wp.pipelineView.start2', 'Start')}
                                 </button>
                             )}
                             <button type="button" onClick={() => { onSync?.(env); setShowMenu(false); }}>
-                                <ArrowDownLeft size={12} /> Sync from Prod
+                                <ArrowDownLeft size={12} /> {t('wp.pipelineView.syncFromProd', 'Sync from Prod')}
                             </button>
                             <button type="button" onClick={() => { onViewLogs?.(env); setShowMenu(false); }}>
-                                <FileText size={12} /> Logs
+                                <FileText size={12} /> {t('wp.pipelineView.logs3', 'Logs')}
                             </button>
                             {env.is_locked ? (
                                 <button type="button" onClick={() => { onUnlock?.(env); setShowMenu(false); }}>
-                                    <Unlock size={12} /> Unlock
+                                    <Unlock size={12} /> {t('wp.pipelineView.unlock2', 'Unlock')}
                                 </button>
                             ) : (
                                 <button type="button" onClick={() => { onLock?.(env); setShowMenu(false); }}>
-                                    <Lock size={12} /> Lock
+                                    <Lock size={12} /> {t('wp.pipelineView.lock2', 'Lock')}
                                 </button>
                             )}
                             <button type="button" className="danger" onClick={() => { onDelete?.(env); setShowMenu(false); }}>
-                                <Trash2 size={12} /> Delete
+                                <Trash2 size={12} /> {t('wp.pipelineView.delete2', 'Delete')}
                             </button>
                         </div>
                     )}
@@ -544,7 +549,7 @@ const MultidevCard = ({
                 <div className="multidev-card-meta">
                     {env.created_at && (
                         <span className="multidev-meta-item">
-                            Created {formatRelativeTime(env.created_at)}
+                            {t('wp.pipelineView.created', 'Created')} {formatRelativeTime(env.created_at)}
                         </span>
                     )}
                 </div>
@@ -557,7 +562,7 @@ const MultidevCard = ({
                         rel="noopener noreferrer"
                         className="btn btn-ghost btn-sm"
                     >
-                        <ExternalLink size={12} /> Visit
+                        <ExternalLink size={12} /> {t('wp.pipelineView.visit2', 'Visit')}
                     </a>
                 )}
                 <Button
@@ -565,9 +570,9 @@ const MultidevCard = ({
                     size="sm"
                     onClick={() => promoteTarget && onPromote?.(env, promoteTarget)}
                     disabled={!promoteTarget}
-                    title={promoteTarget ? `Promote to ${promoteTarget.environment_type || 'production'}` : 'No target environment'}
+                    title={promoteTarget ? t('wp.pipelineView.promoteTo', 'Promote to {{value}}', { value: promoteTarget.environment_type || 'production' }) : t('wp.pipelineView.noTargetEnvironment', 'No target environment')}
                 >
-                    <ArrowRight size={12} /> Promote
+                    <ArrowRight size={12} /> {t('wp.pipelineView.promote3', 'Promote')}
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => onViewLogs?.(env)}>
                     <FileText size={12} />

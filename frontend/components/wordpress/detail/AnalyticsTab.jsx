@@ -8,11 +8,14 @@ import { useToast } from 'serverkit-sdk';
 import { MetricCard, SegControl } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton, ANALYTICS_PERIODS } from './wpDetailShared';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Analytics Tab — per-site traffic + error analytics (#25), parsed on-demand from
 // the apache container access log. PHP fatals, response time, and cache hit ratio
 // are not in the default access log (deferred to #30 / #22-#23).
 const AnalyticsTab = ({ siteId }) => {
+    const { t } = useTranslation();
+    const { formatDate, formatNumber, formatTime } = useFormat();
     const toast = useToast();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -41,7 +44,7 @@ const AnalyticsTab = ({ siteId }) => {
             const res = await wordpressApi.getSiteAnalytics(siteId, hours);
             setData(res);
         } catch (err) {
-            toast.error(err.message || 'Failed to load analytics');
+            toast.error(err.message || t('wp.analyticsTab.failedToLoadAnalytics', 'Failed to load analytics'));
         } finally {
             setLoading(false);
         }
@@ -54,8 +57,8 @@ const AnalyticsTab = ({ siteId }) => {
     const fmtHour = (iso) => {
         const d = new Date(iso);
         return hours <= 24
-            ? d.toLocaleTimeString([], { hour: '2-digit', hour12: false })
-            : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            ? formatTime(d, { parts: { hour: '2-digit', hour12: false } })
+            : formatDate(d, { parts: { month: 'short', day: 'numeric' } });
     };
     const clip = (p) => (p && p.length > 48 ? `${p.slice(0, 48)}…` : p);
     const clipMsg = (m) => (m && m.length > 80 ? `${m.slice(0, 80)}…` : m);
@@ -69,16 +72,16 @@ const AnalyticsTab = ({ siteId }) => {
                     <div className="wp-analytics-banner">
                         <LineChart size={16} />
                         <div className="wp-analytics-banner__text">
-                            <strong>Analytics is installed.</strong>
-                            <span> Add this site there for persistent, cookieless visitor tracking with a full dashboard. The view below is parsed on demand from access logs.</span>
+                            <strong>{t('wp.analyticsTab.analyticsIsInstalled', 'Analytics is installed.')}</strong>
+                            <span> {t('wp.analyticsTab.addThisSiteThereForPersistent', 'Add this site there for persistent, cookieless visitor tracking with a full dashboard. The view below is parsed on demand from access logs.')}</span>
                         </div>
                         <Link to="/analytics/sites" className="wp-analytics-banner__link">
-                            Open Analytics <ExternalLink size={13} />
+                            {t('wp.analyticsTab.openAnalytics', 'Open Analytics')} <ExternalLink size={13} />
                         </Link>
                     </div>
                 )}
                 <div className="wp-analytics-head">
-                    <h3 className="wp-eyebrow">Traffic · {hours <= 24 ? 'last 24 hours' : 'last 7 days'}</h3>
+                    <h3 className="wp-eyebrow">{t('wp.analyticsTab.traffic', 'Traffic ·')} {hours <= 24 ? 'last 24 hours' : 'last 7 days'}</h3>
                     <SegControl
                         options={ANALYTICS_PERIODS.map(p => ({ value: p.hours, label: p.label }))}
                         value={hours}
@@ -87,16 +90,16 @@ const AnalyticsTab = ({ siteId }) => {
                 </div>
                 {data?.note && <p className="hint">{data.note}</p>}
                 <div className="wp-kpis">
-                    <MetricCard icon={<BarChart3 size={16} />} tone="accent" value={(data?.requests ?? 0).toLocaleString()} label="Requests" />
-                    <MetricCard icon={<Globe size={16} />} tone="cyan" value={(data?.unique_visitors ?? 0).toLocaleString()} label="Unique visitors" />
-                    <MetricCard icon={<HardDrive size={16} />} tone="violet" value={data?.bytes_human || '0 B'} label="Bandwidth" />
-                    <MetricCard icon={<AlertTriangle size={16} />} tone={(data?.error_rate ?? 0) > 5 ? 'red' : 'amber'} value={`${data?.error_rate ?? 0}%`} label="Error rate" />
-                    <MetricCard icon={<Activity size={16} />} tone="green" value={`${data?.bot_pct ?? 0}%`} label="Bot traffic" />
-                    <MetricCard icon={<FileText size={16} />} tone="red" value={(data?.not_found ?? 0).toLocaleString()} label="404s" />
+                    <MetricCard icon={<BarChart3 size={16} />} tone="accent" value={formatNumber(data?.requests ?? 0)} label={t('wp.analyticsTab.requests', 'Requests')} />
+                    <MetricCard icon={<Globe size={16} />} tone="cyan" value={formatNumber(data?.unique_visitors ?? 0)} label={t('wp.analyticsTab.uniqueVisitors', 'Unique visitors')} />
+                    <MetricCard icon={<HardDrive size={16} />} tone="violet" value={data?.bytes_human || '0 B'} label={t('wp.analyticsTab.bandwidth', 'Bandwidth')} />
+                    <MetricCard icon={<AlertTriangle size={16} />} tone={(data?.error_rate ?? 0) > 5 ? 'red' : 'amber'} value={`${data?.error_rate ?? 0}%`} label={t('wp.analyticsTab.errorRate', 'Error rate')} />
+                    <MetricCard icon={<Activity size={16} />} tone="green" value={`${data?.bot_pct ?? 0}%`} label={t('wp.analyticsTab.botTraffic', 'Bot traffic')} />
+                    <MetricCard icon={<FileText size={16} />} tone="red" value={formatNumber(data?.not_found ?? 0)} label="404s" />
                 </div>
 
                 <div className="app-panel">
-                    <div className="app-panel-header">Requests over time</div>
+                    <div className="app-panel-header">{t('wp.analyticsTab.requestsOverTime', 'Requests over time')}</div>
                     <div className="app-panel-body">
                         <ResponsiveContainer width="100%" height={220}>
                             <AreaChart data={data?.series || []} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -122,47 +125,47 @@ const AnalyticsTab = ({ siteId }) => {
                 </div>
 
                 <div className="app-panel">
-                    <div className="app-panel-header">Status codes</div>
+                    <div className="app-panel-header">{t('wp.analyticsTab.statusCodes', 'Status codes')}</div>
                     <div className="app-panel-body">
                         <div className="app-info-grid">
-                            <div className="app-info-item"><span className="app-info-label">2xx</span><span className="app-info-value">{(s['2xx'] ?? 0).toLocaleString()}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">3xx</span><span className="app-info-value">{(s['3xx'] ?? 0).toLocaleString()}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">4xx</span><span className="app-info-value">{(s['4xx'] ?? 0).toLocaleString()}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">5xx</span><span className="app-info-value">{(s['5xx'] ?? 0).toLocaleString()}</span></div>
+                            <div className="app-info-item"><span className="app-info-label">2xx</span><span className="app-info-value">{formatNumber(s['2xx'] ?? 0)}</span></div>
+                            <div className="app-info-item"><span className="app-info-label">3xx</span><span className="app-info-value">{formatNumber(s['3xx'] ?? 0)}</span></div>
+                            <div className="app-info-item"><span className="app-info-label">4xx</span><span className="app-info-value">{formatNumber(s['4xx'] ?? 0)}</span></div>
+                            <div className="app-info-item"><span className="app-info-label">5xx</span><span className="app-info-value">{formatNumber(s['5xx'] ?? 0)}</span></div>
                         </div>
                     </div>
                 </div>
 
                 {data?.top_paths?.length > 0 && (
                     <div className="app-panel">
-                        <div className="app-panel-header">Top URLs</div>
+                        <div className="app-panel-header">{t('wp.analyticsTab.topUrls', 'Top URLs')}</div>
                         <div className="app-panel-body">
                             <div className="app-info-grid">
                                 {data.top_paths.map((row, i) => (
                                     <div className="app-info-item" key={i}>
                                         <span className="app-info-label" title={row.path}>{clip(row.path)}</span>
-                                        <span className="app-info-value">{row.count.toLocaleString()}</span>
+                                        <span className="app-info-value">{formatNumber(row.count)}</span>
                                     </div>
                                 ))}
                             </div>
-                            <p className="hint">Read live from the container access log; response-time metrics are not captured by the default log.</p>
+                            <p className="hint">{t('wp.analyticsTab.readLiveFromTheContainerAccess', 'Read live from the container access log; response-time metrics are not captured by the default log.')}</p>
                         </div>
                     </div>
                 )}
 
                 {phpErr && (
                     <div className="app-panel">
-                        <div className="app-panel-header">PHP errors</div>
+                        <div className="app-panel-header">{t('wp.analyticsTab.phpErrors', 'PHP errors')}</div>
                         <div className="app-panel-body">
                             {!phpErr.available ? (
                                 <p className="hint">{phpErr.note || 'PHP error logging is off.'}</p>
                             ) : (
                                 <>
                                     <div className="app-info-grid">
-                                        <div className="app-info-item"><span className="app-info-label">Fatal</span><span className="app-info-value">{(phpErr.counts?.fatal ?? 0).toLocaleString()}</span></div>
-                                        <div className="app-info-item"><span className="app-info-label">Warning</span><span className="app-info-value">{(phpErr.counts?.warning ?? 0).toLocaleString()}</span></div>
-                                        <div className="app-info-item"><span className="app-info-label">Notice</span><span className="app-info-value">{(phpErr.counts?.notice ?? 0).toLocaleString()}</span></div>
-                                        <div className="app-info-item"><span className="app-info-label">Deprecated</span><span className="app-info-value">{(phpErr.counts?.deprecated ?? 0).toLocaleString()}</span></div>
+                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.fatal', 'Fatal')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.fatal ?? 0)}</span></div>
+                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.warning', 'Warning')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.warning ?? 0)}</span></div>
+                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.notice', 'Notice')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.notice ?? 0)}</span></div>
+                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.deprecated', 'Deprecated')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.deprecated ?? 0)}</span></div>
                                     </div>
                                     {phpErr.recent?.length > 0 ? (
                                         <div className="app-info-grid">

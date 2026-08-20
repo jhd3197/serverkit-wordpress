@@ -6,9 +6,11 @@ import { GitConnectForm, CommitList } from '../index';
 import { ErrorState } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 // Git Tab
 const GitTab = ({ siteId, site, onUpdate }) => {
+    const { t } = useTranslation();
     const toast = useToast();
     const [gitStatus, setGitStatus] = useState(null);
     const [commits, setCommits] = useState([]);
@@ -40,14 +42,14 @@ const GitTab = ({ siteId, site, onUpdate }) => {
 
     async function handleConnect(data) {
         await wordpressApi.connectRepo(siteId, data);
-        toast.success('Repository connected');
+        toast.success(t('wp.gitTab.repositoryConnected', 'Repository connected'));
         loadGitData();
         onUpdate?.();
     }
 
     async function handleDisconnect() {
         await wordpressApi.disconnectRepo(siteId);
-        toast.success('Repository disconnected');
+        toast.success(t('wp.gitTab.repositoryDisconnected', 'Repository disconnected'));
         loadGitData();
         onUpdate?.();
     }
@@ -55,20 +57,20 @@ const GitTab = ({ siteId, site, onUpdate }) => {
     async function handleDeploy(data) {
         try {
             await wordpressApi.deployCommit(siteId, data);
-            toast.success('Deployment completed');
+            toast.success(t('wp.gitTab.deploymentCompleted', 'Deployment completed'));
             loadGitData();
             onUpdate?.();
         } catch (err) {
-            toast.error(err.message || 'Deployment failed');
+            toast.error(err.message || t('wp.gitTab.deploymentFailed', 'Deployment failed'));
         }
     }
 
     async function handleCreateDev(data) {
         try {
             await wordpressApi.createDevFromCommit(siteId, data);
-            toast.success('Development environment created');
+            toast.success(t('wp.gitTab.developmentEnvironmentCreated', 'Development environment created'));
         } catch (err) {
-            toast.error(err.message || 'Failed to create environment');
+            toast.error(err.message || t('wp.gitTab.failedToCreateEnvironment', 'Failed to create environment'));
         }
     }
 
@@ -90,7 +92,7 @@ const GitTab = ({ siteId, site, onUpdate }) => {
     if (error) {
         return (
             <ErrorState
-                title="Failed to load Git information"
+                title={t('wp.gitTab.failedToLoadGitInformation', 'Failed to load Git information')}
                 error={error}
                 onRetry={loadGitData}
             />
@@ -108,9 +110,9 @@ const GitTab = ({ siteId, site, onUpdate }) => {
             {gitStatus?.connected && (
                 <div className="git-commits-section">
                     <div className="section-header">
-                        <h3>Recent Commits</h3>
+                        <h3>{t('wp.gitTab.recentCommits', 'Recent Commits')}</h3>
                         <Button variant="outline" size="sm" onClick={loadGitData}>
-                            <RefreshCw size={14} /> Refresh
+                            <RefreshCw size={14} /> {t('wp.gitTab.refresh', 'Refresh')}
                         </Button>
                     </div>
 

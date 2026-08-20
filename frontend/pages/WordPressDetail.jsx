@@ -37,12 +37,14 @@ import UpdatesTab from '../components/wordpress/detail/UpdatesTab';
 import PhpTab from '../components/wordpress/detail/PhpTab';
 import ReportsTab from '../components/wordpress/detail/ReportsTab';
 import SettingsTab from '../components/wordpress/detail/SettingsTab';
+import { useTranslation } from 'serverkit-sdk';
 
 // 'php' and 'updates' no longer have their own top-level tab — they live inside
 // the Settings tab's left nav — but stay valid so existing deep links still work.
 const VALID_TABS = ['overview', 'environments', 'database', 'plugins', 'themes', 'git', 'backups', 'uptime', 'analytics', 'vulnerabilities', 'security', 'updates', 'php', 'reports', 'settings'];
 
 const WordPressDetail = () => {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const toast = useToast();
@@ -81,7 +83,7 @@ const WordPressDetail = () => {
             setSite(data.site || data);
         } catch (err) {
             console.error('Failed to load site:', err);
-            toast.error('Failed to load WordPress site');
+            toast.error(t('wp.wordPressDetail.failedToLoadWordpressSite', 'Failed to load WordPress site'));
         } finally {
             setLoading(false);
         }
@@ -89,11 +91,11 @@ const WordPressDetail = () => {
 
     async function handleClone() {
         if (!cloneName.trim()) {
-            toast.error('New site name is required');
+            toast.error(t('wp.wordPressDetail.newSiteNameIsRequired', 'New site name is required'));
             return;
         }
         setCloning(true);
-        toast.info('Cloning site... this spins up a new stack and may take a minute.', { duration: 6000 });
+        toast.info(t('wp.wordPressDetail.cloningSiteThisSpinsUpA', 'Cloning site... this spins up a new stack and may take a minute.'), { duration: 6000 });
         try {
             const res = await wordpressApi.cloneSite(site.id, { name: cloneName.trim() });
             if (res.success) {
@@ -102,12 +104,12 @@ const WordPressDetail = () => {
                 if (res.admin_password) {
                     setClonedCreds({ user: res.admin_user || 'admin', password: res.admin_password, id: res.site?.id });
                 }
-                toast.success('Site cloned successfully');
+                toast.success(t('wp.wordPressDetail.siteClonedSuccessfully', 'Site cloned successfully'));
             } else {
-                toast.error(res.error || 'Failed to clone site');
+                toast.error(res.error || t('wp.wordPressDetail.failedToCloneSite', 'Failed to clone site'));
             }
         } catch (err) {
-            toast.error(err.message || 'Failed to clone site');
+            toast.error(err.message || t('wp.wordPressDetail.failedToCloneSite2', 'Failed to clone site'));
         } finally {
             setCloning(false);
         }
@@ -115,16 +117,16 @@ const WordPressDetail = () => {
 
     async function handleAutoLogin() {
         setAutoLoggingIn(true);
-        toast.info('Creating one-time login link...', { duration: 3000 });
+        toast.info(t('wp.wordPressDetail.creatingOneTimeLoginLink', 'Creating one-time login link...'), { duration: 3000 });
         try {
             const res = await wordpressApi.autoLogin(site.id);
             if (res && res.url) {
                 window.open(res.url, '_blank', 'noopener,noreferrer');
             } else {
-                toast.error('No login URL returned');
+                toast.error(t('wp.wordPressDetail.noLoginUrlReturned', 'No login URL returned'));
             }
         } catch (err) {
-            toast.error(err.message || 'Failed to create login link');
+            toast.error(err.message || t('wp.wordPressDetail.failedToCreateLoginLink', 'Failed to create login link'));
         } finally {
             setAutoLoggingIn(false);
         }
@@ -138,9 +140,9 @@ const WordPressDetail = () => {
         return (
             <EmptyState
                 icon={Globe}
-                title="Site not found"
-                description="This WordPress site does not exist or has been removed."
-                action={<Button onClick={() => navigate('/wordpress')}>Back to WordPress Sites</Button>}
+                title={t('wp.wordPressDetail.siteNotFound', 'Site not found')}
+                description={t('wp.wordPressDetail.thisWordpressSiteDoesNotExist', 'This WordPress site does not exist or has been removed.')}
+                action={<Button onClick={() => navigate('/wordpress')}>{t('wp.wordPressDetail.backToWordpressSites', 'Back to WordPress Sites')}</Button>}
             />
         );
     }
@@ -174,14 +176,14 @@ const WordPressDetail = () => {
             {clonedCreds && (
                 <div className="wp-creds-banner">
                     <div className="wp-creds-banner-text">
-                        <strong>New site created — save these admin credentials, shown only once.</strong>
-                        <span>Username: <code>{clonedCreds.user}</code></span>
-                        <span>Password: <code>{clonedCreds.password}</code></span>
+                        <strong>{t('wp.wordPressDetail.newSiteCreatedSaveTheseAdmin', 'New site created — save these admin credentials, shown only once.')}</strong>
+                        <span>{t('wp.wordPressDetail.username', 'Username:')} <code>{clonedCreds.user}</code></span>
+                        <span>{t('wp.wordPressDetail.password', 'Password:')} <code>{clonedCreds.password}</code></span>
                         {clonedCreds.id && (
-                            <Button variant="ghost" onClick={() => navigate(`/wordpress/${clonedCreds.id}`)}>Open new site</Button>
+                            <Button variant="ghost" onClick={() => navigate(`/wordpress/${clonedCreds.id}`)}>{t('wp.wordPressDetail.openNewSite', 'Open new site')}</Button>
                         )}
                     </div>
-                    <Button variant="ghost" onClick={() => setClonedCreds(null)}>Dismiss</Button>
+                    <Button variant="ghost" onClick={() => setClonedCreds(null)}>{t('wp.wordPressDetail.dismiss', 'Dismiss')}</Button>
                 </div>
             )}
 
@@ -193,7 +195,7 @@ const WordPressDetail = () => {
                 icon={<Globe size={18} />}
                 title={(
                     <span className="wp-crumbs">
-                        <Link to="/wordpress">WordPress</Link>
+                        <Link to="/wordpress">{t('wp.wordPressDetail.wordpress', 'WordPress')}</Link>
                         <span className="wp-crumbs__sep">/</span>
                         <span className="wp-crumbs__cur">{site.name}</span>
                     </span>
@@ -204,28 +206,28 @@ const WordPressDetail = () => {
                         variant="ghost"
                         onClick={() => navigate(`/files?path=${encodeURIComponent(site.application?.root_path || '/')}`)}
                         disabled={!site.application?.root_path}
-                        title={site.application?.root_path ? `Open ${site.application.root_path} in the File Manager` : 'No root path configured for this site'}
+                        title={site.application?.root_path ? t('wp.wordPressDetail.openInTheFileManager', 'Open {{rootpath}} in the File Manager', { rootpath: site.application.root_path }) : t('wp.wordPressDetail.noRootPathConfiguredForThis', 'No root path configured for this site')}
                     >
                         <FolderOpen size={16} />
-                        Open Files
+                        {t('wp.wordPressDetail.openFiles', 'Open Files')}
                     </Button>
                     {site.db_name && (
                         <Button
                             variant="ghost"
                             onClick={() => navigate(`/databases/mysql?db=${encodeURIComponent(site.db_name)}`)}
-                            title={`Open ${site.db_name} in the Database manager`}
+                            title={t('wp.wordPressDetail.openInTheDatabaseManager', 'Open {{dbname}} in the Database manager', { dbname: site.db_name })}
                         >
                             <Database size={16} />
-                            Open Database
+                            {t('wp.wordPressDetail.openDatabase', 'Open Database')}
                         </Button>
                     )}
                     <Button
                         variant="ghost"
                         onClick={() => openDrawer({ name: site.name, containerId: site.application_id, appType: 'docker' })}
-                        title="View live container logs"
+                        title={t('wp.wordPressDetail.viewLiveContainerLogs', 'View live container logs')}
                     >
                         <FileText size={16} />
-                        View Logs
+                        {t('wp.wordPressDetail.viewLogs', 'View Logs')}
                     </Button>
                     {site.url && (
                         <Button variant="ghost" asChild>
@@ -235,7 +237,7 @@ const WordPressDetail = () => {
                                 rel="noopener noreferrer"
                             >
                                 <Settings size={16} />
-                                Dashboard
+                                {t('wp.wordPressDetail.dashboard', 'Dashboard')}
                             </a>
                         </Button>
                     )}
@@ -243,7 +245,7 @@ const WordPressDetail = () => {
                         variant="default"
                         onClick={handleAutoLogin}
                         disabled={autoLoggingIn}
-                        title="Open wp-admin logged in, no password (one-time link)"
+                        title={t('wp.wordPressDetail.openWpAdminLoggedInNo', 'Open wp-admin logged in, no password (one-time link)')}
                     >
                         <Lock size={16} />
                         {autoLoggingIn ? 'Signing in...' : 'Auto Login'}
@@ -278,7 +280,7 @@ const WordPressDetail = () => {
                         <SSLAlert site={site} />
                     </h1>
                     <div className="app-detail-subtitle">
-                        <span>WordPress {site.wp_version || '—'}</span>
+                        <span>{t('wp.wordPressDetail.wordpress2', 'WordPress')} {site.wp_version || '—'}</span>
                         {site.application?.php_version && (
                             <>
                                 <span className="separator">·</span>
@@ -307,14 +309,14 @@ const WordPressDetail = () => {
                     <div
                         className="wp-detail__repo-pill"
                         onClick={() => navigate(`/wordpress/${id}/settings/git`)}
-                        title="Repository connected — open Git settings"
+                        title={t('wp.wordPressDetail.repositoryConnectedOpenGitSettings', 'Repository connected — open Git settings')}
                     >
                         <GitBranch size={14} />
                         <span className="wp-detail__repo-url">{extractRepoDisplay(gitStatus.repo_url)}</span>
                         <span className="wp-detail__repo-arrow">→</span>
                         <span className="wp-detail__repo-branch">{gitStatus.branch || 'main'}</span>
                         {gitStatus.auto_deploy && (
-                            <span className="wp-detail__auto-deploy-badge">Auto</span>
+                            <span className="wp-detail__auto-deploy-badge">{t('wp.wordPressDetail.auto', 'Auto')}</span>
                         )}
                     </div>
                 ) : (
@@ -323,7 +325,7 @@ const WordPressDetail = () => {
                         onClick={() => navigate(`/wordpress/${id}/settings/git`)}
                     >
                         <GitBranch size={14} />
-                        Connect a repository
+                        {t('wp.wordPressDetail.connectARepository', 'Connect a repository')}
                     </button>
                 )}
             </div>
@@ -334,49 +336,49 @@ const WordPressDetail = () => {
                     className={`app-detail-tab ${activeTab === 'overview' ? 'active' : ''}`}
                     onClick={() => setActiveTab('overview')}
                 >
-                    <LayoutDashboard size={14} /> Overview
+                    <LayoutDashboard size={14} /> {t('wp.wordPressDetail.overview', 'Overview')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'environments' ? 'active' : ''}`}
                     onClick={() => setActiveTab('environments')}
                 >
-                    <Layers size={14} /> Env
+                    <Layers size={14} /> {t('wp.wordPressDetail.env', 'Env')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'database' ? 'active' : ''}`}
                     onClick={() => setActiveTab('database')}
                 >
-                    <Database size={14} /> Database
+                    <Database size={14} /> {t('wp.wordPressDetail.database', 'Database')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'plugins' ? 'active' : ''}`}
                     onClick={() => setActiveTab('plugins')}
                 >
-                    <Package size={14} /> Plugins
+                    <Package size={14} /> {t('wp.wordPressDetail.plugins', 'Plugins')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'themes' ? 'active' : ''}`}
                     onClick={() => setActiveTab('themes')}
                 >
-                    <Palette size={14} /> Themes
+                    <Palette size={14} /> {t('wp.wordPressDetail.themes', 'Themes')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'uptime' ? 'active' : ''}`}
                     onClick={() => setActiveTab('uptime')}
                 >
-                    <Activity size={14} /> Uptime
+                    <Activity size={14} /> {t('wp.wordPressDetail.uptime', 'Uptime')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'analytics' ? 'active' : ''}`}
                     onClick={() => setActiveTab('analytics')}
                 >
-                    <BarChart3 size={14} /> Analytics
+                    <BarChart3 size={14} /> {t('wp.wordPressDetail.analytics', 'Analytics')}
                 </div>
                 <div
                     className={`app-detail-tab app-detail-tab--end ${activeTab === 'settings' ? 'active' : ''}`}
                     onClick={() => setActiveTab('settings')}
                 >
-                    <Settings size={14} /> Settings
+                    <Settings size={14} /> {t('wp.wordPressDetail.settings', 'Settings')}
                 </div>
             </div>
 
@@ -397,11 +399,11 @@ const WordPressDetail = () => {
             )}
 
             {/* Clone Site Modal */}
-            <Modal open={showCloneModal} onClose={() => !cloning && setShowCloneModal(false)} title="Clone Site">
+            <Modal open={showCloneModal} onClose={() => !cloning && setShowCloneModal(false)} title={t('wp.wordPressDetail.cloneSite', 'Clone Site')}>
                 <form onSubmit={(e) => { e.preventDefault(); handleClone(); }}>
-                    <p className="hint">Creates a brand-new independent WordPress site (its own Docker stack and database) seeded from <strong>{site.name}</strong>, with fresh admin credentials shown once.</p>
+                    <p className="hint">{t('wp.wordPressDetail.createsABrandNewIndependentWordpress', 'Creates a brand-new independent WordPress site (its own Docker stack and database) seeded from')} <strong>{site.name}</strong>{t('wp.wordPressDetail.withFreshAdminCredentialsShownOnce', ', with fresh admin credentials shown once.')}</p>
                     <div className="form-group">
-                        <Label>New Site Name *</Label>
+                        <Label>{t('wp.wordPressDetail.newSiteName', 'New Site Name *')}</Label>
                         <Input
                             type="text"
                             value={cloneName}
@@ -412,7 +414,7 @@ const WordPressDetail = () => {
                         />
                     </div>
                     <div className="modal-actions">
-                        <Button type="button" variant="outline" onClick={() => setShowCloneModal(false)} disabled={cloning}>Cancel</Button>
+                        <Button type="button" variant="outline" onClick={() => setShowCloneModal(false)} disabled={cloning}>{t('wp.wordPressDetail.cancel', 'Cancel')}</Button>
                         <Button type="submit" disabled={cloning || !cloneName.trim()}>{cloning ? 'Cloning...' : 'Clone Site'}</Button>
                     </div>
                 </form>

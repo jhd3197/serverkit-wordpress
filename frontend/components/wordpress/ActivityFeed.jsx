@@ -6,6 +6,7 @@ import { Button } from 'serverkit-sdk';
 import { Badge } from 'serverkit-sdk';
 import { Skeleton } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const ACTION_ICONS = {
     create: Play,
@@ -38,6 +39,7 @@ const ACTION_BADGE_VARIANTS = {
 };
 
 const ActivityFeed = ({ projectId, envId, limit = 20, compact = false }) => {
+    const { t } = useTranslation();
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
@@ -78,7 +80,7 @@ const ActivityFeed = ({ projectId, envId, limit = 20, compact = false }) => {
     if (!loading && activities.length === 0) {
         return (
             <div className="activity-feed-empty">
-                <p>No activity recorded yet.</p>
+                <p>{t('wp.activityFeed.noActivityRecordedYet', 'No activity recorded yet.')}</p>
             </div>
         );
     }
@@ -109,10 +111,10 @@ const ActivityFeed = ({ projectId, envId, limit = 20, compact = false }) => {
                         <div className="activity-meta">
                             <span className="activity-time">{formatRelativeTime(activity.created_at)}</span>
                             {activity.status === 'failed' && (
-                                <Badge variant="destructive">Failed</Badge>
+                                <Badge variant="destructive">{t('wp.activityFeed.failed', 'Failed')}</Badge>
                             )}
                             {activity.status === 'running' && (
-                                <Badge variant="info">Running</Badge>
+                                <Badge variant="info">{t('wp.activityFeed.running', 'Running')}</Badge>
                             )}
                         </div>
                     </div>
@@ -120,7 +122,7 @@ const ActivityFeed = ({ projectId, envId, limit = 20, compact = false }) => {
             })}
             {total > activities.length && !compact && (
                 <Button variant="ghost" size="sm" className="activity-load-more" onClick={loadActivities}>
-                    Load more
+                    {t('wp.activityFeed.loadMore', 'Load more')}
                 </Button>
             )}
         </SkeletonBoundary>

@@ -2,8 +2,15 @@ import { useState } from 'react';
 import { ExternalLink, RefreshCw, Trash2, GitBranch, Clock, AlertTriangle, Calendar, FileText } from 'lucide-react';
 import { ConfirmDialog } from 'serverkit-sdk';
 import { Pill, EnvTag } from 'serverkit-sdk';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewLogs, isProduction = false }) => {
+    const { t } = useTranslation();
+    // Aliased: this component already had its own `formatDate` wrapper (it
+    // returns null rather than a dash for an empty value, which the layout
+    // depends on), so the door's goes in under a distinct name instead of
+    // shadowing it into infinite recursion.
+    const { formatDate: formatDateLocalized } = useFormat();
     const [syncing, setSyncing] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [showSyncConfirm, setShowSyncConfirm] = useState(false);
@@ -15,7 +22,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
     // Helper functions
     function formatDate(dateString) {
         if (!dateString) return null;
-        return new Date(dateString).toLocaleDateString();
+        return formatDateLocalized(dateString);
     }
 
     function formatRelativeTime(dateString) {
@@ -93,9 +100,9 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                 </div>
                 <div className="wp-env-status-group">
                     {stale && (
-                        <span className="wp-env-stale-badge" title="Environment hasn't been synced in over 7 days">
+                        <span className="wp-env-stale-badge" title={t('wp.environmentCard.environmentHasnTBeenSyncedIn', 'Environment hasn\'t been synced in over 7 days')}>
                             <AlertTriangle size={12} />
-                            Stale
+                            {t('wp.environmentCard.stale', 'Stale')}
                         </span>
                     )}
                     <Pill kind={isRunning ? 'green' : 'gray'}>{isRunning ? 'Running' : 'Stopped'}</Pill>
@@ -114,14 +121,14 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                 <div className="wp-env-meta">
                     {environment.db_name && (
                         <div className="wp-env-meta-item">
-                            <span className="meta-label">Database</span>
+                            <span className="meta-label">{t('wp.environmentCard.database', 'Database')}</span>
                             <span className="meta-value mono">{environment.db_name}</span>
                         </div>
                     )}
                     {environment.commit_sha && (
                         <div className="wp-env-meta-item">
                             <span className="meta-label">
-                                <GitBranch size={12} /> Commit
+                                <GitBranch size={12} /> {t('wp.environmentCard.commit', 'Commit')}
                             </span>
                             <span className="meta-value mono">{environment.commit_sha.substring(0, 7)}</span>
                         </div>
@@ -129,7 +136,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                     {!isProduction && environment.last_sync && (
                         <div className="wp-env-meta-item">
                             <span className="meta-label">
-                                <Clock size={12} /> Last Sync
+                                <Clock size={12} /> {t('wp.environmentCard.lastSync', 'Last Sync')}
                             </span>
                             <span className={`meta-value ${stale ? 'text-warning' : ''}`}>
                                 {formatRelativeTime(environment.last_sync)}
@@ -139,7 +146,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                     {!isProduction && environment.sync_schedule && (
                         <div className="wp-env-meta-item">
                             <span className="meta-label">
-                                <Calendar size={12} /> Schedule
+                                <Calendar size={12} /> {t('wp.environmentCard.schedule', 'Schedule')}
                             </span>
                             <span className="meta-value">
                                 {formatSchedule(environment.sync_schedule)}
@@ -156,7 +163,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                     disabled={!environment.url}
                 >
                     <ExternalLink size={14} />
-                    Visit
+                    {t('wp.environmentCard.visit', 'Visit')}
                 </button>
 
                 {!isProduction && (
@@ -165,7 +172,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                             className="btn btn-ghost btn-sm"
                             onClick={() => setShowSyncConfirm(true)}
                             disabled={syncing || !productionUrl}
-                            title="Sync from production"
+                            title={t('wp.environmentCard.syncFromProduction', 'Sync from production')}
                         >
                             <RefreshCw size={14} className={syncing ? 'spinning' : ''} />
                             {syncing ? 'Syncing...' : 'Sync'}
@@ -174,10 +181,10 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                             <button type="button"
                                 className="btn btn-ghost btn-sm"
                                 onClick={() => onViewLogs?.(environment.id)}
-                                title="View sync logs"
+                                title={t('wp.environmentCard.viewSyncLogs', 'View sync logs')}
                             >
                                 <FileText size={14} />
-                                Logs
+                                {t('wp.environmentCard.logs', 'Logs')}
                             </button>
                         )}
                         <button type="button"
@@ -194,16 +201,16 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
 
             <ConfirmDialog
                 isOpen={showSyncConfirm}
-                title="Sync from Production"
-                message={`Sync "${environment.name}" from production?`}
+                title={t('wp.environmentCard.syncFromProduction2', 'Sync from Production')}
+                message={t('wp.environmentCard.syncFromProduction3', 'Sync "{{name}}" from production?', { name: environment.name })}
                 details={
                     <ul>
-                        <li><strong>Warning:</strong> This will overwrite the current database</li>
-                        <li>All data in this environment will be replaced with production data</li>
-                        <li>URLs will be automatically updated for this environment</li>
+                        <li><strong>{t('wp.environmentCard.warning', 'Warning:')}</strong> {t('wp.environmentCard.thisWillOverwriteTheCurrentDatabase', 'This will overwrite the current database')}</li>
+                        <li>{t('wp.environmentCard.allDataInThisEnvironmentWill', 'All data in this environment will be replaced with production data')}</li>
+                        <li>{t('wp.environmentCard.urlsWillBeAutomaticallyUpdatedFor', 'URLs will be automatically updated for this environment')}</li>
                     </ul>
                 }
-                confirmText="Sync Now"
+                confirmText={t('wp.environmentCard.syncNow', 'Sync Now')}
                 variant="warning"
                 onConfirm={handleSync}
                 onCancel={() => setShowSyncConfirm(false)}
@@ -211,16 +218,16 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
 
             <ConfirmDialog
                 isOpen={showDeleteConfirm}
-                title={`Delete ${envType.charAt(0).toUpperCase() + envType.slice(1)} Environment`}
-                message={`Are you sure you want to delete "${environment.name}"?`}
+                title={t('wp.environmentCard.deleteEnvironment', 'Delete {{value}} Environment', { value: envType.charAt(0).toUpperCase() + envType.slice(1) })}
+                message={t('wp.environmentCard.areYouSureYouWantTo', 'Are you sure you want to delete "{{name}}"?', { name: environment.name })}
                 details={
                     <ul>
-                        <li>All environment files will be permanently deleted</li>
-                        <li>Database <code>{environment.db_name || 'associated database'}</code> will be removed</li>
-                        <li>This action cannot be undone</li>
+                        <li>{t('wp.environmentCard.allEnvironmentFilesWillBePermanently', 'All environment files will be permanently deleted')}</li>
+                        <li>{t('wp.environmentCard.database2', 'Database')} <code>{environment.db_name || 'associated database'}</code> {t('wp.environmentCard.willBeRemoved', 'will be removed')}</li>
+                        <li>{t('wp.environmentCard.thisActionCannotBeUndone', 'This action cannot be undone')}</li>
                     </ul>
                 }
-                confirmText="Delete Environment"
+                confirmText={t('wp.environmentCard.deleteEnvironment2', 'Delete Environment')}
                 variant="danger"
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteConfirm(false)}

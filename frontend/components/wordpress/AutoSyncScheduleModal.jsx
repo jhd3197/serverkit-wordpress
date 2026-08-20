@@ -6,16 +6,22 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Switch } from 'serverkit-sdk';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 const SCHEDULE_PRESETS = [
-    { label: 'Daily at 3 AM', value: '0 3 * * *' },
-    { label: 'Weekly Sunday 3 AM', value: '0 3 * * 0' },
-    { label: 'Every 6 hours', value: '0 */6 * * *' },
-    { label: 'Every 12 hours', value: '0 */12 * * *' },
-    { label: 'Custom', value: 'custom' },
+    { labelKey: 'wp.autoSyncScheduleModal.dailyAt3Am', label: 'Daily at 3 AM', value: '0 3 * * *' },
+    { labelKey: 'wp.autoSyncScheduleModal.weeklySunday3Am', label: 'Weekly Sunday 3 AM', value: '0 3 * * 0' },
+    { labelKey: 'wp.autoSyncScheduleModal.every6Hours', label: 'Every 6 hours', value: '0 */6 * * *' },
+    { labelKey: 'wp.autoSyncScheduleModal.every12Hours', label: 'Every 12 hours', value: '0 */12 * * *' },
+    { labelKey: 'wp.autoSyncScheduleModal.custom', label: 'Custom', value: 'custom' },
 ];
 
 const AutoSyncScheduleModal = ({ environment, prodId, onClose, api }) => {
+    const { t } = useTranslation();
+    // Aliased: this file already has a local helper of that name, so the
+    // door goes in under a distinct one rather than shadowing it into
+    // infinite recursion.
+    const { formatDateTime: formatDateTimeLocalized } = useFormat();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [enabled, setEnabled] = useState(false);
@@ -82,17 +88,17 @@ const AutoSyncScheduleModal = ({ environment, prodId, onClose, api }) => {
     function formatDateTime(iso) {
         if (!iso) return '';
         const d = new Date(iso);
-        return d.toLocaleString();
+        return formatDateTimeLocalized(d);
     }
 
     const envName = environment?.name || 'Environment';
 
     return (
-        <Modal open={true} onClose={onClose} title="Auto-Sync Schedule" className="auto-sync-modal">
+        <Modal open={true} onClose={onClose} title={t('wp.autoSyncScheduleModal.autoSyncSchedule', 'Auto-Sync Schedule')} className="auto-sync-modal">
             {loading ? (
                 <div className="auto-sync-loading">
                     <Spinner size="sm" />
-                    <span>Loading schedule...</span>
+                    <span>{t('wp.autoSyncScheduleModal.loadingSchedule', 'Loading schedule...')}</span>
                 </div>
             ) : (
                 <div className="auto-sync-body">
@@ -100,18 +106,18 @@ const AutoSyncScheduleModal = ({ environment, prodId, onClose, api }) => {
 
                     <div className="auto-sync-toggle">
                         <label className="auto-sync-toggle-label">
-                            <span>Enable Auto-Sync from Production</span>
+                            <span>{t('wp.autoSyncScheduleModal.enableAutoSyncFromProduction', 'Enable Auto-Sync from Production')}</span>
                             <Switch checked={enabled} onCheckedChange={setEnabled} />
                         </label>
                         <p className="auto-sync-description">
-                            Automatically sync this environment from production on a schedule.
+                            {t('wp.autoSyncScheduleModal.automaticallySyncThisEnvironmentFromProduction', 'Automatically sync this environment from production on a schedule.')}
                         </p>
                     </div>
 
                     {enabled && (
                         <>
                             <div className="form-group">
-                                <Label>Schedule</Label>
+                                <Label>{t('wp.autoSyncScheduleModal.schedule', 'Schedule')}</Label>
                                 <div className="auto-sync-presets">
                                     {SCHEDULE_PRESETS.map(preset => (
                                         <label key={preset.value} className="radio-label">
@@ -134,7 +140,7 @@ const AutoSyncScheduleModal = ({ environment, prodId, onClose, api }) => {
 
                             {selectedPreset === 'custom' && (
                                 <div className="form-group">
-                                    <Label>Custom Cron Expression</Label>
+                                    <Label>{t('wp.autoSyncScheduleModal.customCronExpression', 'Custom Cron Expression')}</Label>
                                     <Input
                                         type="text"
                                         value={customCron}
@@ -143,14 +149,14 @@ const AutoSyncScheduleModal = ({ environment, prodId, onClose, api }) => {
                                         className="auto-sync-cron-input"
                                     />
                                     <span className="form-hint">
-                                        Format: minute hour day-of-month month day-of-week
+                                        {t('wp.autoSyncScheduleModal.formatMinuteHourDayOfMonth', 'Format: minute hour day-of-month month day-of-week')}
                                     </span>
                                 </div>
                             )}
 
                             {nextRuns.length > 0 && (
                                 <div className="auto-sync-next-runs">
-                                    <h5>Next Scheduled Runs</h5>
+                                    <h5>{t('wp.autoSyncScheduleModal.nextScheduledRuns', 'Next Scheduled Runs')}</h5>
                                     <ul>
                                         {nextRuns.map((run, i) => (
                                             <li key={i}>
@@ -168,10 +174,10 @@ const AutoSyncScheduleModal = ({ environment, prodId, onClose, api }) => {
 
             <div className="modal-actions">
                 <Button variant="outline" onClick={onClose} disabled={saving}>
-                    Cancel
+                    {t('wp.autoSyncScheduleModal.cancel', 'Cancel')}
                 </Button>
                 <Button onClick={handleSave} disabled={saving || loading}>
-                    {saving ? <><Spinner size="sm" /> Saving...</> : 'Save Schedule'}
+                    {saving ? <><Spinner size="sm" /> {t('wp.autoSyncScheduleModal.saving', 'Saving...')}</> : 'Save Schedule'}
                 </Button>
             </div>
         </Modal>

@@ -8,11 +8,14 @@ import { Button } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton } from './wpDetailShared';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Uptime Tab — per-site health + uptime % via a bound status-page component (#26).
 // Health is polled server-side every 5 min; outages auto-open incidents and alert
 // the configured notification channels.
 const UptimeTab = ({ siteId }) => {
+    const { t } = useTranslation();
+    const { formatDateTime } = useFormat();
     const toast = useToast();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,7 +28,7 @@ const UptimeTab = ({ siteId }) => {
             const res = await wordpressApi.getSiteStatusPage(siteId);
             setData(res);
         } catch (err) {
-            toast.error(err.message || 'Failed to load uptime info');
+            toast.error(err.message || t('wp.uptimeTab.failedToLoadUptimeInfo', 'Failed to load uptime info'));
         } finally {
             setLoading(false);
         }
@@ -37,26 +40,26 @@ const UptimeTab = ({ siteId }) => {
     }, [data]);
 
     async function handleAttach() {
-        if (!pageId) { toast.error('Choose a status page'); return; }
+        if (!pageId) { toast.error(t('wp.uptimeTab.chooseAStatusPage', 'Choose a status page')); return; }
         setBusy(true);
         try {
             await wordpressApi.attachStatusPage(siteId, Number(pageId));
-            toast.success('Added to status page');
+            toast.success(t('wp.uptimeTab.addedToStatusPage', 'Added to status page'));
             await load();
         } catch (err) {
-            toast.error(err.message || 'Failed to add to status page');
+            toast.error(err.message || t('wp.uptimeTab.failedToAddToStatusPage', 'Failed to add to status page'));
         } finally { setBusy(false); }
     }
 
     async function handleDetach() {
-        if (!window.confirm('Remove this site from its status page? Its uptime history and component will be deleted.')) return;
+        if (!window.confirm(t('wp.uptimeTab.removeThisSiteFromItsStatus', 'Remove this site from its status page? Its uptime history and component will be deleted.'))) return;
         setBusy(true);
         try {
             await wordpressApi.detachStatusPage(siteId);
-            toast.success('Removed from status page');
+            toast.success(t('wp.uptimeTab.removedFromStatusPage', 'Removed from status page'));
             await load();
         } catch (err) {
-            toast.error(err.message || 'Failed to remove from status page');
+            toast.error(err.message || t('wp.uptimeTab.failedToRemoveFromStatusPage', 'Failed to remove from status page'));
         } finally { setBusy(false); }
     }
 
@@ -70,61 +73,61 @@ const UptimeTab = ({ siteId }) => {
         <div className="app-overview-grid">
             <div className="app-overview-left">
                 <div className="app-panel">
-                    <div className="app-panel-header">Health</div>
+                    <div className="app-panel-header">{t('wp.uptimeTab.health', 'Health')}</div>
                     <div className="app-panel-body">
                         <div className="app-info-grid">
                             <div className="app-info-item">
-                                <span className="app-info-label">Current Status</span>
+                                <span className="app-info-label">{t('wp.uptimeTab.currentStatus', 'Current Status')}</span>
                                 <span className="app-info-value">
                                     <HealthDot status={data?.health_status} /> {data?.health_status || 'unknown'}
                                 </span>
                             </div>
                             <div className="app-info-item">
-                                <span className="app-info-label">Last Checked</span>
-                                <span className="app-info-value">{data?.last_health_check ? new Date(data.last_health_check).toLocaleString() : 'Never'}</span>
+                                <span className="app-info-label">{t('wp.uptimeTab.lastChecked', 'Last Checked')}</span>
+                                <span className="app-info-value">{data?.last_health_check ? formatDateTime(data.last_health_check) : 'Never'}</span>
                             </div>
                         </div>
-                        <p className="hint">Health is polled automatically every 5 minutes. Outages and recoveries alert your configured notification channels.</p>
+                        <p className="hint">{t('wp.uptimeTab.healthIsPolledAutomaticallyEvery5', 'Health is polled automatically every 5 minutes. Outages and recoveries alert your configured notification channels.')}</p>
                     </div>
                 </div>
 
                 {comp ? (
                     <div className="app-panel">
-                        <div className="app-panel-header">Uptime</div>
+                        <div className="app-panel-header">{t('wp.uptimeTab.uptime', 'Uptime')}</div>
                         <div className="app-panel-body">
                             {comp.last_check_at ? (
                                 <div className="wp-kpis">
-                                    <MetricCard icon={<Activity size={16} />} tone="green" value={pct(comp.uptime_24h)} label="Uptime · 24 hours" />
-                                    <MetricCard icon={<Activity size={16} />} tone="green" value={pct(comp.uptime_7d)} label="Uptime · 7 days" />
-                                    <MetricCard icon={<Activity size={16} />} tone="cyan" value={pct(comp.uptime_30d)} label="Uptime · 30 days" />
-                                    <MetricCard icon={<Activity size={16} />} tone="cyan" value={pct(comp.uptime_90d)} label="Uptime · 90 days" />
+                                    <MetricCard icon={<Activity size={16} />} tone="green" value={pct(comp.uptime_24h)} label={t('wp.uptimeTab.uptime24Hours', 'Uptime · 24 hours')} />
+                                    <MetricCard icon={<Activity size={16} />} tone="green" value={pct(comp.uptime_7d)} label={t('wp.uptimeTab.uptime7Days', 'Uptime · 7 days')} />
+                                    <MetricCard icon={<Activity size={16} />} tone="cyan" value={pct(comp.uptime_30d)} label={t('wp.uptimeTab.uptime30Days', 'Uptime · 30 days')} />
+                                    <MetricCard icon={<Activity size={16} />} tone="cyan" value={pct(comp.uptime_90d)} label={t('wp.uptimeTab.uptime90Days', 'Uptime · 90 days')} />
                                 </div>
                             ) : (
-                                <p className="hint">Awaiting the first health check (runs within 5 minutes).</p>
+                                <p className="hint">{t('wp.uptimeTab.awaitingTheFirstHealthCheckRuns', 'Awaiting the first health check (runs within 5 minutes).')}</p>
                             )}
-                            <p className="hint">Uptime accrues from the 5-minute health checks; only fully-healthy checks count, so degraded periods reduce it. This site appears on its status page and auto-opens an incident on an outage (auto-resolved on recovery).</p>
+                            <p className="hint">{t('wp.uptimeTab.uptimeAccruesFromThe5Minute', 'Uptime accrues from the 5-minute health checks; only fully-healthy checks count, so degraded periods reduce it. This site appears on its status page and auto-opens an incident on an outage (auto-resolved on recovery).')}</p>
                             <div className="app-detail-actions">
-                                <Button variant="outline" size="sm" disabled={busy} onClick={handleDetach}>Remove from status page</Button>
+                                <Button variant="outline" size="sm" disabled={busy} onClick={handleDetach}>{t('wp.uptimeTab.removeFromStatusPage', 'Remove from status page')}</Button>
                             </div>
                         </div>
                     </div>
                 ) : (
                     <div className="app-panel">
-                        <div className="app-panel-header">Add to status page</div>
+                        <div className="app-panel-header">{t('wp.uptimeTab.addToStatusPage', 'Add to status page')}</div>
                         <div className="app-panel-body">
                             {pages.length === 0 ? (
-                                <p className="hint">No status pages exist yet. Create one under Status Pages first, then add this site to track its uptime and auto-open incidents on outages.</p>
+                                <p className="hint">{t('wp.uptimeTab.noStatusPagesExistYetCreate', 'No status pages exist yet. Create one under Status Pages first, then add this site to track its uptime and auto-open incidents on outages.')}</p>
                             ) : (
                                 <>
-                                    <p className="hint">Track uptime for this site on a status page. It accrues a real uptime % and auto-opens/resolves incidents on outages.</p>
+                                    <p className="hint">{t('wp.uptimeTab.trackUptimeForThisSiteOn', 'Track uptime for this site on a status page. It accrues a real uptime % and auto-opens/resolves incidents on outages.')}</p>
                                     <div className="form-group">
-                                        <Label>Status Page</Label>
+                                        <Label>{t('wp.uptimeTab.statusPage', 'Status Page')}</Label>
                                         <select value={pageId} onChange={e => setPageId(e.target.value)} disabled={busy}>
                                             {pages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                         </select>
                                     </div>
                                     <div className="app-detail-actions">
-                                        <Button size="sm" disabled={busy} onClick={handleAttach}>Add to status page</Button>
+                                        <Button size="sm" disabled={busy} onClick={handleAttach}>{t('wp.uptimeTab.addToStatusPage2', 'Add to status page')}</Button>
                                     </div>
                                 </>
                             )}

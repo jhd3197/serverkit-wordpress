@@ -12,10 +12,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, Spinner, useToast, Button, Input, Label } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const POLL_MS = 2500;
 
 export default function WordPressSshImport() {
+    const { t } = useTranslation();
     const toast = useToast();
     const [conn, setConn] = useState({
         host: '', port: '22', username: 'root',
@@ -54,7 +56,7 @@ export default function WordPressSshImport() {
             setProbe(result);
             setTarget(t => ({ ...t, oldUrl: t.oldUrl || result.site_url || '' }));
         } catch (error) {
-            toast.error(error.message || 'Probe failed');
+            toast.error(error.message || t('wp.wordPressSshImport.probeFailed', 'Probe failed'));
         } finally {
             setProbing(false);
         }
@@ -68,9 +70,9 @@ export default function WordPressSshImport() {
                 clearInterval(pollRef.current);
                 pollRef.current = null;
                 if (status.status === 'completed') {
-                    toast.success('WordPress site imported successfully');
+                    toast.success(t('wp.wordPressSshImport.wordpressSiteImportedSuccessfully', 'WordPress site imported successfully'));
                 } else {
-                    toast.error(status.error || 'Import failed — see the step log');
+                    toast.error(status.error || t('wp.wordPressSshImport.importFailedSeeTheStepLog', 'Import failed — see the step log'));
                 }
             }
         } catch {
@@ -79,8 +81,8 @@ export default function WordPressSshImport() {
     };
 
     const handleStart = async () => {
-        if (!trusted) { toast.error('Confirm the host-key fingerprint first'); return; }
-        if (!target.siteName.trim()) { toast.error('New site name is required'); return; }
+        if (!trusted) { toast.error(t('wp.wordPressSshImport.confirmTheHostKeyFingerprintFirst', 'Confirm the host-key fingerprint first')); return; }
+        if (!target.siteName.trim()) { toast.error(t('wp.wordPressSshImport.newSiteNameIsRequired', 'New site name is required')); return; }
         setStarting(true);
         try {
             const res = await api.request('/wordpress/ssh-import', {
@@ -107,7 +109,7 @@ export default function WordPressSshImport() {
             pollRef.current = setInterval(() => pollJob(res.job_id), POLL_MS);
             pollJob(res.job_id);
         } catch (error) {
-            toast.error(error.message || 'Failed to start the import');
+            toast.error(error.message || t('wp.wordPressSshImport.failedToStartTheImport', 'Failed to start the import'));
         } finally {
             setStarting(false);
         }
@@ -129,56 +131,54 @@ export default function WordPressSshImport() {
     return (
         <div className="sk-tabgroup__inner wp-ssh-import">
             <div className="page-section">
-                <h2 className="text-lg font-semibold">Import a live site over SSH</h2>
+                <h2 className="text-lg font-semibold">{t('wp.wordPressSshImport.importALiveSiteOverSsh', 'Import a live site over SSH')}</h2>
                 <p className="text-sm text-muted-foreground">
-                    Point at any WordPress install you can reach over SSH. The panel pulls the
-                    files and database through the tunnel and rebuilds it as a managed site —
-                    nothing is installed on the source server.
+                    {t('wp.wordPressSshImport.pointAtAnyWordpressInstallYou', 'Point at any WordPress install you can reach over SSH. The panel pulls the files and database through the tunnel and rebuilds it as a managed site — nothing is installed on the source server.')}
                 </p>
             </div>
 
             {/* Step 1 — connection */}
             <div className="card p-4 mb-4">
-                <h3 className="font-medium mb-3">1. Source server</h3>
+                <h3 className="font-medium mb-3">{t('wp.wordPressSshImport.1SourceServer', '1. Source server')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="form-group">
-                        <Label>Host <span className="required">*</span></Label>
+                        <Label>{t('wp.wordPressSshImport.host', 'Host')} <span className="required">*</span></Label>
                         <Input value={conn.host} disabled={running}
                                onChange={e => setConn({ ...conn, host: e.target.value })}
-                               placeholder="203.0.113.10 or wp.example.com" />
+                               placeholder={t('wp.wordPressSshImport.203011310OrWp', '203.0.113.10 or wp.example.com')} />
                     </div>
                     <div className="form-group">
-                        <Label>Port</Label>
+                        <Label>{t('wp.wordPressSshImport.port', 'Port')}</Label>
                         <Input value={conn.port} disabled={running}
                                onChange={e => setConn({ ...conn, port: e.target.value })}
                                placeholder="22" />
                     </div>
                     <div className="form-group">
-                        <Label>Username <span className="required">*</span></Label>
+                        <Label>{t('wp.wordPressSshImport.username', 'Username')} <span className="required">*</span></Label>
                         <Input value={conn.username} disabled={running}
                                onChange={e => setConn({ ...conn, username: e.target.value })}
                                placeholder="root" />
                     </div>
                     <div className="form-group">
-                        <Label>WordPress path <span className="required">*</span></Label>
+                        <Label>{t('wp.wordPressSshImport.wordpressPath', 'WordPress path')} <span className="required">*</span></Label>
                         <Input value={conn.wpPath} disabled={running}
                                onChange={e => setConn({ ...conn, wpPath: e.target.value })}
                                placeholder="/var/www/html" />
-                        <span className="form-hint">Absolute path of the directory containing wp-config.php.</span>
+                        <span className="form-hint">{t('wp.wordPressSshImport.absolutePathOfTheDirectoryContaining', 'Absolute path of the directory containing wp-config.php.')}</span>
                     </div>
                 </div>
                 <div className="form-group">
-                    <Label>Authentication</Label>
+                    <Label>{t('wp.wordPressSshImport.authentication', 'Authentication')}</Label>
                     <div className="flex gap-4 mb-2">
                         <label className="flex items-center gap-2 text-sm">
                             <input type="radio" checked={conn.authMethod === 'key'} disabled={running}
                                    onChange={() => setConn({ ...conn, authMethod: 'key' })} />
-                            Private key
+                            {t('wp.wordPressSshImport.privateKey', 'Private key')}
                         </label>
                         <label className="flex items-center gap-2 text-sm">
                             <input type="radio" checked={conn.authMethod === 'password'} disabled={running}
                                    onChange={() => setConn({ ...conn, authMethod: 'password' })} />
-                            Password
+                            {t('wp.wordPressSshImport.password', 'Password')}
                         </label>
                     </div>
                     {conn.authMethod === 'key' ? (
@@ -189,34 +189,33 @@ export default function WordPressSshImport() {
                                 value={conn.privateKey}
                                 disabled={running}
                                 onChange={e => setConn({ ...conn, privateKey: e.target.value })}
-                                placeholder={'-----BEGIN OPENSSH PRIVATE KEY-----\n…'}
+                                placeholder={t('wp.wordPressSshImport.beginOpensshPrivateKey', '-----BEGIN OPENSSH PRIVATE KEY-----\n…')}
                             />
-                            <span className="form-hint">Used for this import only — never stored.</span>
+                            <span className="form-hint">{t('wp.wordPressSshImport.usedForThisImportOnlyNever', 'Used for this import only — never stored.')}</span>
                         </>
                     ) : (
                         <>
                             <Input type="password" value={conn.password} disabled={running}
                                    onChange={e => setConn({ ...conn, password: e.target.value })}
-                                   placeholder="SSH password" />
-                            <span className="form-hint">Used for this import only — never stored. Password auth requires the sshpass package on the panel host.</span>
+                                   placeholder={t('wp.wordPressSshImport.sshPassword', 'SSH password')} />
+                            <span className="form-hint">{t('wp.wordPressSshImport.usedForThisImportOnlyNever2', 'Used for this import only — never stored. Password auth requires the sshpass package on the panel host.')}</span>
                         </>
                     )}
                 </div>
                 <Button onClick={handleProbe} disabled={!canProbe || probing || running}>
-                    {probing ? <><Spinner size="sm" /> Probing…</> : 'Probe server'}
+                    {probing ? <><Spinner size="sm" /> {t('wp.wordPressSshImport.probing', 'Probing…')}</> : 'Probe server'}
                 </Button>
             </div>
 
             {/* Step 2 — facts + host-key trust */}
             {probe && (
                 <div className="card p-4 mb-4">
-                    <h3 className="font-medium mb-3">2. Confirm the host</h3>
+                    <h3 className="font-medium mb-3">{t('wp.wordPressSshImport.2ConfirmTheHost', '2. Confirm the host')}</h3>
                     <div className="form-group">
-                        <Label>SSH host-key fingerprint ({probe.host_key_type})</Label>
+                        <Label>{t('wp.wordPressSshImport.sshHostKeyFingerprint', 'SSH host-key fingerprint (')}{probe.host_key_type})</Label>
                         <code className="block font-mono text-xs break-all">{probe.host_key_fingerprint}</code>
                         <span className="form-hint">
-                            Compare against the server you expect (ssh-keygen -lf on the source).
-                            Every step of the import is pinned to this exact key.
+                            {t('wp.wordPressSshImport.compareAgainstTheServerYouExpect', 'Compare against the server you expect (ssh-keygen -lf on the source). Every step of the import is pinned to this exact key.')}
                         </span>
                     </div>
                     <table className="text-sm">
@@ -232,7 +231,7 @@ export default function WordPressSshImport() {
                     <label className="flex items-center gap-2 text-sm mt-3">
                         <input type="checkbox" checked={trusted} disabled={running}
                                onChange={e => setTrusted(e.target.checked)} />
-                        I recognize this fingerprint — trust this host for the import
+                        {t('wp.wordPressSshImport.iRecognizeThisFingerprintTrustThis', 'I recognize this fingerprint — trust this host for the import')}
                     </label>
                 </div>
             )}
@@ -240,31 +239,31 @@ export default function WordPressSshImport() {
             {/* Step 3 — target + run */}
             {probe && (
                 <div className="card p-4 mb-4">
-                    <h3 className="font-medium mb-3">3. New managed site</h3>
+                    <h3 className="font-medium mb-3">{t('wp.wordPressSshImport.3NewManagedSite', '3. New managed site')}</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="form-group">
-                            <Label>Site name <span className="required">*</span></Label>
+                            <Label>{t('wp.wordPressSshImport.siteName', 'Site name')} <span className="required">*</span></Label>
                             <Input value={target.siteName} disabled={running}
                                    onChange={e => setTarget({ ...target, siteName: e.target.value })}
                                    placeholder="my-migrated-site" />
-                            <span className="form-hint">Letters, numbers, and hyphens only.</span>
+                            <span className="form-hint">{t('wp.wordPressSshImport.lettersNumbersAndHyphensOnly', 'Letters, numbers, and hyphens only.')}</span>
                         </div>
                         <div className="form-group">
-                            <Label>Admin email</Label>
+                            <Label>{t('wp.wordPressSshImport.adminEmail', 'Admin email')}</Label>
                             <Input type="email" value={target.adminEmail} disabled={running}
                                    onChange={e => setTarget({ ...target, adminEmail: e.target.value })}
                                    placeholder="admin@example.com" />
                         </div>
                         <div className="form-group">
-                            <Label>Original site URL</Label>
+                            <Label>{t('wp.wordPressSshImport.originalSiteUrl', 'Original site URL')}</Label>
                             <Input value={target.oldUrl} disabled={running}
                                    onChange={e => setTarget({ ...target, oldUrl: e.target.value })}
                                    placeholder="https://old-site.com" />
-                            <span className="form-hint">Rewritten to the new local address after import (detected automatically when possible).</span>
+                            <span className="form-hint">{t('wp.wordPressSshImport.rewrittenToTheNewLocalAddress', 'Rewritten to the new local address after import (detected automatically when possible).')}</span>
                         </div>
                     </div>
                     <Button onClick={handleStart} disabled={!trusted || starting || running}>
-                        {starting ? <><Spinner size="sm" /> Starting…</> : 'Pull and import'}
+                        {starting ? <><Spinner size="sm" /> {t('wp.wordPressSshImport.starting', 'Starting…')}</> : 'Pull and import'}
                     </Button>
                 </div>
             )}
@@ -273,7 +272,7 @@ export default function WordPressSshImport() {
             {job && (
                 <div className="card p-4 mb-4">
                     <h3 className="font-medium mb-3">
-                        Import job #{job.id} — {job.status}
+                        {t('wp.wordPressSshImport.importJob', 'Import job #')}{job.id} — {job.status}
                         {running && <Spinner size="sm" />}
                     </h3>
                     <ul className="text-sm font-mono space-y-1">
@@ -288,8 +287,8 @@ export default function WordPressSshImport() {
                     )}
                     {job.status === 'completed' && (
                         <p className="text-sm mt-2">
-                            Done. <Link to="/wordpress" className="underline">Open the WordPress sites list</Link>
-                            {job.result?.new_url && <> — new address: <code>{job.result.new_url}</code></>}
+                            {t('wp.wordPressSshImport.done', 'Done.')} <Link to="/wordpress" className="underline">{t('wp.wordPressSshImport.openTheWordpressSitesList', 'Open the WordPress sites list')}</Link>
+                            {job.result?.new_url && <> {t('wp.wordPressSshImport.newAddress', '— new address:')} <code>{job.result.new_url}</code></>}
                         </p>
                     )}
                 </div>

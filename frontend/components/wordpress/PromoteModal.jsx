@@ -8,8 +8,10 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 's
 import { Checkbox } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
+    const { t } = useTranslation();
     const [promotionType, setPromotionType] = useState('code');
     const [config, setConfig] = useState({
         include_plugins: true,
@@ -74,7 +76,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
     const targetType = targetEnv.environment_type || 'staging';
 
     return (
-        <Modal open={true} onClose={onClose} title="Promote Environment" size="lg">
+        <Modal open={true} onClose={onClose} title={t('wp.promoteModal.promoteEnvironment', 'Promote Environment')} size="lg">
             <form onSubmit={handleSubmit}>
                 <div className="promote-direction">
                     <div className={`promote-env-pill ${sourceType}`}>
@@ -89,7 +91,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                 </div>
 
                 <div className="form-group">
-                    <Label>Promotion Type</Label>
+                    <Label>{t('wp.promoteModal.promotionType', 'Promotion Type')}</Label>
                     <div className="radio-group">
                         <label className="radio-label">
                             <input
@@ -100,8 +102,8 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                                 onChange={e => setPromotionType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>Code Only</strong>
-                                <span>Sync themes, plugins, and mu-plugins via rsync</span>
+                                <strong>{t('wp.promoteModal.codeOnly', 'Code Only')}</strong>
+                                <span>{t('wp.promoteModal.syncThemesPluginsAndMuPlugins', 'Sync themes, plugins, and mu-plugins via rsync')}</span>
                             </div>
                         </label>
                         <label className="radio-label">
@@ -113,8 +115,8 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                                 onChange={e => setPromotionType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>Database Only</strong>
-                                <span>Export, transform, and import database</span>
+                                <strong>{t('wp.promoteModal.databaseOnly', 'Database Only')}</strong>
+                                <span>{t('wp.promoteModal.exportTransformAndImportDatabase', 'Export, transform, and import database')}</span>
                             </div>
                         </label>
                         <label className="radio-label">
@@ -126,8 +128,8 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                                 onChange={e => setPromotionType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>Full (Code + Database)</strong>
-                                <span>Complete environment promotion</span>
+                                <strong>{t('wp.promoteModal.fullCodeDatabase', 'Full (Code + Database)')}</strong>
+                                <span>{t('wp.promoteModal.completeEnvironmentPromotion', 'Complete environment promotion')}</span>
                             </div>
                         </label>
                     </div>
@@ -135,35 +137,35 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
 
                 {(promotionType === 'code' || promotionType === 'full') && (
                     <div className="form-group">
-                        <Label>Code Options</Label>
+                        <Label>{t('wp.promoteModal.codeOptions', 'Code Options')}</Label>
                         <div className="checkbox-group">
                             <label className="checkbox-label">
                                 <Checkbox
                                     checked={config.include_plugins}
                                     onCheckedChange={v => handleConfigChange('include_plugins', v)}
                                 />
-                                <span>Include plugins</span>
+                                <span>{t('wp.promoteModal.includePlugins', 'Include plugins')}</span>
                             </label>
                             <label className="checkbox-label">
                                 <Checkbox
                                     checked={config.include_themes}
                                     onCheckedChange={v => handleConfigChange('include_themes', v)}
                                 />
-                                <span>Include themes</span>
+                                <span>{t('wp.promoteModal.includeThemes', 'Include themes')}</span>
                             </label>
                             <label className="checkbox-label">
                                 <Checkbox
                                     checked={config.include_mu_plugins}
                                     onCheckedChange={v => handleConfigChange('include_mu_plugins', v)}
                                 />
-                                <span>Include mu-plugins</span>
+                                <span>{t('wp.promoteModal.includeMuPlugins', 'Include mu-plugins')}</span>
                             </label>
                             <label className="checkbox-label">
                                 <Checkbox
                                     checked={config.include_uploads}
                                     onCheckedChange={v => handleConfigChange('include_uploads', v)}
                                 />
-                                <span>Include uploads (media files)</span>
+                                <span>{t('wp.promoteModal.includeUploadsMediaFiles', 'Include uploads (media files)')}</span>
                             </label>
                         </div>
                     </div>
@@ -177,7 +179,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                                     checked={config.sanitize}
                                     onCheckedChange={v => handleConfigChange('sanitize', v)}
                                 />
-                                <span>Sanitize database during promotion</span>
+                                <span>{t('wp.promoteModal.sanitizeDatabaseDuringPromotion', 'Sanitize database during promotion')}</span>
                             </label>
                         </div>
 
@@ -185,17 +187,17 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                             <div className="form-group">
                                 <Label>
                                     <Shield size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
-                                    Sanitization Profile
+                                    {t('wp.promoteModal.sanitizationProfile', 'Sanitization Profile')}
                                 </Label>
                                 <Select
                                     value={config.sanitization_profile_id}
                                     onValueChange={v => handleConfigChange('sanitization_profile_id', v)}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Manual configuration" />
+                                        <SelectValue placeholder={t('wp.promoteModal.manualConfiguration', 'Manual configuration')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Manual configuration</SelectItem>
+                                        <SelectItem value="">{t('wp.promoteModal.manualConfiguration2', 'Manual configuration')}</SelectItem>
                                         {profiles.map(p => (
                                             <SelectItem key={p.id} value={String(p.id)}>
                                                 {p.name}{p.is_default ? ' (default)' : ''}{p.is_builtin ? '' : ' (custom)'}
@@ -212,22 +214,22 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                         )}
 
                         <div className="form-group">
-                            <Label>Exclude tables (optional)</Label>
+                            <Label>{t('wp.promoteModal.excludeTablesOptional', 'Exclude tables (optional)')}</Label>
                             <Input
                                 value={config.exclude_tables}
                                 onChange={e => handleConfigChange('exclude_tables', e.target.value)}
-                                placeholder="e.g. wp_statistics, wp_actionscheduler_logs"
+                                placeholder={t('wp.promoteModal.eGWpStatisticsWpActionscheduler', 'e.g. wp_statistics, wp_actionscheduler_logs')}
                             />
-                            <span className="form-hint">Comma-separated table names to omit from the promotion entirely.</span>
+                            <span className="form-hint">{t('wp.promoteModal.commaSeparatedTableNamesToOmit', 'Comma-separated table names to omit from the promotion entirely.')}</span>
                         </div>
                         <div className="form-group">
-                            <Label>Truncate tables (optional)</Label>
+                            <Label>{t('wp.promoteModal.truncateTablesOptional', 'Truncate tables (optional)')}</Label>
                             <Input
                                 value={config.truncate_tables}
                                 onChange={e => handleConfigChange('truncate_tables', e.target.value)}
-                                placeholder="e.g. wp_sessions, wp_woocommerce_log"
+                                placeholder={t('wp.promoteModal.eGWpSessionsWpWoocommerce', 'e.g. wp_sessions, wp_woocommerce_log')}
                             />
-                            <span className="form-hint">Comma-separated tables to keep but empty (structure promoted, rows dropped).</span>
+                            <span className="form-hint">{t('wp.promoteModal.commaSeparatedTablesToKeepBut', 'Comma-separated tables to keep but empty (structure promoted, rows dropped).')}</span>
                         </div>
                     </>
                 )}
@@ -238,9 +240,9 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                             checked={config.backup_target_first}
                             onCheckedChange={v => handleConfigChange('backup_target_first', v)}
                         />
-                        <span>Create snapshot of target before promoting</span>
+                        <span>{t('wp.promoteModal.createSnapshotOfTargetBeforePromoting', 'Create snapshot of target before promoting')}</span>
                     </label>
-                    <span className="form-hint">Recommended. Allows rollback if something goes wrong.</span>
+                    <span className="form-hint">{t('wp.promoteModal.recommendedAllowsRollbackIfSomethingGoes', 'Recommended. Allows rollback if something goes wrong.')}</span>
                 </div>
 
                 {targetType === 'production' && (
@@ -250,16 +252,16 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                             <line x1="12" y1="9" x2="12" y2="13" />
                             <line x1="12" y1="17" x2="12.01" y2="17" />
                         </svg>
-                        <span>You are promoting to <strong>production</strong>. This will affect the live site.</span>
+                        <span>{t('wp.promoteModal.youArePromotingTo', 'You are promoting to')} <strong>production</strong>. This will affect the live site.</span>
                     </div>
                 )}
 
                 <div className="modal-actions">
                     <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                        Cancel
+                        {t('wp.promoteModal.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
-                        {loading ? <><Spinner size="sm" /> Promoting...</> : 'Promote'}
+                        {loading ? <><Spinner size="sm" /> {t('wp.promoteModal.promoting', 'Promoting...')}</> : 'Promote'}
                     </Button>
                 </div>
             </form>

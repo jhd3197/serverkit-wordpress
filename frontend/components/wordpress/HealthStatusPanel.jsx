@@ -2,15 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { Activity, RefreshCw, CheckCircle, AlertTriangle, XCircle, HelpCircle } from 'lucide-react';
 import { Spinner } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const STATUS_CONFIG = {
-    healthy: { icon: CheckCircle, color: 'green', label: 'Healthy' },
-    degraded: { icon: AlertTriangle, color: 'yellow', label: 'Degraded' },
-    unhealthy: { icon: XCircle, color: 'red', label: 'Unhealthy' },
-    unknown: { icon: HelpCircle, color: 'gray', label: 'Unknown' },
+    healthy: { icon: CheckCircle, color: 'green', labelKey: 'wp.healthStatusPanel.healthy', label: 'Healthy' },
+    degraded: { icon: AlertTriangle, color: 'yellow', labelKey: 'wp.healthStatusPanel.degraded', label: 'Degraded' },
+    unhealthy: { icon: XCircle, color: 'red', labelKey: 'wp.healthStatusPanel.unhealthy', label: 'Unhealthy' },
+    unknown: { icon: HelpCircle, color: 'gray', labelKey: 'wp.healthStatusPanel.unknown', label: 'Unknown' },
 };
 
 const HealthDot = ({ status, size = 8 }) => {
+    const { t } = useTranslation();
     const colorMap = {
         healthy: 'var(--green, #3ddc97)',
         degraded: 'var(--amber, #f5b945)',
@@ -28,12 +30,13 @@ const HealthDot = ({ status, size = 8 }) => {
                 display: 'inline-block',
                 backgroundColor: colorMap[status] || colorMap.unknown,
             }}
-            title={STATUS_CONFIG[status]?.label || 'Unknown'}
+            title={STATUS_CONFIG[status]?.label || t('wp.healthStatusPanel.unknown2', 'Unknown')}
         />
     );
 };
 
 const HealthStatusPanel = ({ projectId, environments, api, compact = false }) => {
+    const { t } = useTranslation();
     const [healthData, setHealthData] = useState({});
     const [loading, setLoading] = useState(true);
     const intervalRef = useRef(null);
@@ -71,7 +74,7 @@ const HealthStatusPanel = ({ projectId, environments, api, compact = false }) =>
             <div className="health-status-panel">
                 <div className="health-panel-loading">
                     <Spinner size="sm" />
-                    <span>Checking health...</span>
+                    <span>{t('wp.healthStatusPanel.checkingHealth', 'Checking health...')}</span>
                 </div>
             </div>
         );
@@ -82,11 +85,11 @@ const HealthStatusPanel = ({ projectId, environments, api, compact = false }) =>
             <div className="health-panel-header">
                 <h4>
                     <Activity size={16} />
-                    Environment Health
+                    {t('wp.healthStatusPanel.environmentHealth', 'Environment Health')}
                 </h4>
                 <Button variant="ghost" size="sm" onClick={loadHealth}>
                     <RefreshCw size={12} />
-                    Refresh
+                    {t('wp.healthStatusPanel.refresh', 'Refresh')}
                 </Button>
             </div>
 
@@ -126,7 +129,7 @@ const HealthStatusPanel = ({ projectId, environments, api, compact = false }) =>
 
             {Object.keys(healthData).length === 0 && (
                 <div className="health-panel-empty">
-                    No health data available
+                    {t('wp.healthStatusPanel.noHealthDataAvailable', 'No health data available')}
                 </div>
             )}
         </div>

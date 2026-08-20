@@ -4,8 +4,10 @@ import { Spinner } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Switch } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState({ enabled: false, username: null });
     const [credentials, setCredentials] = useState(null);
@@ -67,20 +69,20 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
     const envName = environment?.name || 'Environment';
 
     return (
-        <Modal open={true} onClose={onClose} title="Basic Auth" className="basic-auth-modal">
+        <Modal open={true} onClose={onClose} title={t('wp.basicAuthModal.basicAuth', 'Basic Auth')} className="basic-auth-modal">
             <div className="basic-auth-body">
                 <div className="basic-auth-env-name">{envName}</div>
 
                 {loading ? (
                     <div className="basic-auth-loading">
                         <Spinner size="sm" />
-                        <span>Loading status...</span>
+                        <span>{t('wp.basicAuthModal.loadingStatus', 'Loading status...')}</span>
                     </div>
                 ) : (
                     <>
                         <div className="basic-auth-toggle">
                             <label className="basic-auth-toggle-label">
-                                <span>HTTP Basic Authentication</span>
+                                <span>{t('wp.basicAuthModal.httpBasicAuthentication', 'HTTP Basic Authentication')}</span>
                                 <Switch
                                     checked={status.enabled}
                                     onCheckedChange={status.enabled ? handleDisable : handleEnable}
@@ -88,20 +90,20 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
                                 />
                             </label>
                             <p className="basic-auth-description">
-                                Adds password protection to the site. Visitors must enter credentials to access any page.
+                                {t('wp.basicAuthModal.addsPasswordProtectionToTheSite', 'Adds password protection to the site. Visitors must enter credentials to access any page.')}
                             </p>
                         </div>
 
                         {status.enabled && status.username && !credentials && (
                             <div className="basic-auth-current">
                                 <div className="basic-auth-field">
-                                    <label>Username</label>
+                                    <label>{t('wp.basicAuthModal.username', 'Username')}</label>
                                     <div className="basic-auth-value">
                                         <code>{status.username}</code>
                                     </div>
                                 </div>
                                 <p className="basic-auth-hint">
-                                    Password was shown when Basic Auth was first enabled. Disable and re-enable to generate new credentials.
+                                    {t('wp.basicAuthModal.passwordWasShownWhenBasicAuth', 'Password was shown when Basic Auth was first enabled. Disable and re-enable to generate new credentials.')}
                                 </p>
                             </div>
                         )}
@@ -110,10 +112,10 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
                             <div className="basic-auth-credentials">
                                 <div className="alert alert-warning">
                                     <AlertTriangle size={14} />
-                                    <span>Save these credentials now. The password will not be shown again.</span>
+                                    <span>{t('wp.basicAuthModal.saveTheseCredentialsNowThePassword', 'Save these credentials now. The password will not be shown again.')}</span>
                                 </div>
                                 <div className="basic-auth-field">
-                                    <label>Username</label>
+                                    <label>{t('wp.basicAuthModal.username2', 'Username')}</label>
                                     <div className="basic-auth-value">
                                         <code>{credentials.username}</code>
                                         <Button
@@ -126,7 +128,7 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
                                     </div>
                                 </div>
                                 <div className="basic-auth-field">
-                                    <label>Password</label>
+                                    <label>{t('wp.basicAuthModal.password', 'Password')}</label>
                                     <div className="basic-auth-value">
                                         <code>{credentials.password}</code>
                                         <Button
@@ -146,7 +148,7 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
 
             <div className="modal-actions">
                 <Button variant="outline" onClick={onClose}>
-                    Close
+                    {t('wp.basicAuthModal.close', 'Close')}
                 </Button>
             </div>
         </Modal>

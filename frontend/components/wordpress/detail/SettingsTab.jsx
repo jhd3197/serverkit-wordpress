@@ -17,9 +17,11 @@ import GitTab from './GitTab';
 import SecurityTab from './SecurityTab';
 import VulnerabilitiesTab from './VulnerabilitiesTab';
 import ReportsTab from './ReportsTab';
+import { useTranslation } from 'serverkit-sdk';
 
 // Search & Replace Modal (DB string replacement, guarded by dry-run)
 export const SearchReplaceModal = ({ onClose, onSubmit }) => {
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [replace, setReplace] = useState('');
     const [loading, setLoading] = useState(false);
@@ -35,12 +37,12 @@ export const SearchReplaceModal = ({ onClose, onSubmit }) => {
     }
 
     return (
-        <Modal open onClose={onClose} title="Search & Replace">
+        <Modal open onClose={onClose} title={t('wp.settingsTab.searchReplace', 'Search & Replace')}>
             <form onSubmit={(e) => { e.preventDefault(); run(false); }}>
-                <p className="hint">Replaces a string across all database tables (e.g. an old domain). Always preview with a dry run first.</p>
+                <p className="hint">{t('wp.settingsTab.replacesAStringAcrossAllDatabase', 'Replaces a string across all database tables (e.g. an old domain). Always preview with a dry run first.')}</p>
 
                 <div className="form-group">
-                    <Label>Search for *</Label>
+                    <Label>{t('wp.settingsTab.searchFor', 'Search for *')}</Label>
                     <Input
                         type="text"
                         value={search}
@@ -51,7 +53,7 @@ export const SearchReplaceModal = ({ onClose, onSubmit }) => {
                 </div>
 
                 <div className="form-group">
-                    <Label>Replace with *</Label>
+                    <Label>{t('wp.settingsTab.replaceWith', 'Replace with *')}</Label>
                     <Input
                         type="text"
                         value={replace}
@@ -63,7 +65,7 @@ export const SearchReplaceModal = ({ onClose, onSubmit }) => {
 
                 <div className="modal-actions">
                     <Button type="button" variant="outline" onClick={onClose}>
-                        Cancel
+                        {t('wp.settingsTab.cancel', 'Cancel')}
                     </Button>
                     <Button type="button" variant="outline" onClick={() => run(true)} disabled={loading || !search.trim() || !replace.trim()}>
                         {loading ? 'Running...' : 'Dry Run'}
@@ -79,6 +81,7 @@ export const SearchReplaceModal = ({ onClose, onSubmit }) => {
 
 // Delete Site Modal (typed confirmation + optional final backup)
 const DeleteSiteModal = ({ siteName, onClose, onConfirm }) => {
+    const { t } = useTranslation();
     const [createBackup, setCreateBackup] = useState(true);
     const [typed, setTyped] = useState('');
     const [loading, setLoading] = useState(false);
@@ -96,9 +99,9 @@ const DeleteSiteModal = ({ siteName, onClose, onConfirm }) => {
     }
 
     return (
-        <Modal open onClose={onClose} title="Delete Site">
+        <Modal open onClose={onClose} title={t('wp.settingsTab.deleteSite', 'Delete Site')}>
             <form onSubmit={handleSubmit}>
-                <p className="hint">This permanently deletes <strong>{siteName}</strong>, all its environments, files and databases. This cannot be undone.</p>
+                <p className="hint">{t('wp.settingsTab.thisPermanentlyDeletes', 'This permanently deletes')} <strong>{siteName}</strong>{t('wp.settingsTab.allItsEnvironmentsFilesAndDatabases', ', all its environments, files and databases. This cannot be undone.')}</p>
                 <div className="form-group">
                     <label className="checkbox-label">
                         <input
@@ -106,11 +109,11 @@ const DeleteSiteModal = ({ siteName, onClose, onConfirm }) => {
                             checked={createBackup}
                             onChange={(e) => setCreateBackup(e.target.checked)}
                         />
-                        <span>Create a final files + database backup before deleting</span>
+                        <span>{t('wp.settingsTab.createAFinalFilesDatabaseBackup', 'Create a final files + database backup before deleting')}</span>
                     </label>
                 </div>
                 <div className="form-group">
-                    <Label>Type <strong>{siteName}</strong> to confirm *</Label>
+                    <Label>{t('wp.settingsTab.type', 'Type')} <strong>{siteName}</strong> {t('wp.settingsTab.toConfirm', 'to confirm *')}</Label>
                     <Input
                         type="text"
                         value={typed}
@@ -121,7 +124,7 @@ const DeleteSiteModal = ({ siteName, onClose, onConfirm }) => {
                 </div>
                 <div className="modal-actions">
                     <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                        Cancel
+                        {t('wp.settingsTab.cancel2', 'Cancel')}
                     </Button>
                     <Button type="submit" variant="destructive" disabled={loading || !canDelete}>
                         {loading ? 'Deleting...' : 'Delete Site'}
@@ -143,26 +146,26 @@ const GeneralSettings = ({ onAddDomain, onChangeUrl, onClone }) => (
     <div className="app-overview-grid">
         <div className="app-overview-left">
             <div className="app-panel">
-                <div className="app-panel-header">Domains &amp; URL</div>
+                <div className="app-panel-header">{t('wp.settingsTab.domainsUrl', 'Domains & URL')}</div>
                 <div className="app-panel-body">
-                    <p className="hint">Point a custom domain you own at this site (auto-DNS + migrate), or change its primary URL with a serialization-safe database rewrite.</p>
+                    <p className="hint">{t('wp.settingsTab.pointACustomDomainYouOwn', 'Point a custom domain you own at this site (auto-DNS + migrate), or change its primary URL with a serialization-safe database rewrite.')}</p>
                     <div className="app-detail-actions">
                         <Button variant="outline" size="sm" onClick={onAddDomain}>
-                            <Plus size={15} /> Add Domain
+                            <Plus size={15} /> {t('wp.settingsTab.addDomain', 'Add Domain')}
                         </Button>
                         <Button variant="outline" size="sm" onClick={onChangeUrl}>
-                            <Globe size={15} /> Change URL
+                            <Globe size={15} /> {t('wp.settingsTab.changeUrl', 'Change URL')}
                         </Button>
                     </div>
                 </div>
             </div>
             <div className="app-panel">
-                <div className="app-panel-header">Duplicate site</div>
+                <div className="app-panel-header">{t('wp.settingsTab.duplicateSite', 'Duplicate site')}</div>
                 <div className="app-panel-body">
-                    <p className="hint">Clone this site as a brand-new independent site (its own Docker stack and database) with fresh admin credentials.</p>
+                    <p className="hint">{t('wp.settingsTab.cloneThisSiteAsABrand', 'Clone this site as a brand-new independent site (its own Docker stack and database) with fresh admin credentials.')}</p>
                     <div className="app-detail-actions">
                         <Button variant="outline" size="sm" onClick={onClone}>
-                            <Copy size={15} /> Clone site
+                            <Copy size={15} /> {t('wp.settingsTab.cloneSite', 'Clone site')}
                         </Button>
                     </div>
                 </div>
@@ -174,6 +177,7 @@ const GeneralSettings = ({ onAddDomain, onChangeUrl, onClone }) => (
 // Danger Zone settings — destructive site-level actions moved out of the
 // Overview tab into Settings so the daily dashboard isn't dominated by them.
 const DangerZoneSettings = ({ site, onUpdate }) => {
+    const { t } = useTranslation();
     const toast = useToast();
     const navigate = useNavigate();
     const { confirm } = useConfirm();
@@ -182,20 +186,20 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
 
     async function handleArchive() {
         const ok = await confirm({
-            title: 'Archive Site',
-            message: `Stop and archive "${site.name}"? Containers are stopped but all files and the database are kept. You can unarchive it later.`,
-            confirmText: 'Archive',
+            title: t('wp.settingsTab.archiveSite', 'Archive Site'),
+            message: t('wp.settingsTab.stopAndArchiveContainersAreStopped', 'Stop and archive "{{name}}"? Containers are stopped but all files and the database are kept. You can unarchive it later.', { name: site.name }),
+            confirmText: t('wp.settingsTab.archive', 'Archive'),
             variant: 'warning',
         });
         if (!ok) return;
         setArchiving(true);
-        toast.info('Archiving site...', { duration: 3000 });
+        toast.info(t('wp.settingsTab.archivingSite', 'Archiving site...'), { duration: 3000 });
         try {
             await wordpressApi.archiveSite(site.id);
-            toast.success('Site archived');
+            toast.success(t('wp.settingsTab.siteArchived', 'Site archived'));
             onUpdate?.();
         } catch (err) {
-            toast.error(err.message || 'Failed to archive site');
+            toast.error(err.message || t('wp.settingsTab.failedToArchiveSite', 'Failed to archive site'));
         } finally {
             setArchiving(false);
         }
@@ -203,27 +207,27 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
 
     async function handleUnarchive() {
         setArchiving(true);
-        toast.info('Unarchiving site...', { duration: 3000 });
+        toast.info(t('wp.settingsTab.unarchivingSite', 'Unarchiving site...'), { duration: 3000 });
         try {
             await wordpressApi.unarchiveSite(site.id);
-            toast.success('Site unarchived');
+            toast.success(t('wp.settingsTab.siteUnarchived', 'Site unarchived'));
             onUpdate?.();
         } catch (err) {
-            toast.error(err.message || 'Failed to unarchive site');
+            toast.error(err.message || t('wp.settingsTab.failedToUnarchiveSite', 'Failed to unarchive site'));
         } finally {
             setArchiving(false);
         }
     }
 
     async function handleDelete(createBackup) {
-        toast.info(createBackup ? 'Creating final backup and deleting site...' : 'Deleting site...', { duration: 5000 });
+        toast.info(createBackup ? t('wp.settingsTab.creatingFinalBackupAndDeletingSite', 'Creating final backup and deleting site...') : t('wp.settingsTab.deletingSite', 'Deleting site...'), { duration: 5000 });
         try {
             await wordpressApi.deleteSite(site.id, { createBackup });
-            toast.success('Site deleted');
+            toast.success(t('wp.settingsTab.siteDeleted', 'Site deleted'));
             setShowDeleteModal(false);
             navigate('/wordpress');
         } catch (err) {
-            toast.error(err.message || 'Failed to delete site');
+            toast.error(err.message || t('wp.settingsTab.failedToDeleteSite', 'Failed to delete site'));
         }
     }
 
@@ -239,12 +243,12 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
             <div className="app-overview-grid">
                 <div className="app-overview-left">
                     <div className="app-panel danger-zone-panel">
-                        <div className="app-panel-header">Danger Zone</div>
+                        <div className="app-panel-header">{t('wp.settingsTab.dangerZone', 'Danger Zone')}</div>
                         <div className="app-panel-body danger-zone-body">
                             {site.status === 'archived' ? (
                                 <DangerZone
-                                    title="Unarchive Site"
-                                    description="Restart this site's containers and bring it back online."
+                                    title={t('wp.settingsTab.unarchiveSite', 'Unarchive Site')}
+                                    description={t('wp.settingsTab.restartThisSiteSContainersAnd', 'Restart this site\'s containers and bring it back online.')}
                                     action={(
                                         <Button variant="outline" onClick={handleUnarchive} disabled={archiving}>
                                             <Archive size={16} />
@@ -254,8 +258,8 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
                                 />
                             ) : (
                                 <DangerZone
-                                    title="Archive Site"
-                                    description="Stop the containers but keep all files and the database. Reversible."
+                                    title={t('wp.settingsTab.archiveSite3', 'Archive Site')}
+                                    description={t('wp.settingsTab.stopTheContainersButKeepAll', 'Stop the containers but keep all files and the database. Reversible.')}
                                     action={(
                                         <Button variant="outline" onClick={handleArchive} disabled={archiving}>
                                             <Archive size={16} />
@@ -265,12 +269,12 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
                                 />
                             )}
                             <DangerZone
-                                title="Delete Site"
-                                description="Permanently remove this site, all environments, files and databases. A final backup is taken by default."
+                                title={t('wp.settingsTab.deleteSite2', 'Delete Site')}
+                                description={t('wp.settingsTab.permanentlyRemoveThisSiteAllEnvironments', 'Permanently remove this site, all environments, files and databases. A final backup is taken by default.')}
                                 action={(
                                     <Button variant="destructive" onClick={() => setShowDeleteModal(true)}>
                                         <Trash2 size={16} />
-                                        Delete Site
+                                        {t('wp.settingsTab.deleteSite3', 'Delete Site')}
                                     </Button>
                                 )}
                             />
@@ -287,35 +291,36 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
 // the home moves here to keep the top tab strip short. Groups give the nav
 // structure (the user's "group section" idea) and room to grow.
 const WP_SETTINGS_GROUPS = [
-    { label: 'General', items: [
-        { id: 'general', label: 'General', icon: Globe, render: (ctx) => <GeneralSettings {...ctx} /> },
+    { labelKey: 'wp.settingsTab.general', label: 'General', items: [
+        { id: 'general', labelKey: 'wp.settingsTab.general2', label: 'General', icon: Globe, render: (ctx) => <GeneralSettings {...ctx} /> },
     ] },
-    { label: 'Configuration', items: [
+    { labelKey: 'wp.settingsTab.configuration', label: 'Configuration', items: [
         { id: 'php', label: 'PHP', icon: Settings, render: (ctx) => <PhpTab siteId={ctx.siteId} /> },
-        { id: 'updates', label: 'Updates', icon: RefreshCw, render: (ctx) => <UpdatesTab siteId={ctx.siteId} /> },
+        { id: 'updates', labelKey: 'wp.settingsTab.updates', label: 'Updates', icon: RefreshCw, render: (ctx) => <UpdatesTab siteId={ctx.siteId} /> },
     ] },
-    { label: 'Data', items: [
-        { id: 'backups', label: 'Backups', icon: Archive, render: (ctx) => <BackupsTab siteId={ctx.siteId} site={ctx.site} /> },
+    { labelKey: 'wp.settingsTab.data', label: 'Data', items: [
+        { id: 'backups', labelKey: 'wp.settingsTab.backups', label: 'Backups', icon: Archive, render: (ctx) => <BackupsTab siteId={ctx.siteId} site={ctx.site} /> },
     ] },
-    { label: 'Connections', items: [
-        { id: 'git', label: 'Git', icon: GitBranch, render: (ctx) => <GitTab siteId={ctx.siteId} site={ctx.site} onUpdate={ctx.onUpdate} /> },
+    { labelKey: 'wp.settingsTab.connections', label: 'Connections', items: [
+        { id: 'git', labelKey: 'wp.settingsTab.git', label: 'Git', icon: GitBranch, render: (ctx) => <GitTab siteId={ctx.siteId} site={ctx.site} onUpdate={ctx.onUpdate} /> },
     ] },
-    { label: 'Security', items: [
-        { id: 'security', label: 'Security', icon: Lock, render: (ctx) => <SecurityTab siteId={ctx.siteId} /> },
+    { labelKey: 'wp.settingsTab.security', label: 'Security', items: [
+        { id: 'security', labelKey: 'wp.settingsTab.security2', label: 'Security', icon: Lock, render: (ctx) => <SecurityTab siteId={ctx.siteId} /> },
         { id: 'ssl', label: 'SSL', icon: Shield, render: (ctx) => <SiteSSLPanel site={ctx.site} onUpdate={ctx.onUpdate} /> },
-        { id: 'vulnerabilities', label: 'Vulnerabilities', icon: ShieldCheck, render: (ctx) => <VulnerabilitiesTab siteId={ctx.siteId} /> },
+        { id: 'vulnerabilities', labelKey: 'wp.settingsTab.vulnerabilities', label: 'Vulnerabilities', icon: ShieldCheck, render: (ctx) => <VulnerabilitiesTab siteId={ctx.siteId} /> },
     ] },
-    { label: 'Reports', items: [
-        { id: 'reports', label: 'Reports', icon: FileBarChart, render: (ctx) => <ReportsTab siteId={ctx.siteId} /> },
+    { labelKey: 'wp.settingsTab.reports', label: 'Reports', items: [
+        { id: 'reports', labelKey: 'wp.settingsTab.reports2', label: 'Reports', icon: FileBarChart, render: (ctx) => <ReportsTab siteId={ctx.siteId} /> },
     ] },
-    { label: 'Danger Zone', items: [
-        { id: 'danger-zone', label: 'Danger Zone', icon: ShieldAlert, render: (ctx) => <DangerZoneSettings site={ctx.site} onUpdate={ctx.onUpdate} /> },
+    { labelKey: 'wp.settingsTab.dangerZone2', label: 'Danger Zone', items: [
+        { id: 'danger-zone', labelKey: 'wp.settingsTab.dangerZone3', label: 'Danger Zone', icon: ShieldAlert, render: (ctx) => <DangerZoneSettings site={ctx.site} onUpdate={ctx.onUpdate} /> },
     ] },
 ];
 
 const WP_SETTINGS_ITEMS = WP_SETTINGS_GROUPS.flatMap((g) => g.items);
 
 const SettingsTab = ({ siteId, site, onUpdate, onAddDomain, onChangeUrl, onClone }) => {
+    const { t } = useTranslation();
     // Section lives in the URL (/wordpress/:id/settings/:section) so it's
     // shareable and survives a refresh, instead of resetting to General.
     const { id, section: sectionParam } = useParams();
@@ -326,7 +331,7 @@ const SettingsTab = ({ siteId, site, onUpdate, onAddDomain, onChangeUrl, onClone
     const ctx = { siteId, site, onUpdate, onAddDomain, onChangeUrl, onClone };
     return (
         <div className="wp-settings">
-            <nav className="wp-settings__nav" aria-label="WordPress settings sections">
+            <nav className="wp-settings__nav" aria-label={t('wp.settingsTab.wordpressSettingsSections', 'WordPress settings sections')}>
                 {WP_SETTINGS_GROUPS.map((g) => (
                     <div className="wp-settings__group" key={g.label}>
                         <div className="wp-settings__grouplabel">{g.label}</div>

@@ -12,10 +12,12 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Switch } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const EMPTY_FORM = { source_type: 'github', source_url: '', slug: '', branch: 'main' };
 
 function WordPressPluginLibrary() {
+    const { t } = useTranslation();
     const toast = useToast();
     const { user } = useAuth();
     const isAdmin = user?.role === 'admin';
@@ -42,7 +44,7 @@ function WordPressPluginLibrary() {
             const data = await wordpressApi.getLibraryPlugins();
             setPlugins(data.plugins || []);
         } catch (err) {
-            toast.error(err.message || 'Failed to load plugin library');
+            toast.error(err.message || t('wp.wordPressPluginLibrary.failedToLoadPluginLibrary', 'Failed to load plugin library'));
             setPlugins([]);
         } finally {
             setLoading(false);
@@ -68,23 +70,23 @@ function WordPressPluginLibrary() {
 
     async function handleSave() {
         if (!form.source_url.trim()) {
-            toast.error(form.source_type === 'local' ? 'A local path is required' : 'A repo (owner/repo or git URL) is required');
+            toast.error(form.source_type === 'local' ? t('wp.wordPressPluginLibrary.aLocalPathIsRequired', 'A local path is required') : t('wp.wordPressPluginLibrary.aRepoOwnerRepoOrGit', 'A repo (owner/repo or git URL) is required'));
             return;
         }
         setSaving(true);
         try {
             if (editing) {
                 await wordpressApi.updateLibraryPlugin(editing.id, form);
-                toast.success('Plugin updated');
+                toast.success(t('wp.wordPressPluginLibrary.pluginUpdated', 'Plugin updated'));
             } else {
                 const res = await wordpressApi.addLibraryPlugin(form);
-                if (res.sync_error) toast.info(`Added, but sync failed: ${res.sync_error}`, { duration: 8000 });
-                else toast.success('Plugin added to library');
+                if (res.sync_error) toast.info(t('wp.wordPressPluginLibrary.addedButSyncFailed', 'Added, but sync failed: {{syncerror}}', { syncerror: res.sync_error }), { duration: 8000 });
+                else toast.success(t('wp.wordPressPluginLibrary.pluginAddedToLibrary', 'Plugin added to library'));
             }
             setShowAdd(false);
             await loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Failed to save plugin');
+            toast.error(err.message || t('wp.wordPressPluginLibrary.failedToSavePlugin', 'Failed to save plugin'));
         } finally {
             setSaving(false);
         }
@@ -94,11 +96,11 @@ function WordPressPluginLibrary() {
         setBusy(`sync:${plugin.id}`);
         try {
             const res = await wordpressApi.syncLibraryPlugin(plugin.id);
-            if (res.success === false) toast.error(res.error || 'Sync failed');
-            else toast.success(`Synced ${plugin.slug} (v${res.plugin?.version || '?'})`);
+            if (res.success === false) toast.error(res.error || t('wp.wordPressPluginLibrary.syncFailed', 'Sync failed'));
+            else toast.success(t('wp.wordPressPluginLibrary.syncedV', 'Synced {{slug}} (v{{value}})', { slug: plugin.slug, value: res.plugin?.version || '?' }));
             await loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Sync failed');
+            toast.error(err.message || t('wp.wordPressPluginLibrary.syncFailed2', 'Sync failed'));
         } finally {
             setBusy(null);
         }
@@ -108,24 +110,24 @@ function WordPressPluginLibrary() {
         setBusy(`bulk:${plugin.id}`);
         try {
             const res = await wordpressApi.bulkUpdateLibraryPlugin(plugin.id);
-            toast.success(`Updated ${res.updated} of ${res.total} site(s)`);
+            toast.success(t('wp.wordPressPluginLibrary.updatedOfSiteS', 'Updated {{updated}} of {{total}} site(s)', { updated: res.updated, total: res.total }));
             await loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Bulk update failed');
+            toast.error(err.message || t('wp.wordPressPluginLibrary.bulkUpdateFailed', 'Bulk update failed'));
         } finally {
             setBusy(null);
         }
     }
 
     async function handleDelete(plugin) {
-        if (!window.confirm(`Remove "${plugin.slug}" from the library? Installed copies on sites are left untouched.`)) return;
+        if (!window.confirm(t('wp.wordPressPluginLibrary.removeFromTheLibraryInstalledCopies', 'Remove "{{slug}}" from the library? Installed copies on sites are left untouched.', { slug: plugin.slug }))) return;
         setBusy(`delete:${plugin.id}`);
         try {
             await wordpressApi.deleteLibraryPlugin(plugin.id);
-            toast.success('Plugin removed from library');
+            toast.success(t('wp.wordPressPluginLibrary.pluginRemovedFromLibrary', 'Plugin removed from library'));
             await loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Failed to remove plugin');
+            toast.error(err.message || t('wp.wordPressPluginLibrary.failedToRemovePlugin', 'Failed to remove plugin'));
         } finally {
             setBusy(null);
         }
@@ -144,16 +146,16 @@ function WordPressPluginLibrary() {
     }
 
     async function handleInstall() {
-        if (!installSiteId) { toast.error('Pick a site'); return; }
+        if (!installSiteId) { toast.error(t('wp.wordPressPluginLibrary.pickASite', 'Pick a site')); return; }
         setBusy(`install:${installFor.id}`);
         try {
             const res = await wordpressApi.installLibraryPluginOnSite(installFor.id, Number(installSiteId), installActivate);
-            if (res.success === false) toast.error(res.error || 'Install failed');
-            else toast.success(`Installed ${installFor.slug} (${res.status})`);
+            if (res.success === false) toast.error(res.error || t('wp.wordPressPluginLibrary.installFailed', 'Install failed'));
+            else toast.success(t('wp.wordPressPluginLibrary.installed', 'Installed {{slug}} ({{status}})', { slug: installFor.slug, status: res.status }));
             setInstallFor(null);
             await loadPlugins();
         } catch (err) {
-            toast.error(err.message || 'Install failed');
+            toast.error(err.message || t('wp.wordPressPluginLibrary.installFailed2', 'Install failed'));
         } finally {
             setBusy(null);
         }
@@ -162,7 +164,7 @@ function WordPressPluginLibrary() {
     useTopbarActions(() => (
         isAdmin ? (
             <Button size="sm" onClick={openAdd}>
-                <Package size={16} /> Add Plugin
+                <Package size={16} /> {t('wp.wordPressPluginLibrary.addPlugin', 'Add Plugin')}
             </Button>
         ) : null
     ), [isAdmin]);
@@ -180,9 +182,9 @@ function WordPressPluginLibrary() {
             {plugins.length === 0 ? (
                 <EmptyState
                     icon={Package}
-                    title="No plugins in the library yet"
-                    description="Register your own plugins from a GitHub repo or a local path, then install or update them across every managed WordPress site from here."
-                    action={isAdmin ? <Button onClick={openAdd}><Package size={16} /> Add Plugin</Button> : null}
+                    title={t('wp.wordPressPluginLibrary.noPluginsInTheLibraryYet', 'No plugins in the library yet')}
+                    description={t('wp.wordPressPluginLibrary.registerYourOwnPluginsFromA', 'Register your own plugins from a GitHub repo or a local path, then install or update them across every managed WordPress site from here.')}
+                    action={isAdmin ? <Button onClick={openAdd}><Package size={16} /> {t('wp.wordPressPluginLibrary.addPlugin2', 'Add Plugin')}</Button> : null}
                 />
             ) : (
                 <div className="wp-plib-grid">
@@ -213,27 +215,27 @@ function WordPressPluginLibrary() {
                                 <div className="wp-plib-card__stats">
                                     <span><Server size={13} /> {plugin.install_count} site{plugin.install_count === 1 ? '' : 's'}</span>
                                     {plugin.sync_error
-                                        ? <Pill kind="red" title={plugin.sync_error}>Sync error</Pill>
+                                        ? <Pill kind="red" title={plugin.sync_error}>{t('wp.wordPressPluginLibrary.syncError', 'Sync error')}</Pill>
                                         : plugin.last_synced_at
-                                            ? <span className="wp-plib-card__synced">Synced</span>
-                                            : <Pill kind="amber">Not synced</Pill>}
+                                            ? <span className="wp-plib-card__synced">{t('wp.wordPressPluginLibrary.synced', 'Synced')}</span>
+                                            : <Pill kind="amber">{t('wp.wordPressPluginLibrary.notSynced', 'Not synced')}</Pill>}
                                 </div>
 
                                 {isAdmin && (
                                     <div className="wp-plib-card__actions">
                                         <Button variant="outline" size="sm" disabled={busy === `sync:${plugin.id}`} onClick={() => handleSync(plugin)}>
-                                            <RefreshCw size={14} className={busy === `sync:${plugin.id}` ? 'spin' : ''} /> Sync
+                                            <RefreshCw size={14} className={busy === `sync:${plugin.id}` ? 'spin' : ''} /> {t('wp.wordPressPluginLibrary.sync', 'Sync')}
                                         </Button>
                                         <Button variant="outline" size="sm" onClick={() => openInstall(plugin)}>
-                                            <Download size={14} /> Install
+                                            <Download size={14} /> {t('wp.wordPressPluginLibrary.install', 'Install')}
                                         </Button>
                                         <Button variant="outline" size="sm" disabled={!plugin.install_count || busy === `bulk:${plugin.id}`} onClick={() => handleBulkUpdate(plugin)}>
-                                            Bulk update
+                                            {t('wp.wordPressPluginLibrary.bulkUpdate', 'Bulk update')}
                                         </Button>
-                                        <Button variant="ghost" size="sm" onClick={() => openEdit(plugin)} aria-label="Edit">
+                                        <Button variant="ghost" size="sm" onClick={() => openEdit(plugin)} aria-label={t('wp.wordPressPluginLibrary.edit', 'Edit')}>
                                             <Pencil size={14} />
                                         </Button>
-                                        <Button variant="ghost" size="sm" onClick={() => handleDelete(plugin)} aria-label="Delete">
+                                        <Button variant="ghost" size="sm" onClick={() => handleDelete(plugin)} aria-label={t('wp.wordPressPluginLibrary.delete', 'Delete')}>
                                             <Trash2 size={14} />
                                         </Button>
                                     </div>
@@ -248,22 +250,22 @@ function WordPressPluginLibrary() {
             <Modal
                 open={showAdd}
                 onClose={() => setShowAdd(false)}
-                title={editing ? `Edit ${editing.slug}` : 'Add plugin to library'}
+                title={editing ? t('wp.wordPressPluginLibrary.edit2', 'Edit {{slug}}', { slug: editing.slug }) : t('wp.wordPressPluginLibrary.addPluginToLibrary', 'Add plugin to library')}
             >
                 <div className="wp-plib-form">
                     <div className="wp-plib-form__row">
-                        <Label>Source</Label>
+                        <Label>{t('wp.wordPressPluginLibrary.source', 'Source')}</Label>
                         <div className="wp-plib-form__toggle">
                             <button
                                 type="button"
                                 className={form.source_type === 'github' ? 'is-on' : ''}
                                 onClick={() => setForm(f => ({ ...f, source_type: 'github' }))}
-                            ><Github size={14} /> GitHub</button>
+                            ><Github size={14} /> {t('wp.wordPressPluginLibrary.github', 'GitHub')}</button>
                             <button
                                 type="button"
                                 className={form.source_type === 'local' ? 'is-on' : ''}
                                 onClick={() => setForm(f => ({ ...f, source_type: 'local' }))}
-                            ><FolderGit2 size={14} /> Local path</button>
+                            ><FolderGit2 size={14} /> {t('wp.wordPressPluginLibrary.localPath', 'Local path')}</button>
                         </div>
                     </div>
 
@@ -280,7 +282,7 @@ function WordPressPluginLibrary() {
                     </div>
 
                     <div className="wp-plib-form__row">
-                        <Label htmlFor="plib-slug">Plugin slug <span className="wp-plib-form__hint">(folder name; auto-derived if blank)</span></Label>
+                        <Label htmlFor="plib-slug">{t('wp.wordPressPluginLibrary.pluginSlug', 'Plugin slug')} <span className="wp-plib-form__hint">{t('wp.wordPressPluginLibrary.folderNameAutoDerivedIfBlank', '(folder name; auto-derived if blank)')}</span></Label>
                         <Input
                             id="plib-slug"
                             value={form.slug}
@@ -292,7 +294,7 @@ function WordPressPluginLibrary() {
 
                     {form.source_type === 'github' && (
                         <div className="wp-plib-form__row">
-                            <Label htmlFor="plib-branch">Branch or tag</Label>
+                            <Label htmlFor="plib-branch">{t('wp.wordPressPluginLibrary.branchOrTag', 'Branch or tag')}</Label>
                             <Input
                                 id="plib-branch"
                                 value={form.branch}
@@ -303,7 +305,7 @@ function WordPressPluginLibrary() {
                     )}
 
                     <div className="wp-plib-form__footer">
-                        <Button variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setShowAdd(false)}>{t('wp.wordPressPluginLibrary.cancel', 'Cancel')}</Button>
                         <Button onClick={handleSave} disabled={saving}>
                             {saving ? 'Saving…' : editing ? 'Save' : 'Add & sync'}
                         </Button>
@@ -315,18 +317,18 @@ function WordPressPluginLibrary() {
             <Modal
                 open={!!installFor}
                 onClose={() => setInstallFor(null)}
-                title={installFor ? `Install ${installFor.slug} on a site` : ''}
+                title={installFor ? t('wp.wordPressPluginLibrary.installOnASite', 'Install {{slug}} on a site', { slug: installFor.slug }) : ''}
             >
                 <div className="wp-plib-form">
                     <div className="wp-plib-form__row">
-                        <Label htmlFor="plib-site">Target site</Label>
+                        <Label htmlFor="plib-site">{t('wp.wordPressPluginLibrary.targetSite', 'Target site')}</Label>
                         <select
                             id="plib-site"
                             className="wp-plib-form__select"
                             value={installSiteId}
                             onChange={e => setInstallSiteId(e.target.value)}
                         >
-                            <option value="">Select a site…</option>
+                            <option value="">{t('wp.wordPressPluginLibrary.selectASite', 'Select a site…')}</option>
                             {sites.map(s => (
                                 <option key={s.id} value={s.id}>
                                     {s.name || s.application?.name || `Site ${s.id}`}
@@ -336,10 +338,10 @@ function WordPressPluginLibrary() {
                     </div>
                     <div className="wp-plib-form__row wp-plib-form__row--inline">
                         <Switch checked={installActivate} onCheckedChange={setInstallActivate} id="plib-activate" />
-                        <Label htmlFor="plib-activate">Activate after install</Label>
+                        <Label htmlFor="plib-activate">{t('wp.wordPressPluginLibrary.activateAfterInstall', 'Activate after install')}</Label>
                     </div>
                     <div className="wp-plib-form__footer">
-                        <Button variant="outline" onClick={() => setInstallFor(null)}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setInstallFor(null)}>{t('wp.wordPressPluginLibrary.cancel2', 'Cancel')}</Button>
                         <Button onClick={handleInstall} disabled={busy === `install:${installFor?.id}`}>
                             {busy === `install:${installFor?.id}` ? 'Installing…' : 'Install'}
                         </Button>

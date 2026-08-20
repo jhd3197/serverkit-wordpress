@@ -7,9 +7,12 @@ import ActivityFeed from '../ActivityFeed';
 import { MetricCard } from 'serverkit-sdk';
 import { CreateEnvironmentModal } from './EnvironmentsTab';
 import { SearchReplaceModal } from './SettingsTab';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Overview Tab
 const OverviewTab = ({ site, onUpdate }) => {
+    const { t } = useTranslation();
+    const { formatDate } = useFormat();
     const toast = useToast();
     const [creatingSnapshot, setCreatingSnapshot] = useState(false);
     const [showEnvModal, setShowEnvModal] = useState(false);
@@ -42,16 +45,16 @@ const OverviewTab = ({ site, onUpdate }) => {
 
     async function handleQuickSnapshot() {
         setCreatingSnapshot(true);
-        toast.info('Creating snapshot...', { duration: 2000 });
+        toast.info(t('wp.overviewTab.creatingSnapshot', 'Creating snapshot...'), { duration: 2000 });
         try {
             await wordpressApi.createSnapshot(site.id, {
-                name: `Quick Snapshot ${new Date().toLocaleDateString()}`,
+                name: `Quick Snapshot ${formatDate(new Date())}`,
                 tag: 'quick',
-                description: 'Created from Overview quick action'
+                descriptionKey: 'wp.overviewTab.createdFromOverviewQuickAction', description: 'Created from Overview quick action'
             });
-            toast.success('Snapshot created successfully');
+            toast.success(t('wp.overviewTab.snapshotCreatedSuccessfully', 'Snapshot created successfully'));
         } catch (err) {
-            toast.error(err.message || 'Failed to create snapshot');
+            toast.error(err.message || t('wp.overviewTab.failedToCreateSnapshot', 'Failed to create snapshot'));
         } finally {
             setCreatingSnapshot(false);
         }
@@ -60,31 +63,31 @@ const OverviewTab = ({ site, onUpdate }) => {
     async function handleSyncAll() {
         if (!site.environments?.length) return;
         setSyncingAll(true);
-        toast.info(`Syncing ${site.environments.length} environment(s)...`, { duration: 3000 });
+        toast.info(t('wp.overviewTab.syncingEnvironmentS', 'Syncing {{length}} environment(s)...', { length: site.environments.length }), { duration: 3000 });
         try {
             // Sync each environment sequentially
             for (let i = 0; i < site.environments.length; i++) {
                 const env = site.environments[i];
                 await wordpressApi.syncEnvironment(site.id, { environment_id: env.id });
             }
-            toast.success(`Synced ${site.environments.length} environment(s) from production`);
+            toast.success(t('wp.overviewTab.syncedEnvironmentSFromProduction', 'Synced {{length}} environment(s) from production', { length: site.environments.length }));
             onUpdate?.();
         } catch (err) {
-            toast.error(err.message || 'Failed to sync environments');
+            toast.error(err.message || t('wp.overviewTab.failedToSyncEnvironments', 'Failed to sync environments'));
         } finally {
             setSyncingAll(false);
         }
     }
 
     async function handleCreateEnvironment(data) {
-        toast.info('Creating environment... This may take a moment.', { duration: 5000 });
+        toast.info(t('wp.overviewTab.creatingEnvironmentThisMayTakeA', 'Creating environment... This may take a moment.'), { duration: 5000 });
         try {
             await wordpressApi.createEnvironment(site.id, data);
-            toast.success('Environment created successfully');
+            toast.success(t('wp.overviewTab.environmentCreatedSuccessfully', 'Environment created successfully'));
             setShowEnvModal(false);
             onUpdate?.();
         } catch (err) {
-            toast.error(err.message || 'Failed to create environment');
+            toast.error(err.message || t('wp.overviewTab.failedToCreateEnvironment', 'Failed to create environment'));
         }
     }
 
@@ -102,19 +105,19 @@ const OverviewTab = ({ site, onUpdate }) => {
     async function handleTogglePageCache() {
         setTogglingPageCache(true);
         const enabling = !pageCacheActive;
-        toast.info(enabling ? 'Enabling page cache...' : 'Disabling page cache...', { duration: 4000 });
+        toast.info(enabling ? t('wp.overviewTab.enablingPageCache', 'Enabling page cache...') : t('wp.overviewTab.disablingPageCache', 'Disabling page cache...'), { duration: 4000 });
         try {
             const res = enabling
                 ? await wordpressApi.enablePageCache(site.id)
                 : await wordpressApi.disablePageCache(site.id);
             if (res.success === false) {
-                toast.error(res.error || 'Page cache change failed');
+                toast.error(res.error || t('wp.overviewTab.pageCacheChangeFailed', 'Page cache change failed'));
             } else {
-                toast.success(res.message || (enabling ? 'Page cache enabled' : 'Page cache disabled'));
+                toast.success(res.message || (enabling ? t('wp.overviewTab.pageCacheEnabled', 'Page cache enabled') : t('wp.overviewTab.pageCacheDisabled', 'Page cache disabled')));
                 setPageCacheActive(enabling);
             }
         } catch (err) {
-            toast.error(err.message || 'Page cache change failed');
+            toast.error(err.message || t('wp.overviewTab.pageCacheChangeFailed2', 'Page cache change failed'));
         } finally {
             setTogglingPageCache(false);
         }
@@ -123,20 +126,20 @@ const OverviewTab = ({ site, onUpdate }) => {
     async function handleToggleObjectCache() {
         setTogglingCache(true);
         const enabling = !objectCache?.enabled;
-        toast.info(enabling ? 'Enabling Redis object cache...' : 'Disabling object cache...', { duration: 4000 });
+        toast.info(enabling ? t('wp.overviewTab.enablingRedisObjectCache', 'Enabling Redis object cache...') : t('wp.overviewTab.disablingObjectCache', 'Disabling object cache...'), { duration: 4000 });
         try {
             const res = enabling
                 ? await wordpressApi.enableObjectCache(site.id)
                 : await wordpressApi.disableObjectCache(site.id);
             if (res.success === false) {
-                toast.error(res.error || 'Object cache change failed');
+                toast.error(res.error || t('wp.overviewTab.objectCacheChangeFailed', 'Object cache change failed'));
             } else {
-                toast.success(res.message || (enabling ? 'Object cache enabled' : 'Object cache disabled'));
+                toast.success(res.message || (enabling ? t('wp.overviewTab.objectCacheEnabled', 'Object cache enabled') : t('wp.overviewTab.objectCacheDisabled', 'Object cache disabled')));
                 const fresh = await wordpressApi.getObjectCacheStatus(site.id).catch(() => null);
                 if (fresh) setObjectCache(fresh);
             }
         } catch (err) {
-            toast.error(err.message || 'Object cache change failed');
+            toast.error(err.message || t('wp.overviewTab.objectCacheChangeFailed2', 'Object cache change failed'));
         } finally {
             setTogglingCache(false);
         }
@@ -144,28 +147,28 @@ const OverviewTab = ({ site, onUpdate }) => {
 
     async function handleFlushCache() {
         setFlushingCache(true);
-        toast.info('Flushing cache...', { duration: 2000 });
+        toast.info(t('wp.overviewTab.flushingCache', 'Flushing cache...'), { duration: 2000 });
         try {
             const res = await wordpressApi.flushCache(site.id);
-            toast.success(res.message || 'Cache flushed');
+            toast.success(res.message || t('wp.overviewTab.cacheFlushed', 'Cache flushed'));
         } catch (err) {
-            toast.error(err.message || 'Failed to flush cache');
+            toast.error(err.message || t('wp.overviewTab.failedToFlushCache', 'Failed to flush cache'));
         } finally {
             setFlushingCache(false);
         }
     }
 
     async function handleHarden() {
-        if (!window.confirm('Apply security hardening? This disables file editing, the XML-RPC endpoint, forces SSL on wp-admin, tightens file permissions, and regenerates security keys (logs users out).')) {
+        if (!window.confirm(t('wp.overviewTab.applySecurityHardeningThisDisablesFile', 'Apply security hardening? This disables file editing, the XML-RPC endpoint, forces SSL on wp-admin, tightens file permissions, and regenerates security keys (logs users out).'))) {
             return;
         }
         setHardening(true);
-        toast.info('Applying security hardening...', { duration: 4000 });
+        toast.info(t('wp.overviewTab.applyingSecurityHardening', 'Applying security hardening...'), { duration: 4000 });
         try {
             const res = await wordpressApi.harden(site.id);
-            toast.success(res.message || 'Security hardening applied');
+            toast.success(res.message || t('wp.overviewTab.securityHardeningApplied', 'Security hardening applied'));
         } catch (err) {
-            toast.error(err.message || 'Failed to harden site');
+            toast.error(err.message || t('wp.overviewTab.failedToHardenSite', 'Failed to harden site'));
         } finally {
             setHardening(false);
         }
@@ -173,17 +176,17 @@ const OverviewTab = ({ site, onUpdate }) => {
 
     async function handleSearchReplace(data) {
         // data = { search, replace, dry_run }
-        toast.info(data.dry_run ? 'Running search-replace preview...' : 'Running search-replace...', { duration: 3000 });
+        toast.info(data.dry_run ? t('wp.overviewTab.runningSearchReplacePreview', 'Running search-replace preview...') : t('wp.overviewTab.runningSearchReplace', 'Running search-replace...'), { duration: 3000 });
         try {
             const res = await wordpressApi.searchReplace(site.id, data);
             if (res.success === false) {
-                toast.error(res.error || res.message || 'Search-replace failed');
+                toast.error(res.error || res.message || t('wp.overviewTab.searchReplaceFailed', 'Search-replace failed'));
                 return;
             }
-            toast.success(data.dry_run ? 'Dry run complete - no changes written' : 'Search-replace complete');
+            toast.success(data.dry_run ? t('wp.overviewTab.dryRunCompleteNoChangesWritten', 'Dry run complete - no changes written') : t('wp.overviewTab.searchReplaceComplete', 'Search-replace complete'));
             if (!data.dry_run) setShowSearchReplace(false);
         } catch (err) {
-            toast.error(err.message || 'Search-replace failed');
+            toast.error(err.message || t('wp.overviewTab.searchReplaceFailed2', 'Search-replace failed'));
         }
     }
 
@@ -196,7 +199,7 @@ const OverviewTab = ({ site, onUpdate }) => {
     };
     const [diskVal, diskUnit] = (site.disk_usage_human || '').split(' ');
     const trafficSeries = analytics?.series || [];
-    const fmtTrafficTick = (iso) => new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
+    const fmtTrafficTick = (iso) => formatDate(iso, { parts: { month: 'short', day: 'numeric' } });
 
     return (
         <div className="wp-overview">
@@ -209,33 +212,33 @@ const OverviewTab = ({ site, onUpdate }) => {
                     icon={<Activity size={16} />}
                     value={uptime?.uptime_30d != null ? uptime.uptime_30d.toFixed(2) : '—'}
                     unit={uptime?.uptime_30d != null ? '%' : undefined}
-                    label="Uptime (30d)"
+                    label={t('wp.overviewTab.uptime30d', 'Uptime (30d)')}
                 />
                 <MetricCard
                     tone="accent"
                     icon={<BarChart3 size={16} />}
                     value={analytics ? compactNum(analytics.unique_visitors ?? 0) : '—'}
-                    label="Visitors (7d)"
+                    label={t('wp.overviewTab.visitors7d', 'Visitors (7d)')}
                 />
                 <MetricCard
                     tone={(analytics?.error_rate ?? 0) > 5 ? 'red' : 'amber'}
                     icon={<AlertTriangle size={16} />}
                     value={analytics ? `${analytics.error_rate ?? 0}` : '—'}
                     unit={analytics ? '%' : undefined}
-                    label="Error rate (7d)"
+                    label={t('wp.overviewTab.errorRate7d', 'Error rate (7d)')}
                 />
                 <MetricCard
                     tone="cyan"
                     icon={<HardDrive size={16} />}
                     value={diskVal || '—'}
                     unit={diskUnit || undefined}
-                    label="Disk used"
+                    label={t('wp.overviewTab.diskUsed', 'Disk used')}
                 />
             </div>
 
             <div className="wp-overview-main">
                 <div className="app-panel">
-                    <div className="app-panel-header">Quick Actions</div>
+                    <div className="app-panel-header">{t('wp.overviewTab.quickActions', 'Quick Actions')}</div>
                     <div className="app-panel-body">
                         <div className="quick-actions-grid">
                             {site.url && (
@@ -247,7 +250,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                         className="quick-action-btn"
                                     >
                                         <ExternalLink size={16} />
-                                        Visit Site
+                                        {t('wp.overviewTab.visitSite', 'Visit Site')}
                                     </a>
                                     <a
                                         href={`${site.url}/wp-admin`}
@@ -256,7 +259,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                         className="quick-action-btn"
                                     >
                                         <Settings size={16} />
-                                        WP Admin
+                                        {t('wp.overviewTab.wpAdmin', 'WP Admin')}
                                     </a>
                                 </>
                             )}
@@ -266,7 +269,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                     onClick={() => setShowEnvModal(true)}
                                 >
                                     <Plus size={16} />
-                                    Create Environment
+                                    {t('wp.overviewTab.createEnvironment', 'Create Environment')}
                                 </button>
                             )}
                             <button type="button"
@@ -299,7 +302,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 className="quick-action-btn"
                                 onClick={handleTogglePageCache}
                                 disabled={togglingPageCache}
-                                title={pageCacheActive ? 'Full-page cache is active' : 'Enable a full-page cache for this site'}
+                                title={pageCacheActive ? t('wp.overviewTab.fullPageCacheIsActive', 'Full-page cache is active') : t('wp.overviewTab.enableAFullPageCacheFor', 'Enable a full-page cache for this site')}
                             >
                                 <Zap size={16} />
                                 {togglingPageCache
@@ -311,7 +314,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 onClick={() => setShowSearchReplace(true)}
                             >
                                 <Replace size={16} />
-                                Search &amp; Replace
+                                {t('wp.overviewTab.searchReplace', 'Search & Replace')}
                             </button>
                             <button type="button"
                                 className="quick-action-btn"
@@ -325,7 +328,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 className="quick-action-btn"
                                 onClick={handleToggleObjectCache}
                                 disabled={togglingCache}
-                                title={objectCache?.enabled ? 'Redis object cache is active' : 'Enable a Redis object cache for this site'}
+                                title={objectCache?.enabled ? t('wp.overviewTab.redisObjectCacheIsActive', 'Redis object cache is active') : t('wp.overviewTab.enableARedisObjectCacheFor', 'Enable a Redis object cache for this site')}
                             >
                                 <Database size={16} />
                                 {togglingCache
@@ -338,8 +341,8 @@ const OverviewTab = ({ site, onUpdate }) => {
 
                 <div className="app-panel wp-traffic-panel">
                     <div className="app-panel-header">
-                        Traffic
-                        <span className="wp-panel-sub">Last 7 days · unique visits</span>
+                        {t('wp.overviewTab.traffic', 'Traffic')}
+                        <span className="wp-panel-sub">{t('wp.overviewTab.last7DaysUniqueVisits', 'Last 7 days · unique visits')}</span>
                     </div>
                     <div className="app-panel-body">
                         {trafficSeries.length > 0 ? (
@@ -359,14 +362,14 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 </AreaChart>
                             </ResponsiveContainer>
                         ) : (
-                            <p className="hint">No traffic recorded for this period yet — it&apos;s parsed from the site&apos;s access log.</p>
+                            <p className="hint">{t('wp.overviewTab.noTrafficRecordedForThisPeriod', 'No traffic recorded for this period yet — it\'s parsed from the site\'s access log.')}</p>
                         )}
                     </div>
                 </div>
             </div>
 
             <div className="app-panel wp-activity-panel">
-                <div className="app-panel-header">Recent activity</div>
+                <div className="app-panel-header">{t('wp.overviewTab.recentActivity', 'Recent activity')}</div>
                 <div className="app-panel-body">
                     <ActivityFeed projectId={site.id} limit={6} />
                 </div>

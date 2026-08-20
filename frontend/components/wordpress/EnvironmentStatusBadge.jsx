@@ -1,6 +1,8 @@
 import { Lock } from 'lucide-react';
+import { useTranslation } from 'serverkit-sdk';
 
 const EnvironmentStatusBadge = ({ type, status, isLocked }) => {
+    const { t } = useTranslation();
     function getTypeBadgeClass() {
         switch (type) {
             case 'production': return 'env-production';
@@ -18,7 +20,7 @@ const EnvironmentStatusBadge = ({ type, status, isLocked }) => {
                 {type?.toUpperCase() || 'DEV'}
             </span>
             {isLocked && (
-                <span className="env-locked-badge" title="Environment is locked">
+                <span className="env-locked-badge" title={t('wp.environmentStatusBadge.environmentIsLocked', 'Environment is locked')}>
                     <Lock size={10} />
                 </span>
             )}

@@ -8,6 +8,7 @@ import { Pill } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Detail Page Skeleton for initial loading
 // Mirrors the real page chrome (top bar, identity, repo pill, tabs) and the
@@ -130,6 +131,8 @@ export const ENV_TYPE_LABELS = { production: 'Production', staging: 'Staging', d
 // Compact header environment switcher — navigates between the environment
 // site ids already present in the loaded payload (no extra fetches).
 export const EnvSwitcher = ({ options, onSelect }) => {
+    const { t } = useTranslation();
+    const { formatDate } = useFormat();
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
@@ -147,7 +150,7 @@ export const EnvSwitcher = ({ options, onSelect }) => {
                 type="button"
                 className={`wp-envswitch ${open ? 'open' : ''}`}
                 onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
-                title="Switch environment"
+                title={t('wp.wpDetailShared.switchEnvironment', 'Switch environment')}
             >
                 <span className="ed" style={{ background: ENV_DOT_COLORS[current.type] || 'var(--text-faint)' }} />
                 {ENV_TYPE_LABELS[current.type] || current.name}
@@ -155,7 +158,7 @@ export const EnvSwitcher = ({ options, onSelect }) => {
             </button>
             {open && (
                 <div className="wp-envswitch-menu" onClick={e => e.stopPropagation()}>
-                    <div className="wp-envswitch-head">Switch environment</div>
+                    <div className="wp-envswitch-head">{t('wp.wpDetailShared.switchEnvironment2', 'Switch environment')}</div>
                     {options.map(o => (
                         <button
                             type="button"
@@ -184,6 +187,7 @@ export const EnvSwitcher = ({ options, onSelect }) => {
 // URL is not HTTPS. Clicking it jumps to SSL settings so the user can enable
 // HTTPS in one click (or see why it can't be issued yet, e.g. localhost).
 export const SSLAlert = ({ site }) => {
+    const { t } = useTranslation();
     const isHttps = (site.url || '').startsWith('https://');
 
     if (!site.url || isHttps) return null;
@@ -194,7 +198,7 @@ export const SSLAlert = ({ site }) => {
             className="sk-pill sk-pill--amber"
         >
             <span className="sk-pill__dot" />
-            Not Secured
+            {t('wp.wpDetailShared.notSecured', 'Not Secured')}
         </Link>
     );
 };
@@ -211,9 +215,9 @@ export const PHP_LIMIT_LABELS = {
 
 // Updates Tab — safe update schedule options (#29).
 export const UPDATE_SCHEDULES = [
-    { label: 'Off', value: '' },
-    { label: 'Weekly (Sun 3am)', value: '0 3 * * 0' },
-    { label: 'Daily (3am)', value: '0 3 * * *' },
+    { labelKey: 'wp.wpDetailShared.off', label: 'Off', value: '' },
+    { labelKey: 'wp.wpDetailShared.weeklySun3am', label: 'Weekly (Sun 3am)', value: '0 3 * * 0' },
+    { labelKey: 'wp.wpDetailShared.daily3am', label: 'Daily (3am)', value: '0 3 * * *' },
 ];
 
 // Analytics Tab — period options (#25).
@@ -222,6 +226,7 @@ export const ANALYTICS_PERIODS = [{ label: '24h', hours: 24 }, { label: '7d', ho
 // SSL Certificate panel — guided one-click SSL that walks the user through the
 // prerequisites (public domain, DNS, admin email) and then issues the cert.
 export const SiteSSLPanel = ({ site, onUpdate }) => {
+    const { t } = useTranslation();
     const toast = useToast();
     const domains = site.application?.domains || [];
     const primaryDomain = (domains.find(d => d.is_primary) || domains[0])?.name || null;
@@ -285,18 +290,18 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
     async function handleEnableSSL() {
         if (!primaryDomain || !site.admin_email) return;
         setIssuing(true);
-        toast.info(`Requesting certificate for ${primaryDomain}...`, { duration: 4000 });
+        toast.info(t('wp.wpDetailShared.requestingCertificateFor', 'Requesting certificate for {{primaryDomain}}...', { primaryDomain: primaryDomain }), { duration: 4000 });
         try {
             const res = await api.obtainCertificate({ domains: [primaryDomain], email: site.admin_email, use_nginx: true });
             if (res.success) {
-                toast.success(res.message || 'Certificate issued');
+                toast.success(res.message || t('wp.wpDetailShared.certificateIssued', 'Certificate issued'));
                 const updated = await api.getSSLHealth(primaryDomain);
                 setHealth(updated);
             } else {
-                toast.error(res.error || 'Certificate request failed');
+                toast.error(res.error || t('wp.wpDetailShared.certificateRequestFailed', 'Certificate request failed'));
             }
         } catch (err) {
-            toast.error(err.message || 'Certificate request failed');
+            toast.error(err.message || t('wp.wpDetailShared.certificateRequestFailed2', 'Certificate request failed'));
         } finally {
             setIssuing(false);
         }
@@ -307,19 +312,19 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
         const domain = attachDomain.trim();
         if (!domain || attaching) return;
         setAttaching(true);
-        toast.info('Attaching domain — creating DNS and moving the site…', { duration: 5000 });
+        toast.info(t('wp.wpDetailShared.attachingDomainCreatingDnsAndMoving', 'Attaching domain — creating DNS and moving the site…'), { duration: 5000 });
         try {
             const res = await wordpressApi.attachDomain(site.id, { domain, issueSsl: true });
             if (res.success) {
                 setAttachResult(res);
-                if (res.dns?.created) toast.success(`DNS A record created via ${res.dns.provider}`);
-                else toast.warning('Domain attached — add the DNS record shown to finish.', { duration: 7000 });
+                if (res.dns?.created) toast.success(t('wp.wpDetailShared.dnsARecordCreatedVia', 'DNS A record created via {{provider}}', { provider: res.dns.provider }));
+                else toast.warning(t('wp.wpDetailShared.domainAttachedAddTheDnsRecord', 'Domain attached — add the DNS record shown to finish.'), { duration: 7000 });
                 onUpdate?.();
             } else {
-                toast.error(res.error || 'Failed to attach domain');
+                toast.error(res.error || t('wp.wpDetailShared.failedToAttachDomain', 'Failed to attach domain'));
             }
         } catch (err) {
-            toast.error(err.message || 'Failed to attach domain');
+            toast.error(err.message || t('wp.wpDetailShared.failedToAttachDomain2', 'Failed to attach domain'));
         } finally {
             setAttaching(false);
         }
@@ -339,15 +344,15 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
 
     return (
         <div className="app-panel">
-            <div className="app-panel-header"><Lock size={16} /> SSL Certificate</div>
+            <div className="app-panel-header"><Lock size={16} /> {t('wp.wpDetailShared.sslCertificate', 'SSL Certificate')}</div>
             <div className="app-panel-body">
                 <div className="app-info-grid">
                     <div className="app-info-item">
-                        <span className="app-info-label">Primary Domain</span>
+                        <span className="app-info-label">{t('wp.wpDetailShared.primaryDomain', 'Primary Domain')}</span>
                         <span className="app-info-value mono">{primaryDomain || 'None configured'}</span>
                     </div>
                     <div className="app-info-item">
-                        <span className="app-info-label">Status</span>
+                        <span className="app-info-label">{t('wp.wpDetailShared.status', 'Status')}</span>
                         <span className="app-info-value">
                             <Pill kind={checking ? 'gray' : issued ? 'green' : 'amber'}>
                                 {checking ? 'Checking...' : issued ? `Active (${health.grade})` : 'Not Secured'}
@@ -356,16 +361,16 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                     </div>
                     {issued && health.expires_at && (
                         <div className="app-info-item">
-                            <span className="app-info-label">Expires</span>
+                            <span className="app-info-label">{t('wp.wpDetailShared.expires', 'Expires')}</span>
                             <span className="app-info-value">
-                                {new Date(health.expires_at).toLocaleDateString()}
+                                {formatDate(health.expires_at)}
                                 {typeof health.days_remaining === 'number' ? ` (${health.days_remaining}d)` : ''}
                             </span>
                         </div>
                     )}
                     {issued && health.issuer && (
                         <div className="app-info-item">
-                            <span className="app-info-label">Issuer</span>
+                            <span className="app-info-label">{t('wp.wpDetailShared.issuer', 'Issuer')}</span>
                             <span className="app-info-value">{health.issuer}</span>
                         </div>
                     )}
@@ -373,39 +378,39 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
 
                 {!isPublicDomain ? (
                     <div className="ssl-guide">
-                        <p className="hint">SSL requires a public domain pointed at this server. This site is on <code>{primaryDomain || 'localhost'}</code>, so a certificate cannot be issued here.</p>
+                        <p className="hint">{t('wp.wpDetailShared.sslRequiresAPublicDomainPointed', 'SSL requires a public domain pointed at this server. This site is on')} <code>{primaryDomain || 'localhost'}</code>{t('wp.wpDetailShared.soACertificateCannotBeIssued', ', so a certificate cannot be issued here.')}</p>
                         <div className="ssl-checklist">
-                            <CheckItem ok={false} label="Public domain mapped to this site" />
-                            <CheckItem ok={hasAdminEmail} label="Admin email set for certificate expiry notices" />
+                            <CheckItem ok={false} label={t('wp.wpDetailShared.publicDomainMappedToThisSite', 'Public domain mapped to this site')} />
+                            <CheckItem ok={hasAdminEmail} label={t('wp.wpDetailShared.adminEmailSetForCertificateExpiry', 'Admin email set for certificate expiry notices')} />
                         </div>
 
                         {!attachResult ? (
                             <form className="ssl-inline-attach" onSubmit={handleAttachDomain}>
                                 {contextLoading ? (
-                                    <p className="hint">Loading domain connections…</p>
+                                    <p className="hint">{t('wp.wpDetailShared.loadingDomainConnections', 'Loading domain connections…')}</p>
                                 ) : (
                                     <div className="ssl-context">
                                         {dnsProviders.length > 0 ? (
                                             <div className="ssl-provider-status ssl-provider-status--ok">
                                                 <CircleCheck size={14} />
-                                                DNS auto-managed via {dnsProviders.map(p => p.name || p.provider).join(', ')}
+                                                {t('wp.wpDetailShared.dnsAutoManagedVia', 'DNS auto-managed via')} {dnsProviders.map(p => p.name || p.provider).join(', ')}
                                             </div>
                                         ) : (
                                             <div className="ssl-provider-status ssl-provider-status--missing">
                                                 <CircleX size={14} />
-                                                No DNS provider connected — add Cloudflare/Route53/etc. for automatic records, or add the DNS record manually after attaching.
+                                                {t('wp.wpDetailShared.noDnsProviderConnectedAddCloudflare', 'No DNS provider connected — add Cloudflare/Route53/etc. for automatic records, or add the DNS record manually after attaching.')}
                                             </div>
                                         )}
                                         <div className="ssl-context-links">
-                                            <Link to="/settings/connections">DNS connections</Link>
+                                            <Link to="/settings/connections">{t('wp.wpDetailShared.dnsConnections', 'DNS connections')}</Link>
                                             <span>·</span>
-                                            <Link to="/domains">Manage domains</Link>
+                                            <Link to="/domains">{t('wp.wpDetailShared.manageDomains', 'Manage domains')}</Link>
                                         </div>
                                     </div>
                                 )}
 
                                 <div className="form-group">
-                                    <Label>Domain</Label>
+                                    <Label>{t('wp.wpDetailShared.domain', 'Domain')}</Label>
                                     <Input
                                         type="text"
                                         value={attachDomain}
@@ -423,7 +428,7 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                                                 </option>
                                             ))}
                                     </datalist>
-                                    <span className="form-hint">Pick an existing ServerKit domain or type one you control, without http://</span>
+                                    <span className="form-hint">{t('wp.wpDetailShared.pickAnExistingServerkitDomainOr', 'Pick an existing ServerKit domain or type one you control, without http://')}</span>
                                 </div>
                                 <div className="app-detail-actions">
                                     <Button type="submit" disabled={!attachValid || attaching}>
@@ -436,13 +441,13 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                             <div className="ssl-attach-result">
                                 <div className="ssl-attach-result__success">
                                     <CircleCheck size={16} />
-                                    Site is now at <code>{attachResult.url}</code>
+                                    {t('wp.wpDetailShared.siteIsNowAt', 'Site is now at')} <code>{attachResult.url}</code>
                                 </div>
                                 {attachResult.dns?.created ? (
-                                    <p className="hint">DNS A record created automatically via {attachResult.dns.provider}{attachResult.dns.zone ? ` (zone ${attachResult.dns.zone})` : ''}.</p>
+                                    <p className="hint">{t('wp.wpDetailShared.dnsARecordCreatedAutomaticallyVia', 'DNS A record created automatically via')} {attachResult.dns.provider}{attachResult.dns.zone ? ` (zone ${attachResult.dns.zone})` : ''}.</p>
                                 ) : (
                                     <div className="ssl-attach-result__manual">
-                                        <strong>Add this DNS record to finish:</strong>
+                                        <strong>{t('wp.wpDetailShared.addThisDnsRecordToFinish', 'Add this DNS record to finish:')}</strong>
                                         {rec?.value ? (
                                             <code className="ssl-attach-result__record">{rec.type}&nbsp;&nbsp;{rec.name}&nbsp;→&nbsp;{rec.value}</code>
                                         ) : (
@@ -456,23 +461,23 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                     </div>
                 ) : !hasAdminEmail ? (
                     <div className="ssl-guide">
-                        <p className="hint">A public domain is configured, but an admin email is required before requesting a certificate.</p>
+                        <p className="hint">{t('wp.wpDetailShared.aPublicDomainIsConfiguredBut', 'A public domain is configured, but an admin email is required before requesting a certificate.')}</p>
                         <div className="ssl-checklist">
-                            <CheckItem ok label={`Domain ${primaryDomain} configured`} />
-                            <CheckItem ok={false} label="Admin email set" />
+                            <CheckItem ok label={t('wp.wpDetailShared.domainConfigured', 'Domain {{primaryDomain}} configured', { primaryDomain: primaryDomain })} />
+                            <CheckItem ok={false} label={t('wp.wpDetailShared.adminEmailSet', 'Admin email set')} />
                         </div>
-                        <p className="hint">Update the site&apos;s admin email in Settings → General, then return here to enable SSL.</p>
+                        <p className="hint">{t('wp.wpDetailShared.updateTheSiteSAdminEmail', 'Update the site\'s admin email in Settings → General, then return here to enable SSL.')}</p>
                     </div>
                 ) : (
                     <div className="ssl-guide">
                         {issued ? (
-                            <p className="hint">This site is secured with a valid SSL certificate. You can re-issue it if needed.</p>
+                            <p className="hint">{t('wp.wpDetailShared.thisSiteIsSecuredWithA', 'This site is secured with a valid SSL certificate. You can re-issue it if needed.')}</p>
                         ) : (
                             <>
-                                <p className="hint">Everything is ready. One click will request a free certificate from Let&apos;s Encrypt and configure the server.</p>
+                                <p className="hint">{t('wp.wpDetailShared.everythingIsReadyOneClickWill', 'Everything is ready. One click will request a free certificate from Let\'s Encrypt and configure the server.')}</p>
                                 <div className="ssl-checklist">
-                                    <CheckItem ok label={`Domain ${primaryDomain} configured`} />
-                                    <CheckItem ok label="Admin email set" />
+                                    <CheckItem ok label={t('wp.wpDetailShared.domainConfigured2', 'Domain {{primaryDomain}} configured', { primaryDomain: primaryDomain })} />
+                                    <CheckItem ok label={t('wp.wpDetailShared.adminEmailSet2', 'Admin email set')} />
                                 </div>
                             </>
                         )}

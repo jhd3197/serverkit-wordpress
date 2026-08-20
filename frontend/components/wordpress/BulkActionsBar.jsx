@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Square, Play, RefreshCw, ArrowDownLeft, X } from 'lucide-react';
 import { Spinner } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute, api }) => {
+    const { t } = useTranslation();
     const [executing, setExecuting] = useState(false);
     const [confirmAction, setConfirmAction] = useState(null);
 
@@ -53,7 +55,7 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                         onClick={() => setConfirmAction(null)}
                         disabled={executing}
                     >
-                        Cancel
+                        {t('wp.bulkActionsBar.cancel', 'Cancel')}
                     </Button>
                 </div>
             ) : (
@@ -69,40 +71,40 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                             size="sm"
                             onClick={() => handleAction('start')}
                             disabled={executing}
-                            title="Start Selected"
+                            title={t('wp.bulkActionsBar.startSelected', 'Start Selected')}
                         >
                             <Play size={12} />
-                            Start
+                            {t('wp.bulkActionsBar.start', 'Start')}
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleAction('stop')}
                             disabled={executing}
-                            title="Stop Selected"
+                            title={t('wp.bulkActionsBar.stopSelected', 'Stop Selected')}
                         >
                             <Square size={12} />
-                            Stop
+                            {t('wp.bulkActionsBar.stop', 'Stop')}
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleAction('restart')}
                             disabled={executing}
-                            title="Restart Selected"
+                            title={t('wp.bulkActionsBar.restartSelected', 'Restart Selected')}
                         >
                             <RefreshCw size={12} />
-                            Restart
+                            {t('wp.bulkActionsBar.restart', 'Restart')}
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleAction('sync')}
                             disabled={executing}
-                            title="Sync from Production"
+                            title={t('wp.bulkActionsBar.syncFromProduction', 'Sync from Production')}
                         >
                             <ArrowDownLeft size={12} />
-                            Sync from Prod
+                            {t('wp.bulkActionsBar.syncFromProd', 'Sync from Prod')}
                         </Button>
                     </div>
 

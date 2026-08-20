@@ -3,15 +3,18 @@ import { Download, RotateCcw, Trash2, GitCommit, Tag } from 'lucide-react';
 import { ConfirmDialog } from 'serverkit-sdk';
 import { formatBytes } from 'serverkit-sdk';
 import { EmptyState } from 'serverkit-sdk';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
+    const { t } = useTranslation();
+    const { formatDateTime } = useFormat();
     const [actionLoading, setActionLoading] = useState({});
     const [confirmRestore, setConfirmRestore] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
     function formatDate(dateString) {
         if (!dateString) return '-';
-        return new Date(dateString).toLocaleString();
+        return formatDateTime(dateString);
     }
 
     async function handleRestore(snapshot) {
@@ -35,14 +38,14 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
     }
 
     if (loading) {
-        return <EmptyState loading title="Loading snapshots..." />;
+        return <EmptyState loading title={t('wp.snapshotTable.loadingSnapshots', 'Loading snapshots...')} />;
     }
 
     if (!snapshots || snapshots.length === 0) {
         return (
             <div className="empty-state-small">
-                <p>No database snapshots yet.</p>
-                <p className="hint">Create a snapshot to backup your database.</p>
+                <p>{t('wp.snapshotTable.noDatabaseSnapshotsYet', 'No database snapshots yet.')}</p>
+                <p className="hint">{t('wp.snapshotTable.createASnapshotToBackupYour', 'Create a snapshot to backup your database.')}</p>
             </div>
         );
     }
@@ -52,11 +55,11 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
             <table className="sk-dtable wp-snapshot-table">
                 <thead>
                     <tr>
-                        <th>Snapshot</th>
-                        <th>Size</th>
-                        <th>Created</th>
-                        <th>Git Context</th>
-                        <th className="wp-th-right">Actions</th>
+                        <th>{t('wp.snapshotTable.snapshot', 'Snapshot')}</th>
+                        <th>{t('wp.snapshotTable.size', 'Size')}</th>
+                        <th>{t('wp.snapshotTable.created', 'Created')}</th>
+                        <th>{t('wp.snapshotTable.gitContext', 'Git Context')}</th>
+                        <th className="wp-th-right">{t('wp.snapshotTable.actions', 'Actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,7 +81,7 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
                             <td>
                                 <span className="mono">{formatBytes(snapshot.size_bytes)}</span>
                                 {snapshot.compressed && (
-                                    <span className="compressed-badge" title="Compressed">gz</span>
+                                    <span className="compressed-badge" title={t('wp.snapshotTable.compressed', 'Compressed')}>gz</span>
                                 )}
                             </td>
                             <td><span className="snapshot-date">{formatDate(snapshot.created_at)}</span></td>
@@ -101,7 +104,7 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
                             <td className="wp-cell-actions">
                                 <button type="button"
                                     className="wp-row-action"
-                                    title="Restore"
+                                    title={t('wp.snapshotTable.restore', 'Restore')}
                                     onClick={() => setConfirmRestore(snapshot)}
                                     disabled={actionLoading[`restore-${snapshot.id}`]}
                                 >
@@ -109,7 +112,7 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
                                 </button>
                                 <button type="button"
                                     className="wp-row-action wp-row-action--danger"
-                                    title="Delete"
+                                    title={t('wp.snapshotTable.delete', 'Delete')}
                                     onClick={() => setConfirmDelete(snapshot)}
                                     disabled={actionLoading[`delete-${snapshot.id}`]}
                                 >
@@ -123,19 +126,19 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
 
             <ConfirmDialog
                 isOpen={!!confirmRestore}
-                title="Restore Database Snapshot"
-                message={`Restore database from "${confirmRestore?.name}"?`}
+                title={t('wp.snapshotTable.restoreDatabaseSnapshot', 'Restore Database Snapshot')}
+                message={t('wp.snapshotTable.restoreDatabaseFrom', 'Restore database from "{{value}}"?', { value: confirmRestore?.name })}
                 details={
                     <ul>
-                        <li><strong>Warning:</strong> This will overwrite your current database</li>
-                        <li>Snapshot size: <code>{formatBytes(confirmRestore?.size_bytes)}</code></li>
-                        <li>Created: {formatDate(confirmRestore?.created_at)}</li>
+                        <li><strong>{t('wp.snapshotTable.warning', 'Warning:')}</strong> {t('wp.snapshotTable.thisWillOverwriteYourCurrentDatabase', 'This will overwrite your current database')}</li>
+                        <li>{t('wp.snapshotTable.snapshotSize', 'Snapshot size:')} <code>{formatBytes(confirmRestore?.size_bytes)}</code></li>
+                        <li>{t('wp.snapshotTable.created2', 'Created:')} {formatDate(confirmRestore?.created_at)}</li>
                         {confirmRestore?.commit_sha && (
-                            <li>Git commit: <code>{confirmRestore.commit_sha.substring(0, 7)}</code></li>
+                            <li>{t('wp.snapshotTable.gitCommit', 'Git commit:')} <code>{confirmRestore.commit_sha.substring(0, 7)}</code></li>
                         )}
                     </ul>
                 }
-                confirmText="Restore Snapshot"
+                confirmText={t('wp.snapshotTable.restoreSnapshot', 'Restore Snapshot')}
                 variant="warning"
                 onConfirm={() => handleRestore(confirmRestore)}
                 onCancel={() => setConfirmRestore(null)}
@@ -143,15 +146,15 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
 
             <ConfirmDialog
                 isOpen={!!confirmDelete}
-                title="Delete Snapshot"
-                message={`Delete snapshot "${confirmDelete?.name}"?`}
+                title={t('wp.snapshotTable.deleteSnapshot', 'Delete Snapshot')}
+                message={t('wp.snapshotTable.deleteSnapshot2', 'Delete snapshot "{{value}}"?', { value: confirmDelete?.name })}
                 details={
                     <ul>
-                        <li>This snapshot will be permanently deleted</li>
-                        <li>This action cannot be undone</li>
+                        <li>{t('wp.snapshotTable.thisSnapshotWillBePermanentlyDeleted', 'This snapshot will be permanently deleted')}</li>
+                        <li>{t('wp.snapshotTable.thisActionCannotBeUndone', 'This action cannot be undone')}</li>
                     </ul>
                 }
-                confirmText="Delete Snapshot"
+                confirmText={t('wp.snapshotTable.deleteSnapshot3', 'Delete Snapshot')}
                 variant="danger"
                 onConfirm={() => handleDelete(confirmDelete)}
                 onCancel={() => setConfirmDelete(null)}

@@ -28,12 +28,15 @@ import { io } from 'socket.io-client';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || window.location.origin;
 
 const VALID_TABS = ['pipeline', 'activity', 'health'];
 
 const WordPressProject = () => {
+    const { t } = useTranslation();
+    const { formatDateTime } = useFormat();
     const { id } = useParams();
     const navigate = useNavigate();
     const toast = useToast();
@@ -134,7 +137,7 @@ const WordPressProject = () => {
                 break;
             case 'bulk_operation_completed':
                 loadPipeline();
-                toast.success('Bulk operation completed');
+                toast.success(t('wp.wordPressProject.bulkOperationCompleted', 'Bulk operation completed'));
                 break;
             default:
                 break;
@@ -147,7 +150,7 @@ const WordPressProject = () => {
             setPipeline(data);
         } catch (err) {
             console.error('Failed to load pipeline:', err);
-            toast.error('Failed to load project pipeline');
+            toast.error(t('wp.wordPressProject.failedToLoadProjectPipeline', 'Failed to load project pipeline'));
         } finally {
             setLoading(false);
         }
@@ -164,9 +167,9 @@ const WordPressProject = () => {
             // A promotion is a deployment now: open its console, where the
             // steps, live log and retry live.
             if (res?.job_id) navigate(`/deployments/${res.job_id}`);
-            else toast.info('Promotion queued');
+            else toast.info(t('wp.wordPressProject.promotionQueued', 'Promotion queued'));
         } catch (err) {
-            toast.error(err.message || 'Promotion failed');
+            toast.error(err.message || t('wp.wordPressProject.promotionFailed', 'Promotion failed'));
         }
     }, [id, navigate, toast]);
 
@@ -176,38 +179,38 @@ const WordPressProject = () => {
 
     const handleDoSync = useCallback(async (config) => {
         const env = syncModal.environment;
-        toast.info('Starting sync...', { duration: 3000 });
+        toast.info(t('wp.wordPressProject.startingSync', 'Starting sync...'), { duration: 3000 });
         try {
             await wordpressApi.syncProjectEnvironment(id, env.id, config);
             setSyncModal(null);
         } catch (err) {
-            toast.error(err.message || 'Sync failed');
+            toast.error(err.message || t('wp.wordPressProject.syncFailed', 'Sync failed'));
         }
     }, [id, syncModal, toast]);
 
     const handleStart = useCallback(async (env) => {
         try {
             await wordpressApi.startEnvironment(id, env.id);
-            toast.success('Environment started');
+            toast.success(t('wp.wordPressProject.environmentStarted', 'Environment started'));
             loadPipeline();
         } catch (err) {
-            toast.error(err.message || 'Failed to start environment');
+            toast.error(err.message || t('wp.wordPressProject.failedToStartEnvironment', 'Failed to start environment'));
         }
     }, [id, toast]);
 
     const handleStop = useCallback(async (env) => {
         setConfirmDialog({
-            title: 'Stop Environment',
+            titleKey: 'wp.wordPressProject.stopEnvironment', title: 'Stop Environment',
             message: `Stop the ${env.environment_type || ''} environment "${env.name}"?`,
-            confirmText: 'Stop',
+            confirmTextKey: 'wp.wordPressProject.stop', confirmText: 'Stop',
             variant: 'warning',
             onConfirm: async () => {
                 try {
                     await wordpressApi.stopEnvironment(id, env.id);
-                    toast.success('Environment stopped');
+                    toast.success(t('wp.wordPressProject.environmentStopped', 'Environment stopped'));
                     loadPipeline();
                 } catch (err) {
-                    toast.error(err.message || 'Failed to stop environment');
+                    toast.error(err.message || t('wp.wordPressProject.failedToStopEnvironment', 'Failed to stop environment'));
                 } finally {
                     setConfirmDialog(null);
                 }
@@ -218,18 +221,18 @@ const WordPressProject = () => {
 
     const handleRollback = useCallback((promotion) => {
         setConfirmDialog({
-            title: 'Roll Back Promotion',
+            titleKey: 'wp.wordPressProject.rollBackPromotion', title: 'Roll Back Promotion',
             message: `Restore the pre-promotion snapshot for "${promotion.target_site?.name || 'target environment'}"? This overwrites the target environment's current database with the snapshot taken just before promotion #${promotion.id}.`,
-            confirmText: 'Roll Back',
+            confirmTextKey: 'wp.wordPressProject.rollBack', confirmText: 'Roll Back',
             variant: 'danger',
             onConfirm: async () => {
-                toast.info('Rolling back promotion...', { duration: 4000 });
+                toast.info(t('wp.wordPressProject.rollingBackPromotion', 'Rolling back promotion...'), { duration: 4000 });
                 try {
                     await wordpressApi.rollbackPromotion(id, promotion.id);
-                    toast.success('Promotion rolled back');
+                    toast.success(t('wp.wordPressProject.promotionRolledBack', 'Promotion rolled back'));
                     loadPipeline();
                 } catch (err) {
-                    toast.error(err.message || 'Rollback failed');
+                    toast.error(err.message || t('wp.wordPressProject.rollbackFailed', 'Rollback failed'));
                 } finally {
                     setConfirmDialog(null);
                 }
@@ -241,26 +244,26 @@ const WordPressProject = () => {
     const handleRestart = useCallback(async (env) => {
         try {
             await wordpressApi.restartEnvironment(id, env.id);
-            toast.success('Environment restarted');
+            toast.success(t('wp.wordPressProject.environmentRestarted', 'Environment restarted'));
             loadPipeline();
         } catch (err) {
-            toast.error(err.message || 'Failed to restart environment');
+            toast.error(err.message || t('wp.wordPressProject.failedToRestartEnvironment', 'Failed to restart environment'));
         }
     }, [id, toast]);
 
     const handleDelete = useCallback((env) => {
         setConfirmDialog({
-            title: 'Delete Environment',
+            titleKey: 'wp.wordPressProject.deleteEnvironment', title: 'Delete Environment',
             message: `Are you sure you want to delete "${env.name}"? This will remove all containers, files, and database for this environment.`,
-            confirmText: 'Delete Environment',
+            confirmTextKey: 'wp.wordPressProject.deleteEnvironment2', confirmText: 'Delete Environment',
             variant: 'danger',
             onConfirm: async () => {
                 try {
                     await wordpressApi.deleteProjectEnvironment(id, env.id);
-                    toast.success('Environment deleted');
+                    toast.success(t('wp.wordPressProject.environmentDeleted', 'Environment deleted'));
                     loadPipeline();
                 } catch (err) {
-                    toast.error(err.message || 'Failed to delete environment');
+                    toast.error(err.message || t('wp.wordPressProject.failedToDeleteEnvironment', 'Failed to delete environment'));
                 } finally {
                     setConfirmDialog(null);
                 }
@@ -275,20 +278,20 @@ const WordPressProject = () => {
                 reason: 'Manually locked',
                 duration_minutes: 60
             });
-            toast.success('Environment locked');
+            toast.success(t('wp.wordPressProject.environmentLocked', 'Environment locked'));
             loadPipeline();
         } catch (err) {
-            toast.error(err.message || 'Failed to lock environment');
+            toast.error(err.message || t('wp.wordPressProject.failedToLockEnvironment', 'Failed to lock environment'));
         }
     }, [id, toast]);
 
     const handleUnlock = useCallback(async (env) => {
         try {
             await wordpressApi.unlockEnvironment(id, env.id);
-            toast.success('Environment unlocked');
+            toast.success(t('wp.wordPressProject.environmentUnlocked', 'Environment unlocked'));
             loadPipeline();
         } catch (err) {
-            toast.error(err.message || 'Failed to unlock environment');
+            toast.error(err.message || t('wp.wordPressProject.failedToUnlockEnvironment', 'Failed to unlock environment'));
         }
     }, [id, toast]);
 
@@ -309,11 +312,11 @@ const WordPressProject = () => {
         const env = resourceLimitsModal.environment;
         try {
             await wordpressApi.updateResourceLimits(id, env.id, limits);
-            toast.success('Resource limits updated, containers restarting');
+            toast.success(t('wp.wordPressProject.resourceLimitsUpdatedContainersRestarting', 'Resource limits updated, containers restarting'));
             setResourceLimitsModal(null);
             loadPipeline();
         } catch (err) {
-            toast.error(err.message || 'Failed to update resource limits');
+            toast.error(err.message || t('wp.wordPressProject.failedToUpdateResourceLimits', 'Failed to update resource limits'));
         }
     }, [id, resourceLimitsModal, toast]);
 
@@ -337,7 +340,7 @@ const WordPressProject = () => {
                 toast.info(`${env.name}: ${data.overall_status}`);
             }
         } catch (err) {
-            toast.error('Health check failed');
+            toast.error(t('wp.wordPressProject.healthCheckFailed', 'Health check failed'));
         }
     }, [id, toast]);
 
@@ -352,11 +355,11 @@ const WordPressProject = () => {
     const handleBulkExecute = useCallback(async (action, envIds) => {
         try {
             await wordpressApi.executeBulkOperation(id, [{ action, env_ids: envIds }]);
-            toast.success(`Bulk ${action} completed`);
+            toast.success(t('wp.wordPressProject.bulkCompleted', 'Bulk {{action}} completed', { action: action }));
             setBulkSelected([]);
             loadPipeline();
         } catch (err) {
-            toast.error(err.message || `Bulk ${action} failed`);
+            toast.error(err.message || t('wp.wordPressProject.bulkFailed', 'Bulk {{action}} failed', { action: action }));
         }
     }, [id, toast]);
 
@@ -391,26 +394,26 @@ const WordPressProject = () => {
     }
 
     const handleCreateEnvironment = useCallback(async (data) => {
-        toast.info('Creating environment...', { duration: 5000 });
+        toast.info(t('wp.wordPressProject.creatingEnvironment', 'Creating environment...'), { duration: 5000 });
         try {
             await wordpressApi.createProjectEnvironment(id, data);
             setShowCreateEnvModal(false);
         } catch (err) {
-            toast.error(err.message || 'Failed to create environment');
+            toast.error(err.message || t('wp.wordPressProject.failedToCreateEnvironment', 'Failed to create environment'));
         }
     }, [id, toast]);
 
     if (loading) {
-        return <EmptyState loading loadingVariant="detail" size="lg" title="Loading project pipeline" />;
+        return <EmptyState loading loadingVariant="detail" size="lg" title={t('wp.wordPressProject.loadingProjectPipeline', 'Loading project pipeline')} />;
     }
 
     if (!pipeline) {
         return (
             <EmptyState
                 icon={FolderGit2}
-                title="Pipeline not found"
-                description="This WordPress pipeline does not exist or has been removed."
-                action={<Button onClick={() => navigate('/wordpress/pipelines')}>Back to Pipelines</Button>}
+                title={t('wp.wordPressProject.pipelineNotFound', 'Pipeline not found')}
+                description={t('wp.wordPressProject.thisWordpressPipelineDoesNotExist', 'This WordPress pipeline does not exist or has been removed.')}
+                action={<Button onClick={() => navigate('/wordpress/pipelines')}>{t('wp.wordPressProject.backToPipelines', 'Back to Pipelines')}</Button>}
             />
         );
     }
@@ -424,7 +427,7 @@ const WordPressProject = () => {
             {/* Top Bar */}
             <div className="app-detail-topbar">
                 <div className="app-detail-breadcrumbs">
-                    <Link to="/wordpress/pipelines">Pipelines</Link>
+                    <Link to="/wordpress/pipelines">{t('wp.wordPressProject.pipelines', 'Pipelines')}</Link>
                     <span>/</span>
                     <span className="current">{projectName}</span>
                 </div>
@@ -437,23 +440,23 @@ const WordPressProject = () => {
                                 rel="noopener noreferrer"
                             >
                                 <ExternalLink size={16} />
-                                Visit Site
+                                {t('wp.wordPressProject.visitSite', 'Visit Site')}
                             </a>
                         </Button>
                     )}
                     <Button
                         variant="ghost"
                         onClick={() => setShowSanitizationProfiles(true)}
-                        title="Manage sanitization profiles"
+                        title={t('wp.wordPressProject.manageSanitizationProfiles', 'Manage sanitization profiles')}
                     >
                         <Shield size={16} />
-                        Profiles
+                        {t('wp.wordPressProject.profiles', 'Profiles')}
                     </Button>
                     <Button
                         onClick={() => setShowCreateEnvModal(true)}
                     >
                         <Plus size={16} />
-                        New Environment
+                        {t('wp.wordPressProject.newEnvironment', 'New Environment')}
                     </Button>
                 </div>
             </div>
@@ -478,7 +481,7 @@ const WordPressProject = () => {
                         {production.wp_version && (
                             <>
                                 <span className="separator">•</span>
-                                <span>WordPress {production.wp_version}</span>
+                                <span>{t('wp.wordPressProject.wordpress', 'WordPress')} {production.wp_version}</span>
                             </>
                         )}
                         {pipeline.environments && (
@@ -497,19 +500,19 @@ const WordPressProject = () => {
                     className={`app-detail-tab ${activeTab === 'pipeline' ? 'active' : ''}`}
                     onClick={() => setActiveTab('pipeline')}
                 >
-                    Pipeline
+                    {t('wp.wordPressProject.pipeline', 'Pipeline')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'activity' ? 'active' : ''}`}
                     onClick={() => setActiveTab('activity')}
                 >
-                    Activity
+                    {t('wp.wordPressProject.activity', 'Activity')}
                 </div>
                 <div
                     className={`app-detail-tab ${activeTab === 'health' ? 'active' : ''}`}
                     onClick={() => setActiveTab('health')}
                 >
-                    Health
+                    {t('wp.wordPressProject.health', 'Health')}
                 </div>
             </div>
 
@@ -535,7 +538,7 @@ const WordPressProject = () => {
                                                 />
                                             </div>
                                             <span className="operation-progress-step">
-                                                Step {operationProgress.step}/{operationProgress.total}: {operationProgress.message}
+                                                {t('wp.wordPressProject.step', 'Step')} {operationProgress.step}/{operationProgress.total}: {operationProgress.message}
                                             </span>
                                         </div>
                                     )}
@@ -590,13 +593,13 @@ const WordPressProject = () => {
                         {/* Recent Activity Preview */}
                         <div className="pipeline-activity-preview">
                             <div className="section-header">
-                                <h3>Recent Activity</h3>
+                                <h3>{t('wp.wordPressProject.recentActivity', 'Recent Activity')}</h3>
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => setActiveTab('activity')}
                                 >
-                                    View All
+                                    {t('wp.wordPressProject.viewAll', 'View All')}
                                 </Button>
                             </div>
                             <ActivityFeed projectId={id} limit={5} compact />
@@ -607,9 +610,9 @@ const WordPressProject = () => {
                 {activeTab === 'activity' && (
                     <div className="activity-tab">
                         <div className="section-header">
-                            <h3>Activity Log</h3>
+                            <h3>{t('wp.wordPressProject.activityLog', 'Activity Log')}</h3>
                             <Button variant="ghost" size="sm" onClick={loadPipeline}>
-                                <RefreshCw size={14} /> Refresh
+                                <RefreshCw size={14} /> {t('wp.wordPressProject.refresh', 'Refresh')}
                             </Button>
                         </div>
                         <ActivityFeed projectId={id} limit={50} />
@@ -737,6 +740,7 @@ const WordPressProject = () => {
 
 // Promotion History (lists past promotions; rollback available for completed promotions with a pre-promotion snapshot)
 const PromotionHistory = ({ projectId, onRollback }) => {
+    const { t } = useTranslation();
     const [promotions, setPromotions] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -761,9 +765,9 @@ const PromotionHistory = ({ projectId, onRollback }) => {
     return (
         <div className="pipeline-promotion-history">
             <div className="section-header">
-                <h3>Promotion History</h3>
+                <h3>{t('wp.wordPressProject.promotionHistory', 'Promotion History')}</h3>
                 <Button variant="ghost" size="sm" onClick={load}>
-                    <RefreshCw size={14} /> Refresh
+                    <RefreshCw size={14} /> {t('wp.wordPressProject.refresh2', 'Refresh')}
                 </Button>
             </div>
             <div className="promotion-history-list">
@@ -778,12 +782,12 @@ const PromotionHistory = ({ projectId, onRollback }) => {
                                 </span>
                                 <span className="promotion-type">{p.promotion_type}</span>
                                 {p.created_at && (
-                                    <span className="promotion-date">{new Date(p.created_at).toLocaleString()}</span>
+                                    <span className="promotion-date">{formatDateTime(p.created_at)}</span>
                                 )}
                             </div>
                             {canRollback && (
                                 <Button variant="outline" size="sm" onClick={() => onRollback(p)}>
-                                    <RotateCcw size={14} /> Rollback
+                                    <RotateCcw size={14} /> {t('wp.wordPressProject.rollback', 'Rollback')}
                                 </Button>
                             )}
                         </div>
@@ -796,6 +800,7 @@ const PromotionHistory = ({ projectId, onRollback }) => {
 
 // Create Environment Modal (Pipeline version)
 const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingTypes, projectId }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         type: existingTypes.includes('development') ? 'staging' : 'development',
         name: '',
@@ -809,9 +814,9 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
     const [useCustomBranch, setUseCustomBranch] = useState(false);
 
     const availableTypes = [
-        { value: 'development', label: 'Development', disabled: existingTypes.includes('development') },
-        { value: 'staging', label: 'Staging', disabled: existingTypes.includes('staging') },
-        { value: 'multidev', label: 'Multidev (branch-based)', disabled: false }
+        { value: 'development', labelKey: 'wp.wordPressProject.development', label: 'Development', disabled: existingTypes.includes('development') },
+        { value: 'staging', labelKey: 'wp.wordPressProject.staging', label: 'Staging', disabled: existingTypes.includes('staging') },
+        { value: 'multidev', labelKey: 'wp.wordPressProject.multidevBranchBased', label: 'Multidev (branch-based)', disabled: false }
     ];
 
     useEffect(() => {
@@ -861,10 +866,10 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
     });
 
     return (
-        <Modal open onClose={onClose} title="Create Environment">
+        <Modal open onClose={onClose} title={t('wp.wordPressProject.createEnvironment', 'Create Environment')}>
             <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <Label>Environment Type</Label>
+                        <Label>{t('wp.wordPressProject.environmentType', 'Environment Type')}</Label>
                         <select name="type" value={formData.type} onChange={handleChange}>
                             {availableTypes.map(t => (
                                 <option key={t.value} value={t.value} disabled={t.disabled}>
@@ -878,7 +883,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                         <div className="form-group">
                             <Label>
                                 <GitBranch size={14} className="mr-1" style={{ verticalAlign: -2 }} />
-                                Git Branch *
+                                {t('wp.wordPressProject.gitBranch', 'Git Branch *')}
                             </Label>
 
                             {formData.branch && !useCustomBranch && (
@@ -891,7 +896,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                         size="sm"
                                         onClick={() => setFormData(prev => ({ ...prev, branch: '' }))}
                                     >
-                                        Change
+                                        {t('wp.wordPressProject.change', 'Change')}
                                     </Button>
                                 </div>
                             )}
@@ -901,7 +906,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                     {branchesLoading ? (
                                         <div className="branch-picker-loading">
                                             <Spinner size="sm" />
-                                            <span>Loading branches...</span>
+                                            <span>{t('wp.wordPressProject.loadingBranches', 'Loading branches...')}</span>
                                         </div>
                                     ) : branches.length > 0 ? (
                                         <div className="branch-picker">
@@ -911,7 +916,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                                     type="text"
                                                     value={branchSearch}
                                                     onChange={e => setBranchSearch(e.target.value)}
-                                                    placeholder="Search branches..."
+                                                    placeholder={t('wp.wordPressProject.searchBranches', 'Search branches...')}
                                                     autoFocus
                                                 />
                                             </div>
@@ -923,13 +928,13 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                                         className={`branch-picker-item ${b.has_multidev ? 'has-env' : ''} ${b.is_current ? 'current' : ''}`}
                                                         onClick={() => selectBranch(b.name)}
                                                         disabled={b.has_multidev}
-                                                        title={b.has_multidev ? 'Multidev already exists for this branch' : ''}
+                                                        title={b.has_multidev ? t('wp.wordPressProject.multidevAlreadyExistsForThisBranch', 'Multidev already exists for this branch') : ''}
                                                     >
                                                         <div className="branch-picker-item-main">
                                                             <GitBranch size={12} />
                                                             <span className="branch-name">{b.name}</span>
                                                             {b.is_current && <span className="branch-tag">default</span>}
-                                                            {b.has_multidev && <span className="branch-tag env">has env</span>}
+                                                            {b.has_multidev && <span className="branch-tag env">{t('wp.wordPressProject.hasEnv', 'has env')}</span>}
                                                         </div>
                                                         {b.message && (
                                                             <div className="branch-picker-item-meta">
@@ -941,7 +946,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                                 ))}
                                                 {filteredBranches.length === 0 && (
                                                     <div className="branch-picker-empty">
-                                                        No branches match &quot;{branchSearch}&quot;
+                                                        {t('wp.wordPressProject.noBranchesMatch', 'No branches match "')}{branchSearch}&quot;
                                                     </div>
                                                 )}
                                             </div>
@@ -952,7 +957,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                                 className="branch-picker-custom"
                                                 onClick={() => setUseCustomBranch(true)}
                                             >
-                                                Enter branch name manually
+                                                {t('wp.wordPressProject.enterBranchNameManually', 'Enter branch name manually')}
                                             </Button>
                                         </div>
                                     ) : (
@@ -965,7 +970,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                                 placeholder="feature/my-branch"
                                                 required
                                             />
-                                            <span className="form-hint">No git repo connected or no branches found. Enter branch name manually.</span>
+                                            <span className="form-hint">{t('wp.wordPressProject.noGitRepoConnectedOrNo', 'No git repo connected or no branches found. Enter branch name manually.')}</span>
                                         </div>
                                     )}
                                 </>
@@ -990,7 +995,7 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                             className="mt-1"
                                             onClick={() => { setUseCustomBranch(false); setFormData(prev => ({ ...prev, branch: '' })); }}
                                         >
-                                            Back to branch list
+                                            {t('wp.wordPressProject.backToBranchList', 'Back to branch list')}
                                         </Button>
                                     )}
                                 </div>
@@ -999,15 +1004,15 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                     )}
 
                     <div className="form-group">
-                        <Label>Environment Name</Label>
+                        <Label>{t('wp.wordPressProject.environmentName', 'Environment Name')}</Label>
                         <Input
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            placeholder={formData.type === 'multidev' ? 'Auto-generated from branch' : `${formData.type} environment`}
+                            placeholder={formData.type === 'multidev' ? t('wp.wordPressProject.autoGeneratedFromBranch', 'Auto-generated from branch') : `${formData.type} environment`}
                         />
-                        <span className="form-hint">Leave empty to auto-generate</span>
+                        <span className="form-hint">{t('wp.wordPressProject.leaveEmptyToAutoGenerate', 'Leave empty to auto-generate')}</span>
                     </div>
 
                     <div className="form-group">
@@ -1018,20 +1023,20 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
                                 checked={formData.clone_db}
                                 onChange={handleChange}
                             />
-                            <span>Clone production database</span>
+                            <span>{t('wp.wordPressProject.cloneProductionDatabase', 'Clone production database')}</span>
                         </label>
-                        <span className="form-hint">Creates a copy of the production database for this environment</span>
+                        <span className="form-hint">{t('wp.wordPressProject.createsACopyOfTheProduction', 'Creates a copy of the production database for this environment')}</span>
                     </div>
 
                     <div className="modal-actions">
                         <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                            Cancel
+                            {t('wp.wordPressProject.cancel', 'Cancel')}
                         </Button>
                         <Button
                             type="submit"
                             disabled={loading || (formData.type === 'multidev' && !formData.branch)}
                         >
-                            {loading ? <><Spinner size="sm" /> Creating...</> : 'Create Environment'}
+                            {loading ? <><Spinner size="sm" /> {t('wp.wordPressProject.creating', 'Creating...')}</> : 'Create Environment'}
                         </Button>
                     </div>
                 </form>

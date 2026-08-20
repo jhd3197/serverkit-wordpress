@@ -3,8 +3,10 @@ import { Terminal, X, Download } from 'lucide-react';
 import wordpressApi from '../../services/wordpress';
 import { Button } from 'serverkit-sdk';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const ContainerLogs = ({ projectId, envId, onClose }) => {
+    const { t } = useTranslation();
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [service, setService] = useState('wordpress');
@@ -61,7 +63,7 @@ const ContainerLogs = ({ projectId, envId, onClose }) => {
                         <Terminal size={15} />
                     </span>
                     <div className="container-logs-titles">
-                        <span>Container Logs</span>
+                        <span>{t('wp.containerLogs.containerLogs', 'Container Logs')}</span>
                         <span className="container-logs-sub">env-{envId} · {service}</span>
                     </div>
                 </div>
@@ -71,8 +73,8 @@ const ContainerLogs = ({ projectId, envId, onClose }) => {
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="wordpress">WordPress</SelectItem>
-                            <SelectItem value="db">MySQL</SelectItem>
+                            <SelectItem value="wordpress">{t('wp.containerLogs.wordpress', 'WordPress')}</SelectItem>
+                            <SelectItem value="db">{t('wp.containerLogs.mysql', 'MySQL')}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select value={String(lines)} onValueChange={(v) => setLines(Number(v))}>
@@ -80,15 +82,15 @@ const ContainerLogs = ({ projectId, envId, onClose }) => {
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="50">50 lines</SelectItem>
-                            <SelectItem value="100">100 lines</SelectItem>
-                            <SelectItem value="500">500 lines</SelectItem>
+                            <SelectItem value="50">{t('wp.containerLogs.50Lines', '50 lines')}</SelectItem>
+                            <SelectItem value="100">{t('wp.containerLogs.100Lines', '100 lines')}</SelectItem>
+                            <SelectItem value="500">{t('wp.containerLogs.500Lines', '500 lines')}</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button variant="ghost" size="sm" onClick={loadLogs} title="Refresh">
+                    <Button variant="ghost" size="sm" onClick={loadLogs} title={t('wp.containerLogs.refresh', 'Refresh')}>
                         <RefreshIcon />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={handleDownload} title="Download">
+                    <Button variant="ghost" size="sm" onClick={handleDownload} title={t('wp.containerLogs.download', 'Download')}>
                         <Download size={14} />
                     </Button>
                     {onClose && (
@@ -104,9 +106,9 @@ const ContainerLogs = ({ projectId, envId, onClose }) => {
                 onScroll={handleScroll}
             >
                 {loading ? (
-                    <div className="logs-loading">Loading logs...</div>
+                    <div className="logs-loading">{t('wp.containerLogs.loadingLogs', 'Loading logs...')}</div>
                 ) : logs.length === 0 ? (
-                    <div className="logs-empty">No logs available.</div>
+                    <div className="logs-empty">{t('wp.containerLogs.noLogsAvailable', 'No logs available.')}</div>
                 ) : (
                     <pre className="logs-content">
                         {logs.map((line, i) => (

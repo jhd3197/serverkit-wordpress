@@ -7,8 +7,10 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Checkbox } from 'serverkit-sdk';
+import { useTranslation } from 'serverkit-sdk';
 
 const SanitizationProfileForm = ({ onClose, onProfilesChange }) => {
+    const { t } = useTranslation();
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingProfile, setEditingProfile] = useState(null);
@@ -76,7 +78,7 @@ const SanitizationProfileForm = ({ onClose, onProfilesChange }) => {
     }
 
     return (
-        <Modal open={true} onClose={onClose} title="Sanitization Profiles" size="lg">
+        <Modal open={true} onClose={onClose} title={t('wp.sanitizationProfileForm.sanitizationProfiles', 'Sanitization Profiles')} size="lg">
             <div className="sanitization-profiles-body">
                 {loading ? (
                     <div className="sanitization-loading">
@@ -103,7 +105,7 @@ const SanitizationProfileForm = ({ onClose, onProfilesChange }) => {
                                 onClick={() => setShowCreateForm(true)}
                             >
                                 <Plus size={14} />
-                                Create Custom Profile
+                                {t('wp.sanitizationProfileForm.createCustomProfile', 'Create Custom Profile')}
                             </Button>
                         )}
 
@@ -119,7 +121,7 @@ const SanitizationProfileForm = ({ onClose, onProfilesChange }) => {
             </div>
 
             <div className="modal-actions">
-                <Button variant="outline" onClick={onClose}>Close</Button>
+                <Button variant="outline" onClick={onClose}>{t('wp.sanitizationProfileForm.close', 'Close')}</Button>
             </div>
         </Modal>
     );
@@ -130,20 +132,20 @@ const ProfileCard = ({ profile, onEdit, onDelete, onSetDefault }) => (
         <div className="sanitization-profile-card-header">
             <div className="sanitization-profile-card-title">
                 <h5>{profile.name}</h5>
-                {profile.is_builtin && <span className="sanitization-tag builtin">Built-in</span>}
-                {profile.is_default && <span className="sanitization-tag default">Default</span>}
+                {profile.is_builtin && <span className="sanitization-tag builtin">{t('wp.sanitizationProfileForm.builtIn', 'Built-in')}</span>}
+                {profile.is_default && <span className="sanitization-tag default">{t('wp.sanitizationProfileForm.default', 'Default')}</span>}
             </div>
             <div className="sanitization-profile-card-actions">
                 {!profile.is_default && (
-                    <Button variant="ghost" size="sm" onClick={onSetDefault} title="Set as default">
+                    <Button variant="ghost" size="sm" onClick={onSetDefault} title={t('wp.sanitizationProfileForm.setAsDefault', 'Set as default')}>
                         <Star size={12} />
                     </Button>
                 )}
-                <Button variant="ghost" size="sm" onClick={onEdit} title="Edit">
+                <Button variant="ghost" size="sm" onClick={onEdit} title={t('wp.sanitizationProfileForm.edit', 'Edit')}>
                     <Edit3 size={12} />
                 </Button>
                 {!profile.is_builtin && (
-                    <Button variant="ghost" size="sm" onClick={onDelete} title="Delete">
+                    <Button variant="ghost" size="sm" onClick={onDelete} title={t('wp.sanitizationProfileForm.delete', 'Delete')}>
                         <Trash2 size={12} />
                     </Button>
                 )}
@@ -159,6 +161,7 @@ const ProfileCard = ({ profile, onEdit, onDelete, onSetDefault }) => (
 );
 
 const ProfileRuleTags = ({ config }) => {
+    const { t } = useTranslation();
     const tags = [];
     if (config.anonymize_emails) tags.push('Anonymize emails');
     if (config.anonymize_names) tags.push('Anonymize names');
@@ -177,13 +180,14 @@ const ProfileRuleTags = ({ config }) => {
                 <span key={tag} className="sanitization-rule-tag">{tag}</span>
             ))}
             {tags.length === 0 && (
-                <span className="sanitization-rule-tag empty">No rules configured</span>
+                <span className="sanitization-rule-tag empty">{t('wp.sanitizationProfileForm.noRulesConfigured', 'No rules configured')}</span>
             )}
         </div>
     );
 };
 
 const ProfileEditor = ({ profile, onSave, onCancel }) => {
+    const { t } = useTranslation();
     const [name, setName] = useState(profile?.name || '');
     const [description, setDescription] = useState(profile?.description || '');
     const [config, setConfig] = useState(profile?.config || {
@@ -228,96 +232,96 @@ const ProfileEditor = ({ profile, onSave, onCancel }) => {
             <h4>{profile ? 'Edit Profile' : 'Create Profile'}</h4>
 
             <div className="form-group">
-                <Label>Profile Name *</Label>
+                <Label>{t('wp.sanitizationProfileForm.profileName', 'Profile Name *')}</Label>
                 <Input
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    placeholder="My Custom Profile"
+                    placeholder={t('wp.sanitizationProfileForm.myCustomProfile', 'My Custom Profile')}
                     required
                     disabled={profile?.is_builtin}
                 />
             </div>
 
             <div className="form-group">
-                <Label>Description</Label>
+                <Label>{t('wp.sanitizationProfileForm.description', 'Description')}</Label>
                 <Input
                     type="text"
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    placeholder="What this profile does..."
+                    placeholder={t('wp.sanitizationProfileForm.whatThisProfileDoes', 'What this profile does...')}
                 />
             </div>
 
             <div className="form-group">
-                <Label>Data Sanitization</Label>
+                <Label>{t('wp.sanitizationProfileForm.dataSanitization', 'Data Sanitization')}</Label>
                 <div className="checkbox-group">
                     <label className="checkbox-label">
                         <Checkbox
                             checked={config.anonymize_emails || false}
                             onCheckedChange={() => handleConfigToggle('anonymize_emails')}
                         />
-                        <span>Anonymize email addresses</span>
+                        <span>{t('wp.sanitizationProfileForm.anonymizeEmailAddresses', 'Anonymize email addresses')}</span>
                     </label>
                     <label className="checkbox-label">
                         <Checkbox
                             checked={config.anonymize_names || false}
                             onCheckedChange={() => handleConfigToggle('anonymize_names')}
                         />
-                        <span>Anonymize user names</span>
+                        <span>{t('wp.sanitizationProfileForm.anonymizeUserNames', 'Anonymize user names')}</span>
                     </label>
                     <label className="checkbox-label">
                         <Checkbox
                             checked={config.reset_passwords || false}
                             onCheckedChange={() => handleConfigToggle('reset_passwords')}
                         />
-                        <span>Reset all passwords</span>
+                        <span>{t('wp.sanitizationProfileForm.resetAllPasswords', 'Reset all passwords')}</span>
                     </label>
                     <label className="checkbox-label">
                         <Checkbox
                             checked={config.strip_payment_data || false}
                             onCheckedChange={() => handleConfigToggle('strip_payment_data')}
                         />
-                        <span>Strip WooCommerce payment data</span>
+                        <span>{t('wp.sanitizationProfileForm.stripWoocommercePaymentData', 'Strip WooCommerce payment data')}</span>
                     </label>
                     <label className="checkbox-label">
                         <Checkbox
                             checked={config.remove_transients || false}
                             onCheckedChange={() => handleConfigToggle('remove_transients')}
                         />
-                        <span>Remove transients</span>
+                        <span>{t('wp.sanitizationProfileForm.removeTransients', 'Remove transients')}</span>
                     </label>
                 </div>
             </div>
 
             <div className="form-group">
-                <Label>Truncate Tables (comma-separated)</Label>
+                <Label>{t('wp.sanitizationProfileForm.truncateTablesCommaSeparated', 'Truncate Tables (comma-separated)')}</Label>
                 <Input
                     type="text"
                     value={truncateInput}
                     onChange={e => setTruncateInput(e.target.value)}
-                    placeholder="actionscheduler_actions, actionscheduler_logs"
+                    placeholder={t('wp.sanitizationProfileForm.actionschedulerActionsActionschedulerLogs', 'actionscheduler_actions, actionscheduler_logs')}
                 />
-                <span className="form-hint">Tables to empty (structure preserved, data removed)</span>
+                <span className="form-hint">{t('wp.sanitizationProfileForm.tablesToEmptyStructurePreservedData', 'Tables to empty (structure preserved, data removed)')}</span>
             </div>
 
             <div className="form-group">
-                <Label>Exclude Tables (comma-separated)</Label>
+                <Label>{t('wp.sanitizationProfileForm.excludeTablesCommaSeparated', 'Exclude Tables (comma-separated)')}</Label>
                 <Input
                     type="text"
                     value={excludeInput}
                     onChange={e => setExcludeInput(e.target.value)}
-                    placeholder="wp_users, wp_usermeta"
+                    placeholder={t('wp.sanitizationProfileForm.wpUsersWpUsermeta', 'wp_users, wp_usermeta')}
                 />
-                <span className="form-hint">Tables to skip during sync/promote</span>
+                <span className="form-hint">{t('wp.sanitizationProfileForm.tablesToSkipDuringSyncPromote', 'Tables to skip during sync/promote')}</span>
             </div>
 
             <div className="sanitization-editor-actions">
                 <Button type="button" variant="outline" size="sm" onClick={onCancel}>
-                    Cancel
+                    {t('wp.sanitizationProfileForm.cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" size="sm" disabled={saving || !name.trim()}>
-                    {saving ? <><Spinner size="sm" /> Saving...</> : <><Save size={14} /> Save Profile</>}
+                    {saving ? <><Spinner size="sm" /> {t('wp.sanitizationProfileForm.saving', 'Saving...')}</> : <><Save size={14} /> {t('wp.sanitizationProfileForm.saveProfile', 'Save Profile')}</>}
                 </Button>
             </div>
         </form>

@@ -7,10 +7,13 @@ import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton, UPDATE_SCHEDULES } from './wpDetailShared';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Updates Tab — safe update manager (#29): snapshot -> update -> health-check ->
 // auto-rollback, plus a per-site schedule and a run-history report.
 const UpdatesTab = ({ siteId }) => {
+    const { t } = useTranslation();
+    const { formatDateTime } = useFormat();
     const toast = useToast();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,7 +28,7 @@ const UpdatesTab = ({ siteId }) => {
             setSchedule(res.schedule || '');
             setExcludeText((res.exclude || []).join(', '));
         } catch (err) {
-            toast.error(err.message || 'Failed to load updates');
+            toast.error(err.message || t('wp.updatesTab.failedToLoadUpdates', 'Failed to load updates'));
         } finally {
             setLoading(false);
         }
@@ -41,22 +44,22 @@ const UpdatesTab = ({ siteId }) => {
     const toList = (s) => s.split(',').map(x => x.trim()).filter(Boolean);
 
     async function runUpdate() {
-        if (!window.confirm('Run a safe update now? A database snapshot is taken first and the site auto-rolls-back if the update breaks it.')) return;
+        if (!window.confirm(t('wp.updatesTab.runASafeUpdateNowA', 'Run a safe update now? A database snapshot is taken first and the site auto-rolls-back if the update breaks it.'))) return;
         setBusy(true);
         try {
             await wordpressApi.runUpdates(siteId, { exclude: toList(excludeText) });
-            toast.info('Safe update started…');
+            toast.info(t('wp.updatesTab.safeUpdateStarted', 'Safe update started…'));
             setData(await wordpressApi.getUpdates(siteId));
-        } catch (err) { toast.error(err.message || 'Failed to start update'); }
+        } catch (err) { toast.error(err.message || t('wp.updatesTab.failedToStartUpdate', 'Failed to start update')); }
         finally { setBusy(false); }
     }
     async function saveSchedule() {
         setBusy(true);
         try {
             await wordpressApi.setUpdateSchedule(siteId, { schedule, exclude: toList(excludeText) });
-            toast.success('Schedule saved');
+            toast.success(t('wp.updatesTab.scheduleSaved', 'Schedule saved'));
             await load();
-        } catch (err) { toast.error(err.message || 'Failed to save schedule'); }
+        } catch (err) { toast.error(err.message || t('wp.updatesTab.failedToSaveSchedule', 'Failed to save schedule')); }
         finally { setBusy(false); }
     }
 
@@ -70,13 +73,13 @@ const UpdatesTab = ({ siteId }) => {
         <div className="app-overview-grid">
             <div className="app-overview-left">
                 <div className="app-panel">
-                    <div className="app-panel-header">Safe update</div>
+                    <div className="app-panel-header">{t('wp.updatesTab.safeUpdate', 'Safe update')}</div>
                     <div className="app-panel-body">
-                        <p className="hint">Snapshots the database, updates core + plugins + themes, health-checks the site, and automatically rolls back (version-pin + DB restore) if the update breaks it.</p>
+                        <p className="hint">{t('wp.updatesTab.snapshotsTheDatabaseUpdatesCorePlugins', 'Snapshots the database, updates core + plugins + themes, health-checks the site, and automatically rolls back (version-pin + DB restore) if the update breaks it.')}</p>
                         <div className="form-group">
-                            <Label>Exclude (skip) plugins/themes</Label>
-                            <Input value={excludeText} onChange={e => setExcludeText(e.target.value)} placeholder="e.g. woocommerce, my-custom-plugin" />
-                            <span className="form-hint">Comma-separated slugs to never auto-update.</span>
+                            <Label>{t('wp.updatesTab.excludeSkipPluginsThemes', 'Exclude (skip) plugins/themes')}</Label>
+                            <Input value={excludeText} onChange={e => setExcludeText(e.target.value)} placeholder={t('wp.updatesTab.eGWoocommerceMyCustomPlugin', 'e.g. woocommerce, my-custom-plugin')} />
+                            <span className="form-hint">{t('wp.updatesTab.commaSeparatedSlugsToNeverAuto', 'Comma-separated slugs to never auto-update.')}</span>
                         </div>
                         <div className="app-detail-actions">
                             <Button size="sm" onClick={runUpdate} disabled={busy || running}>{running ? 'Updating…' : 'Run safe update now'}</Button>
@@ -85,27 +88,27 @@ const UpdatesTab = ({ siteId }) => {
                 </div>
 
                 <div className="app-panel">
-                    <div className="app-panel-header">Schedule</div>
+                    <div className="app-panel-header">{t('wp.updatesTab.schedule', 'Schedule')}</div>
                     <div className="app-panel-body">
                         <div className="form-group">
-                            <Label>Automatic safe updates</Label>
+                            <Label>{t('wp.updatesTab.automaticSafeUpdates', 'Automatic safe updates')}</Label>
                             <select value={schedule} onChange={e => setSchedule(e.target.value)} disabled={busy}>
                                 {UPDATE_SCHEDULES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                                 {schedule && !UPDATE_SCHEDULES.some(s => s.value === schedule) && <option value={schedule}>{schedule}</option>}
                             </select>
-                            <span className="form-hint">Runs the same safe update (with auto-rollback) on a schedule.</span>
+                            <span className="form-hint">{t('wp.updatesTab.runsTheSameSafeUpdateWith', 'Runs the same safe update (with auto-rollback) on a schedule.')}</span>
                         </div>
                         <div className="app-detail-actions">
-                            <Button variant="outline" size="sm" onClick={saveSchedule} disabled={busy}>Save schedule</Button>
+                            <Button variant="outline" size="sm" onClick={saveSchedule} disabled={busy}>{t('wp.updatesTab.saveSchedule', 'Save schedule')}</Button>
                         </div>
                     </div>
                 </div>
 
                 <div className="app-panel">
-                    <div className="app-panel-header">Update history</div>
+                    <div className="app-panel-header">{t('wp.updatesTab.updateHistory', 'Update history')}</div>
                     <div className="app-panel-body">
                         {runs.length === 0 ? (
-                            <p className="hint">No updates have run yet.</p>
+                            <p className="hint">{t('wp.updatesTab.noUpdatesHaveRunYet', 'No updates have run yet.')}</p>
                         ) : runs.map(r => {
                             const d = r.details || {};
                             const n = (d.updated || []).length;
@@ -113,7 +116,7 @@ const UpdatesTab = ({ siteId }) => {
                                 <div className="wp-run-row" key={r.id}>
                                     <div className="wp-run-row-head">
                                         <Pill kind={statusPill(r.status)}>{r.status.replace('_', ' ')}</Pill>
-                                        <span className="wp-run-row-meta">{r.started_at ? new Date(r.started_at).toLocaleString() : ''} · {r.trigger}</span>
+                                        <span className="wp-run-row-meta">{r.started_at ? formatDateTime(r.started_at) : ''} · {r.trigger}</span>
                                     </div>
                                     <span className="form-hint">
                                         {n === 0 ? 'No components needed updating' : `${n} component${n === 1 ? '' : 's'} updated`}

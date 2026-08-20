@@ -6,6 +6,7 @@ import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { detectProvider } from 'serverkit-sdk';
 import { EmptyState } from 'serverkit-sdk';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Build a web URL to a commit on the host from the clone URL + sha so the log is
 // clickable. Handles https + scp-style ssh remotes and Bitbucket's /commits path.
@@ -20,6 +21,11 @@ function commitUrl(repoUrl, sha) {
 }
 
 const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = false, repoUrl }) => {
+    const { t } = useTranslation();
+    // Aliased: this file already has a local helper of that name, so the
+    // door goes in under a distinct one rather than shadowing it into
+    // infinite recursion.
+    const { formatDate: formatDateLocalized } = useFormat();
     const [actionLoading, setActionLoading] = useState({});
     const [showDevModal, setShowDevModal] = useState(null);
 
@@ -34,11 +40,11 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
         if (diffHours < 1) return 'Just now';
         if (diffHours < 24) return `${diffHours}h ago`;
         if (diffDays < 7) return `${diffDays}d ago`;
-        return date.toLocaleDateString();
+        return formatDateLocalized(date);
     }
 
     async function handleDeploy(commit) {
-        if (!confirm(`Deploy commit ${commit.sha.substring(0, 7)} to production?`)) {
+        if (!confirm(t('wp.commitList.deployCommitToProduction', 'Deploy commit {{value}} to production?', { value: commit.sha.substring(0, 7) }))) {
             return;
         }
         setActionLoading(prev => ({ ...prev, [`deploy-${commit.sha}`]: true }));
@@ -63,14 +69,14 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
     }
 
     if (loading) {
-        return <EmptyState loading title="Loading commits..." />;
+        return <EmptyState loading title={t('wp.commitList.loadingCommits', 'Loading commits...')} />;
     }
 
     if (!commits || commits.length === 0) {
         return (
             <div className="empty-state-small">
-                <p>No commits found.</p>
-                <p className="hint">Push changes to your repository to see commits here.</p>
+                <p>{t('wp.commitList.noCommitsFound', 'No commits found.')}</p>
+                <p className="hint">{t('wp.commitList.pushChangesToYourRepositoryTo', 'Push changes to your repository to see commits here.')}</p>
             </div>
         );
     }
@@ -100,7 +106,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
                                         href={commitUrl(repoUrl, commit.sha)}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        title="View this commit on the remote"
+                                        title={t('wp.commitList.viewThisCommitOnTheRemote', 'View this commit on the remote')}
                                     >
                                         {commit.sha.substring(0, 7)}
                                         <ExternalLink size={11} />
@@ -108,7 +114,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
                                 ) : (
                                     <span className="commit-sha mono">{commit.sha.substring(0, 7)}</span>
                                 )}
-                                {isCurrent && <span className="current-badge">Deployed</span>}
+                                {isCurrent && <span className="current-badge">{t('wp.commitList.deployed', 'Deployed')}</span>}
                                 <span className="commit-date">{formatDate(commit.date)}</span>
                             </div>
                             <p className="commit-message">{commit.message}</p>
@@ -123,7 +129,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
                                     size="sm"
                                     onClick={() => handleDeploy(commit)}
                                     disabled={isDeploying}
-                                    title="Deploy this commit"
+                                    title={t('wp.commitList.deployThisCommit', 'Deploy this commit')}
                                 >
                                     <Rocket size={12} />
                                     {isDeploying ? 'Deploying...' : 'Deploy'}
@@ -134,7 +140,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
                                 size="sm"
                                 onClick={() => setShowDevModal(commit)}
                                 disabled={isCreatingDev}
-                                title="Create dev environment from this commit"
+                                title={t('wp.commitList.createDevEnvironmentFromThisCommit', 'Create dev environment from this commit')}
                             >
                                 <Copy size={12} />
                                 {isCreatingDev ? 'Creating...' : 'Create Dev'}
@@ -157,6 +163,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
 };
 
 const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: `dev-${commit.sha.substring(0, 7)}`,
         domain: ''
@@ -173,16 +180,16 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
     }
 
     return (
-        <Modal open={true} onClose={onClose} title="Create Dev Environment">
+        <Modal open={true} onClose={onClose} title={t('wp.commitList.createDevEnvironment', 'Create Dev Environment')}>
             <p className="hint">
-                Create a development environment with code from commit{' '}
+                {t('wp.commitList.createADevelopmentEnvironmentWithCode', 'Create a development environment with code from commit')}{' '}
                 <code>{commit.sha.substring(0, 7)}</code>
             </p>
             <p className="commit-message-preview">&ldquo;{commit.message}&rdquo;</p>
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <Label>Environment Name</Label>
+                    <Label>{t('wp.commitList.environmentName', 'Environment Name')}</Label>
                     <Input
                         type="text"
                         name="name"
@@ -193,7 +200,7 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
                 </div>
 
                 <div className="form-group">
-                    <Label>Domain (optional)</Label>
+                    <Label>{t('wp.commitList.domainOptional', 'Domain (optional)')}</Label>
                     <Input
                         type="text"
                         name="domain"
@@ -201,12 +208,12 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
                         onChange={handleChange}
                         placeholder="dev.example.com"
                     />
-                    <span className="form-hint">Leave empty to auto-generate</span>
+                    <span className="form-hint">{t('wp.commitList.leaveEmptyToAutoGenerate', 'Leave empty to auto-generate')}</span>
                 </div>
 
                 <div className="modal-actions">
                     <Button type="button" variant="outline" onClick={onClose}>
-                        Cancel
+                        {t('wp.commitList.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
                         {loading ? 'Creating...' : 'Create Environment'}

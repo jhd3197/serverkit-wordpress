@@ -9,9 +9,12 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Textarea } from 'serverkit-sdk';
+import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Database Tab
 const DatabaseTab = ({ siteId, site }) => {
+    const { t } = useTranslation();
+    const { formatDate } = useFormat();
     const toast = useToast();
     const [snapshots, setSnapshots] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,41 +40,41 @@ const DatabaseTab = ({ siteId, site }) => {
     }
 
     async function handleCreateSnapshot(data) {
-        toast.info('Creating snapshot...', { duration: 3000 });
+        toast.info(t('wp.databaseTab.creatingSnapshot', 'Creating snapshot...'), { duration: 3000 });
         try {
             await wordpressApi.createSnapshot(siteId, data);
-            toast.success('Snapshot created successfully');
+            toast.success(t('wp.databaseTab.snapshotCreatedSuccessfully', 'Snapshot created successfully'));
             loadSnapshots();
             setShowCreateModal(false);
         } catch (err) {
-            toast.error(err.message || 'Failed to create snapshot');
+            toast.error(err.message || t('wp.databaseTab.failedToCreateSnapshot', 'Failed to create snapshot'));
         }
     }
 
     async function handleRestore(snapId) {
-        toast.info('Restoring database... This may take a moment.', { duration: 5000 });
+        toast.info(t('wp.databaseTab.restoringDatabaseThisMayTakeA', 'Restoring database... This may take a moment.'), { duration: 5000 });
         try {
             await wordpressApi.restoreSnapshot(siteId, snapId);
-            toast.success('Database restored from snapshot');
+            toast.success(t('wp.databaseTab.databaseRestoredFromSnapshot', 'Database restored from snapshot'));
         } catch (err) {
-            toast.error(err.message || 'Failed to restore snapshot');
+            toast.error(err.message || t('wp.databaseTab.failedToRestoreSnapshot', 'Failed to restore snapshot'));
         }
     }
 
     async function handleDelete(snapId) {
         try {
             await wordpressApi.deleteSnapshot(siteId, snapId);
-            toast.success('Snapshot deleted');
+            toast.success(t('wp.databaseTab.snapshotDeleted', 'Snapshot deleted'));
             loadSnapshots();
         } catch (err) {
-            toast.error(err.message || 'Failed to delete snapshot');
+            toast.error(err.message || t('wp.databaseTab.failedToDeleteSnapshot', 'Failed to delete snapshot'));
         }
     }
 
     if (error) {
         return (
             <ErrorState
-                title="Failed to load snapshots"
+                title={t('wp.databaseTab.failedToLoadSnapshots', 'Failed to load snapshots')}
                 error={error}
                 onRetry={loadSnapshots}
             />
@@ -84,33 +87,33 @@ const DatabaseTab = ({ siteId, site }) => {
             <div className="app-panel">
                 <div className="app-panel-header">
                     <Database size={16} />
-                    Database Connection
+                    {t('wp.databaseTab.databaseConnection', 'Database Connection')}
                 </div>
                 <div className="app-panel-body">
                     <div className="app-info-grid">
                         <div className="app-info-item">
-                            <span className="app-info-label">Database Name</span>
+                            <span className="app-info-label">{t('wp.databaseTab.databaseName', 'Database Name')}</span>
                             <span className="app-info-value mono">{site?.db_name || 'wordpress'}</span>
                         </div>
                         <div className="app-info-item">
-                            <span className="app-info-label">Database User</span>
+                            <span className="app-info-label">{t('wp.databaseTab.databaseUser', 'Database User')}</span>
                             <span className="app-info-value mono">{site?.db_user || 'wordpress'}</span>
                         </div>
                         <div className="app-info-item">
-                            <span className="app-info-label">Database Host</span>
+                            <span className="app-info-label">{t('wp.databaseTab.databaseHost', 'Database Host')}</span>
                             <span className="app-info-value mono">{site?.db_host || 'db'}</span>
                         </div>
                         <div className="app-info-item">
-                            <span className="app-info-label">Table Prefix</span>
+                            <span className="app-info-label">{t('wp.databaseTab.tablePrefix', 'Table Prefix')}</span>
                             <span className="app-info-value mono">{site?.db_prefix || 'wp_'}</span>
                         </div>
                         <div className="app-info-item">
-                            <span className="app-info-label">Container</span>
+                            <span className="app-info-label">{t('wp.databaseTab.container', 'Container')}</span>
                             <span className="app-info-value mono">{site?.compose_project_name ? `${site.compose_project_name}-db` : '-'}</span>
                         </div>
                         <div className="app-info-item">
-                            <span className="app-info-label">Engine</span>
-                            <span className="app-info-value">MySQL 8.0</span>
+                            <span className="app-info-label">{t('wp.databaseTab.engine', 'Engine')}</span>
+                            <span className="app-info-value">{t('wp.databaseTab.mysql80', 'MySQL 8.0')}</span>
                         </div>
                     </div>
                 </div>
@@ -118,9 +121,9 @@ const DatabaseTab = ({ siteId, site }) => {
 
             {/* Snapshots */}
             <div className="section-header mt-6">
-                <h3>Database Snapshots</h3>
+                <h3>{t('wp.databaseTab.databaseSnapshots', 'Database Snapshots')}</h3>
                 <Button onClick={() => setShowCreateModal(true)}>
-                    <Plus size={14} /> Create Snapshot
+                    <Plus size={14} /> {t('wp.databaseTab.createSnapshot', 'Create Snapshot')}
                 </Button>
             </div>
 
@@ -143,8 +146,9 @@ const DatabaseTab = ({ siteId, site }) => {
 
 // Create Snapshot Modal
 const CreateSnapshotModal = ({ onClose, onCreate }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
-        name: `Snapshot ${new Date().toLocaleDateString()}`,
+        name: `Snapshot ${formatDate(new Date())}`,
         description: '',
         tag: ''
     });
@@ -166,10 +170,10 @@ const CreateSnapshotModal = ({ onClose, onCreate }) => {
     }
 
     return (
-        <Modal open onClose={onClose} title="Create Snapshot">
+        <Modal open onClose={onClose} title={t('wp.databaseTab.createSnapshot2', 'Create Snapshot')}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <Label>Snapshot Name *</Label>
+                    <Label>{t('wp.databaseTab.snapshotName', 'Snapshot Name *')}</Label>
                     <Input
                         type="text"
                         name="name"
@@ -180,30 +184,30 @@ const CreateSnapshotModal = ({ onClose, onCreate }) => {
                 </div>
 
                 <div className="form-group">
-                    <Label>Description</Label>
+                    <Label>{t('wp.databaseTab.description', 'Description')}</Label>
                     <Textarea
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
-                        placeholder="Optional description..."
+                        placeholder={t('wp.databaseTab.optionalDescription', 'Optional description...')}
                         rows={3}
                     />
                 </div>
 
                 <div className="form-group">
-                    <Label>Tag</Label>
+                    <Label>{t('wp.databaseTab.tag', 'Tag')}</Label>
                     <Input
                         type="text"
                         name="tag"
                         value={formData.tag}
                         onChange={handleChange}
-                        placeholder="e.g., v1.0.0, before-update"
+                        placeholder={t('wp.databaseTab.eGV100Before', 'e.g., v1.0.0, before-update')}
                     />
                 </div>
 
                 <div className="modal-actions">
                     <Button type="button" variant="outline" onClick={onClose}>
-                        Cancel
+                        {t('wp.databaseTab.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
                         {loading ? 'Creating...' : 'Create Snapshot'}
