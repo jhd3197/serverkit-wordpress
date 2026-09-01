@@ -10,7 +10,7 @@
   "repository": "https://github.com/jhd3197/serverkit-wordpress",
   "permissions": ["shell", "filesystem", "network", "docker", "database"],
   "min_panel_version": "1.7.81",
-  "sdk_version": "^1.3.0",
+  "sdk_version": "^1.5.0",
   "frontend_entry": "dist/index.mjs",
   "entry_point": "wordpress:wordpress_bp",
   "url_prefix": "/api/v1/wordpress",
@@ -70,6 +70,54 @@
       { "label": "WordPress", "path": "/wordpress", "category": "Pages", "keywords": "wp sites" },
       { "label": "Import WordPress over SSH", "path": "/wordpress/ssh-import", "category": "Pages", "keywords": "wp migrate pull import ssh" },
       { "label": "WordPress Pipelines", "path": "/wordpress/pipelines", "category": "Pages", "keywords": "wp environments projects pipeline" }
+    ],
+    "walkthroughs": [
+      {
+        "id": "launch-first-site",
+        "title": "Launch your first WordPress site",
+        "description": "Provision an isolated WordPress stack, publish it, and secure the generated credentials.",
+        "duration": "About 6 minutes",
+        "icon": "wordpress",
+        "tone": "green",
+        "secondary": false,
+        "permissions": [
+          { "feature": "applications", "level": "write" }
+        ],
+        "steps": [
+          {
+            "id": "open-create-site",
+            "title": "Open the WordPress site builder",
+            "description": "Start a new isolated WordPress and MySQL stack from the WordPress site list.",
+            "action": "Create a site",
+            "path": "/wordpress?focus=create:site",
+            "target": "wordpress-create-site",
+            "completion": { "type": "route", "path": "/wordpress" }
+          },
+          {
+            "id": "configure-site",
+            "title": "Choose the site identity and runtime",
+            "description": "Set a site name, publishing domain, administrator email, PHP version, and optional caches.",
+            "target": "wordpress-create-form",
+            "completion": { "type": "manual" }
+          },
+          {
+            "id": "provision-site",
+            "title": "Provision the site",
+            "description": "Create the stack. This step completes only after WordPress, MySQL, and the site route are ready.",
+            "action": "Create site",
+            "path": "/wordpress?focus=create:site",
+            "target": "wordpress-create-submit",
+            "completion": { "type": "signal", "signal": "wordpress.site-created" }
+          },
+          {
+            "id": "secure-credentials",
+            "title": "Save the generated credentials",
+            "description": "Store the one-time administrator password in a password manager, then open the live site when ready.",
+            "target": "wordpress-created-site",
+            "completion": { "type": "manual" }
+          }
+        ]
+      }
     ]
   }
 }

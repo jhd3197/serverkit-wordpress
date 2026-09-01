@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import wordpressApi from '../services/wordpress';
 import { useToast } from 'serverkit-sdk';
 import { ResourceAdvisory } from 'serverkit-sdk';
@@ -15,6 +15,7 @@ import { Label } from 'serverkit-sdk';
 import { Checkbox } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
+import { emitWalkthroughSignal } from 'serverkit-sdk';
 
 // Mirror the backend slug rule (a-z, 0-9, single dashes) so the create modal can
 // preview the exact <slug>.<base> host the site will be published at.
@@ -53,11 +54,17 @@ function WordPress() {
     const [bulkLoading, setBulkLoading] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
     const toast = useToast();
 
     useEffect(() => {
         loadSites();
     }, []);
+
+    useEffect(() => {
+        const focus = new URLSearchParams(location.search).get('focus');
+        if (focus === 'create:site') setShowCreateModal(true);
+    }, [location.search]);
 
     // Load the available base domains when the create modal opens, and preselect
     // the default so the site publishes under it unless the user picks another.
@@ -112,6 +119,7 @@ function WordPress() {
                     toast.info(result.warning, { duration: 8000 });
                 }
                 toast.success(t('wp.wordPress.wordpressSiteCreatedSuccessfully', 'WordPress site created successfully'));
+                emitWalkthroughSignal('wordpress.site-created', { siteId: result.site?.id || result.site_id });
                 setShowCreateModal(false);
                 setCreateForm({ name: '', domain: '', adminEmail: '', phpVersion: '', enablePageCache: false, enableObjectCache: false, baseDomain: '' });
                 await loadSites();
@@ -187,7 +195,7 @@ function WordPress() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 {t('wp.wordPress.importSite', 'Import Site')}
             </Button>
-            <Button size="sm" onClick={() => setShowCreateModal(true)}>
+            <Button size="sm" onClick={() => setShowCreateModal(true)} data-walkthrough="wordpress-create-site">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 {t('wp.wordPress.createSite', 'Create Site')}
             </Button>
@@ -342,7 +350,7 @@ function WordPress() {
                     the operator still decides. */}
                 <ResourceAdvisory workload="wordpress" />
                 {(createdCreds || createdSite) && (
-                <div className="wp-creds-banner">
+                <div className="wp-creds-banner" data-walkthrough="wordpress-created-site">
                     <div className="wp-creds-banner-text">
                         {createdSite && (createdSite.domain ? (
                             <span>
@@ -430,7 +438,7 @@ function WordPress() {
             emptyTitle="No WordPress Sites"
             emptyDescription="Create your first WordPress site powered by Docker. Each site gets its own isolated environment with MySQL."
             emptyAction={
-                <Button onClick={() => setShowCreateModal(true)}>
+                <Button onClick={() => setShowCreateModal(true)} data-walkthrough="wordpress-create-site">
                     {t('wp.wordPress.createSite2', 'Create Site')}
                 </Button>
             }
@@ -538,7 +546,7 @@ function WordPress() {
                 width={560}
                 className="sk-formdrawer"
             >
-                <div className="sk-formdrawer__form">
+                <div className="sk-formdrawer__form" data-walkthrough="wordpress-create-form">
                     <div className="sk-formdrawer__body">
                             <div className="sk-formdrawer__callout">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
@@ -668,6 +676,7 @@ function WordPress() {
                         <Button
                             onClick={handleCreate}
                             disabled={createLoading || !createForm.name}
+                            data-walkthrough="wordpress-create-submit"
                         >
                             {createLoading ? <><Spinner size="sm" /> {t('wp.wordPress.creating', 'Creating...')}</> : 'Create Site'}
                         </Button>
