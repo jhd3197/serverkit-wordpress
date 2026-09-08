@@ -49,9 +49,19 @@ try {
 
 const problems = [];
 
+// A reference guarded by `typeof process < "u"` / `typeof process !== "undefined"`
+// is a runtime feature probe (SDK clients reading an env var when they happen
+// to run under Node) and is harmless in the browser.
+function isGuarded(index) {
+    return /typeof\s+process\s*(?:<|!==?|===?)/.test(src.slice(Math.max(0, index - 120), index));
+}
+
 for (const { re, why } of FORBIDDEN) {
-    const hits = src.match(re);
-    if (hits) problems.push(`${hits.length}x ${why}`);
+    let count = 0;
+    for (const m of src.matchAll(re)) {
+        if (!isGuarded(m.index)) count += 1;
+    }
+    if (count) problems.push(`${count}x ${why}`);
 }
 
 // Import specifiers. Statement-level matches are anchored to a line start:
