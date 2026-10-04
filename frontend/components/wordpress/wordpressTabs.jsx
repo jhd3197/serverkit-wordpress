@@ -8,6 +8,6 @@ import { useTranslation } from 'serverkit-sdk';
 // here for simplicity — the pipeline page shows an empty state when unused.)
 export const WORDPRESS_TABS = [
     { to: '/wordpress', labelKey: 'wp.wordpressTabs.wordpress', label: 'WordPress', end: true, icon: <Globe size={15} /> },
-    { to: '/wordpress/plugins/library', labelKey: 'wp.wordpressTabs.pluginLibrary', label: 'Plugin Library', icon: <Package size={15} /> },
+    { to: '/wordpress/plugins/library', labelKey: 'wp.wordpressTabs.pluginLibrary', label: 'Plugin library', icon: <Package size={15} /> },
     { to: '/wordpress/pipelines', labelKey: 'wp.wordpressTabs.pipeline', label: 'Pipeline', icon: <GitBranch size={15} /> },
 ];

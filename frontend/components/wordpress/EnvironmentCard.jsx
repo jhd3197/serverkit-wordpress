@@ -32,8 +32,8 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
         const diffMs = now - date;
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-        if (diffDays === 0) return 'Today';
-        if (diffDays === 1) return 'Yesterday';
+        if (diffDays === 0) return t('wp.environmentCard.today', 'Today');
+        if (diffDays === 1) return t('wp.environmentCard.yesterday', 'Yesterday');
         if (diffDays < 7) return `${diffDays} days ago`;
         if (diffDays < 30) return `${Math.floor(diffDays / 7)} week(s) ago`;
         return `${Math.floor(diffDays / 30)} month(s) ago`;
@@ -105,7 +105,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                             {t('wp.environmentCard.stale', 'Stale')}
                         </span>
                     )}
-                    <Pill kind={isRunning ? 'green' : 'gray'}>{isRunning ? 'Running' : 'Stopped'}</Pill>
+                    <Pill kind={isRunning ? 'green' : 'gray'}>{isRunning ? t('wp.environmentCard.running', 'Running') : t('wp.environmentCard.stopped', 'Stopped')}</Pill>
                 </div>
             </div>
 
@@ -136,7 +136,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                     {!isProduction && environment.last_sync && (
                         <div className="wp-env-meta-item">
                             <span className="meta-label">
-                                <Clock size={12} /> {t('wp.environmentCard.lastSync', 'Last Sync')}
+                                <Clock size={12} /> {t('wp.environmentCard.lastSync', 'Last sync')}
                             </span>
                             <span className={`meta-value ${stale ? 'text-warning' : ''}`}>
                                 {formatRelativeTime(environment.last_sync)}
@@ -175,7 +175,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                             title={t('wp.environmentCard.syncFromProduction', 'Sync from production')}
                         >
                             <RefreshCw size={14} className={syncing ? 'spinning' : ''} />
-                            {syncing ? 'Syncing...' : 'Sync'}
+                            {syncing ? t('wp.environmentCard.syncing', 'Syncing…') : t('wp.environmentCard.sync', 'Sync')}
                         </button>
                         {onViewLogs && (
                             <button type="button"
@@ -193,7 +193,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                             disabled={deleting}
                         >
                             <Trash2 size={14} />
-                            {deleting ? 'Deleting...' : 'Delete'}
+                            {deleting ? t('wp.environmentCard.deleting', 'Deleting…') : t('wp.environmentCard.delete', 'Delete')}
                         </button>
                     </>
                 )}
@@ -201,7 +201,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
 
             <ConfirmDialog
                 isOpen={showSyncConfirm}
-                title={t('wp.environmentCard.syncFromProduction2', 'Sync from Production')}
+                title={t('wp.environmentCard.syncFromProduction2', 'Sync from production')}
                 message={t('wp.environmentCard.syncFromProduction3', 'Sync "{{name}}" from production?', { name: environment.name })}
                 details={
                     <ul>
@@ -210,7 +210,7 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
                         <li>{t('wp.environmentCard.urlsWillBeAutomaticallyUpdatedFor', 'URLs will be automatically updated for this environment')}</li>
                     </ul>
                 }
-                confirmText={t('wp.environmentCard.syncNow', 'Sync Now')}
+                confirmText={t('wp.environmentCard.syncNow', 'Sync now')}
                 variant="warning"
                 onConfirm={handleSync}
                 onCancel={() => setShowSyncConfirm(false)}
@@ -218,16 +218,16 @@ const EnvironmentCard = ({ environment, productionUrl, onSync, onDelete, onViewL
 
             <ConfirmDialog
                 isOpen={showDeleteConfirm}
-                title={t('wp.environmentCard.deleteEnvironment', 'Delete {{value}} Environment', { value: envType.charAt(0).toUpperCase() + envType.slice(1) })}
-                message={t('wp.environmentCard.areYouSureYouWantTo', 'Are you sure you want to delete "{{name}}"?', { name: environment.name })}
+                title={t('wp.environmentCard.deleteEnvironment', 'Delete {{value}} environment', { value: envType.charAt(0).toUpperCase() + envType.slice(1) })}
+                message={t('wp.environmentCard.areYouSureYouWantTo', 'Delete "{{name}}"?', { name: environment.name })}
                 details={
                     <ul>
                         <li>{t('wp.environmentCard.allEnvironmentFilesWillBePermanently', 'All environment files will be permanently deleted')}</li>
-                        <li>{t('wp.environmentCard.database2', 'Database')} <code>{environment.db_name || 'associated database'}</code> {t('wp.environmentCard.willBeRemoved', 'will be removed')}</li>
-                        <li>{t('wp.environmentCard.thisActionCannotBeUndone', 'This action cannot be undone')}</li>
+                        <li>{t('wp.environmentCard.database2', 'Database')} <code>{environment.db_name || 'associated database'}</code> {t('wp.environmentCard.willBeRemoved', 'will be deleted')}</li>
+                        <li>{t('wp.environmentCard.thisActionCannotBeUndone', "This can't be undone")}</li>
                     </ul>
                 }
-                confirmText={t('wp.environmentCard.deleteEnvironment2', 'Delete Environment')}
+                confirmText={t('wp.environmentCard.deleteEnvironment2', 'Delete environment')}
                 variant="danger"
                 onConfirm={handleDelete}
                 onCancel={() => setShowDeleteConfirm(false)}

@@ -59,7 +59,7 @@ const WordPressSiteCard = ({ site, onDelete }) => {
                 </div>
                 <span className={`wp-site-status ${isRunning ? 'running' : 'stopped'}`}>
                     <span className="status-dot" />
-                    {isRunning ? 'Running' : 'Stopped'}
+                    {isRunning ? t('wp.wordPressSiteCard.running', 'Running') : t('wp.wordPressSiteCard.stopped', 'Stopped')}
                 </span>
             </div>
 
@@ -67,7 +67,7 @@ const WordPressSiteCard = ({ site, onDelete }) => {
                 <div className="wp-site-meta">
                     <div className="wp-site-meta-item">
                         <span className="meta-label">{t('wp.wordPressSiteCard.version', 'Version')}</span>
-                        <span className="meta-value">{site.wp_version || 'Unknown'}</span>
+                        <span className="meta-value">{site.wp_version || t('wp.wordPressSiteCard.unknown', 'Unknown')}</span>
                     </div>
                     <div className="wp-site-meta-item">
                         <span className="meta-label">{t('wp.wordPressSiteCard.environments', 'Environments')}</span>
@@ -95,7 +95,7 @@ const WordPressSiteCard = ({ site, onDelete }) => {
                     size="sm"
                     onClick={handleVisitSite}
                     disabled={!site.url}
-                    title={t('wp.wordPressSiteCard.visitSite', 'Visit Site')}
+                    title={t('wp.wordPressSiteCard.visitSite', 'Visit site')}
                 >
                     <ExternalLink size={14} />
                     {t('wp.wordPressSiteCard.visit', 'Visit')}
@@ -105,7 +105,7 @@ const WordPressSiteCard = ({ site, onDelete }) => {
                     size="sm"
                     onClick={handleOpenDashboard}
                     disabled={!site.url}
-                    title={t('wp.wordPressSiteCard.openDashboard', 'Open Dashboard')}
+                    title={t('wp.wordPressSiteCard.openDashboard', 'Open dashboard')}
                 >
                     <Settings size={14} />
                     {t('wp.wordPressSiteCard.dashboard', 'Dashboard')}
@@ -114,7 +114,7 @@ const WordPressSiteCard = ({ site, onDelete }) => {
                     variant="ghost"
                     size="sm"
                     onClick={handleManage}
-                    title={t('wp.wordPressSiteCard.manageSite', 'Manage Site')}
+                    title={t('wp.wordPressSiteCard.manageSite', 'Manage site')}
                 >
                     <Copy size={14} />
                     {t('wp.wordPressSiteCard.manage', 'Manage')}
@@ -123,7 +123,7 @@ const WordPressSiteCard = ({ site, onDelete }) => {
                     variant="ghost"
                     size="sm"
                     onClick={handleDelete}
-                    title={t('wp.wordPressSiteCard.deleteSite', 'Delete Site')}
+                    title={t('wp.wordPressSiteCard.deleteSite', 'Delete site')}
                     className="text-destructive hover:text-destructive"
                 >
                     <Trash2 size={14} />
@@ -132,18 +132,18 @@ const WordPressSiteCard = ({ site, onDelete }) => {
 
             <ConfirmDialog
                 isOpen={showDeleteConfirm}
-                title={t('wp.wordPressSiteCard.deleteWordpressSite', 'Delete WordPress Site')}
-                message={t('wp.wordPressSiteCard.areYouSureYouWantTo', 'Are you sure you want to delete "{{name}}"? This action cannot be undone.', { name: site.name })}
+                title={t('wp.wordPressSiteCard.deleteWordpressSite', 'Delete WordPress site')}
+                message={t('wp.wordPressSiteCard.areYouSureYouWantTo', 'Delete "{{name}}"? This can\'t be undone.', { name: site.name })}
                 details={
                     <ul>
                         <li>{t('wp.wordPressSiteCard.allSiteFilesWillBePermanently', 'All site files will be permanently deleted')}</li>
-                        <li>{t('wp.wordPressSiteCard.database', 'Database')} <code>{site.db_name || 'associated database'}</code> {t('wp.wordPressSiteCard.willBeRemoved', 'will be removed')}</li>
+                        <li>{t('wp.wordPressSiteCard.database', 'Database')} <code>{site.db_name || 'associated database'}</code> {t('wp.wordPressSiteCard.willBeRemoved', 'will be deleted')}</li>
                         {site.environments?.length > 0 && (
                             <li>{site.environments.length} {t('wp.wordPressSiteCard.linkedEnvironmentSWillAlsoBe', 'linked environment(s) will also be deleted')}</li>
                         )}
                     </ul>
                 }
-                confirmText={t('wp.wordPressSiteCard.deleteSite2', 'Delete Site')}
+                confirmText={t('wp.wordPressSiteCard.deleteSite2', 'Delete site')}
                 variant="danger"
                 requireConfirmation={site.name}
                 onConfirm={confirmDelete}

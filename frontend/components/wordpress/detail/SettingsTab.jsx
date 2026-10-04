@@ -37,7 +37,7 @@ export const SearchReplaceModal = ({ onClose, onSubmit }) => {
     }
 
     return (
-        <Modal open onClose={onClose} title={t('wp.settingsTab.searchReplace', 'Search & Replace')}>
+        <Modal open onClose={onClose} title={t('wp.settingsTab.searchReplace', 'Search and replace')}>
             <form onSubmit={(e) => { e.preventDefault(); run(false); }}>
                 <p className="hint">{t('wp.settingsTab.replacesAStringAcrossAllDatabase', 'Replaces a string across all database tables (e.g. an old domain). Always preview with a dry run first.')}</p>
 
@@ -68,10 +68,10 @@ export const SearchReplaceModal = ({ onClose, onSubmit }) => {
                         {t('wp.settingsTab.cancel', 'Cancel')}
                     </Button>
                     <Button type="button" variant="outline" onClick={() => run(true)} disabled={loading || !search.trim() || !replace.trim()}>
-                        {loading ? 'Running...' : 'Dry Run'}
+                        {loading ? t('wp.settingsTab.running', 'Running…') : t('wp.settingsTab.dryRun', 'Dry run')}
                     </Button>
                     <Button type="submit" disabled={loading || !search.trim() || !replace.trim()}>
-                        {loading ? 'Running...' : 'Run Replace'}
+                        {loading ? t('wp.settingsTab.running', 'Running…') : t('wp.settingsTab.runReplace', 'Run replace')}
                     </Button>
                 </div>
             </form>
@@ -99,9 +99,9 @@ const DeleteSiteModal = ({ siteName, onClose, onConfirm }) => {
     }
 
     return (
-        <Modal open onClose={onClose} title={t('wp.settingsTab.deleteSite', 'Delete Site')}>
+        <Modal open onClose={onClose} title={t('wp.settingsTab.deleteSite', 'Delete site')}>
             <form onSubmit={handleSubmit}>
-                <p className="hint">{t('wp.settingsTab.thisPermanentlyDeletes', 'This permanently deletes')} <strong>{siteName}</strong>{t('wp.settingsTab.allItsEnvironmentsFilesAndDatabases', ', all its environments, files and databases. This cannot be undone.')}</p>
+                <p className="hint">{t('wp.settingsTab.thisPermanentlyDeletes', 'This permanently deletes')} <strong>{siteName}</strong>{t('wp.settingsTab.allItsEnvironmentsFilesAndDatabases', ", all its environments, files and databases. This can't be undone.")}</p>
                 <div className="form-group">
                     <label className="checkbox-label">
                         <input
@@ -127,7 +127,7 @@ const DeleteSiteModal = ({ siteName, onClose, onConfirm }) => {
                         {t('wp.settingsTab.cancel2', 'Cancel')}
                     </Button>
                     <Button type="submit" variant="destructive" disabled={loading || !canDelete}>
-                        {loading ? 'Deleting...' : 'Delete Site'}
+                        {loading ? t('wp.settingsTab.deleting', 'Deleting…') : t('wp.settingsTab.deleteSite4', 'Delete site')}
                     </Button>
                 </div>
             </form>
@@ -142,16 +142,18 @@ const DeleteSiteModal = ({ siteName, onClose, onConfirm }) => {
 // General settings — site-level actions that don't warrant an everyday top-bar
 // button (point a domain, change the URL, clone the site). They open the modals
 // that already live in WordPressDetail, via handlers passed down through ctx.
-const GeneralSettings = ({ onAddDomain, onChangeUrl, onClone }) => (
+const GeneralSettings = ({ onAddDomain, onChangeUrl, onClone }) => {
+    const { t } = useTranslation();
+    return (
     <div className="app-overview-grid">
         <div className="app-overview-left">
             <div className="app-panel">
-                <div className="app-panel-header">{t('wp.settingsTab.domainsUrl', 'Domains & URL')}</div>
+                <div className="app-panel-header">{t('wp.settingsTab.domainsUrl', 'Domains and URL')}</div>
                 <div className="app-panel-body">
                     <p className="hint">{t('wp.settingsTab.pointACustomDomainYouOwn', 'Point a custom domain you own at this site (auto-DNS + migrate), or change its primary URL with a serialization-safe database rewrite.')}</p>
                     <div className="app-detail-actions">
                         <Button variant="outline" size="sm" onClick={onAddDomain}>
-                            <Plus size={15} /> {t('wp.settingsTab.addDomain', 'Add Domain')}
+                            <Plus size={15} /> {t('wp.settingsTab.addDomain', 'Add domain')}
                         </Button>
                         <Button variant="outline" size="sm" onClick={onChangeUrl}>
                             <Globe size={15} /> {t('wp.settingsTab.changeUrl', 'Change URL')}
@@ -172,7 +174,8 @@ const GeneralSettings = ({ onAddDomain, onChangeUrl, onClone }) => (
             </div>
         </div>
     </div>
-);
+    );
+};
 
 // Danger Zone settings — destructive site-level actions moved out of the
 // Overview tab into Settings so the daily dashboard isn't dominated by them.
@@ -186,14 +189,14 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
 
     async function handleArchive() {
         const ok = await confirm({
-            title: t('wp.settingsTab.archiveSite', 'Archive Site'),
+            title: t('wp.settingsTab.archiveSite', 'Archive site'),
             message: t('wp.settingsTab.stopAndArchiveContainersAreStopped', 'Stop and archive "{{name}}"? Containers are stopped but all files and the database are kept. You can unarchive it later.', { name: site.name }),
             confirmText: t('wp.settingsTab.archive', 'Archive'),
             variant: 'warning',
         });
         if (!ok) return;
         setArchiving(true);
-        toast.info(t('wp.settingsTab.archivingSite', 'Archiving site...'), { duration: 3000 });
+        toast.info(t('wp.settingsTab.archivingSite', 'Archiving site…'), { duration: 3000 });
         try {
             await wordpressApi.archiveSite(site.id);
             toast.success(t('wp.settingsTab.siteArchived', 'Site archived'));
@@ -207,7 +210,7 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
 
     async function handleUnarchive() {
         setArchiving(true);
-        toast.info(t('wp.settingsTab.unarchivingSite', 'Unarchiving site...'), { duration: 3000 });
+        toast.info(t('wp.settingsTab.unarchivingSite', 'Unarchiving site…'), { duration: 3000 });
         try {
             await wordpressApi.unarchiveSite(site.id);
             toast.success(t('wp.settingsTab.siteUnarchived', 'Site unarchived'));
@@ -220,7 +223,7 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
     }
 
     async function handleDelete(createBackup) {
-        toast.info(createBackup ? t('wp.settingsTab.creatingFinalBackupAndDeletingSite', 'Creating final backup and deleting site...') : t('wp.settingsTab.deletingSite', 'Deleting site...'), { duration: 5000 });
+        toast.info(createBackup ? t('wp.settingsTab.creatingFinalBackupAndDeletingSite', 'Creating final backup and deleting site…') : t('wp.settingsTab.deletingSite', 'Deleting site…'), { duration: 5000 });
         try {
             await wordpressApi.deleteSite(site.id, { createBackup });
             toast.success(t('wp.settingsTab.siteDeleted', 'Site deleted'));
@@ -243,38 +246,38 @@ const DangerZoneSettings = ({ site, onUpdate }) => {
             <div className="app-overview-grid">
                 <div className="app-overview-left">
                     <div className="app-panel danger-zone-panel">
-                        <div className="app-panel-header">{t('wp.settingsTab.dangerZone', 'Danger Zone')}</div>
+                        <div className="app-panel-header">{t('wp.settingsTab.dangerZone', 'Archive and delete')}</div>
                         <div className="app-panel-body danger-zone-body">
                             {site.status === 'archived' ? (
                                 <DangerZone
-                                    title={t('wp.settingsTab.unarchiveSite', 'Unarchive Site')}
+                                    title={t('wp.settingsTab.unarchiveSite', 'Unarchive site')}
                                     description={t('wp.settingsTab.restartThisSiteSContainersAnd', 'Restart this site\'s containers and bring it back online.')}
                                     action={(
                                         <Button variant="outline" onClick={handleUnarchive} disabled={archiving}>
                                             <Archive size={16} />
-                                            {archiving ? 'Unarchiving...' : 'Unarchive'}
+                                            {archiving ? t('wp.settingsTab.unarchiving', 'Unarchiving…') : t('wp.settingsTab.unarchive', 'Unarchive')}
                                         </Button>
                                     )}
                                 />
                             ) : (
                                 <DangerZone
-                                    title={t('wp.settingsTab.archiveSite3', 'Archive Site')}
+                                    title={t('wp.settingsTab.archiveSite3', 'Archive site')}
                                     description={t('wp.settingsTab.stopTheContainersButKeepAll', 'Stop the containers but keep all files and the database. Reversible.')}
                                     action={(
                                         <Button variant="outline" onClick={handleArchive} disabled={archiving}>
                                             <Archive size={16} />
-                                            {archiving ? 'Archiving...' : 'Archive'}
+                                            {archiving ? t('wp.settingsTab.archiving', 'Archiving…') : t('wp.settingsTab.archive2', 'Archive')}
                                         </Button>
                                     )}
                                 />
                             )}
                             <DangerZone
-                                title={t('wp.settingsTab.deleteSite2', 'Delete Site')}
-                                description={t('wp.settingsTab.permanentlyRemoveThisSiteAllEnvironments', 'Permanently remove this site, all environments, files and databases. A final backup is taken by default.')}
+                                title={t('wp.settingsTab.deleteSite2', 'Delete site')}
+                                description={t('wp.settingsTab.permanentlyRemoveThisSiteAllEnvironments', 'Permanently delete this site, all environments, files and databases. A final backup is taken by default.')}
                                 action={(
                                     <Button variant="destructive" onClick={() => setShowDeleteModal(true)}>
                                         <Trash2 size={16} />
-                                        {t('wp.settingsTab.deleteSite3', 'Delete Site')}
+                                        {t('wp.settingsTab.deleteSite3', 'Delete site')}
                                     </Button>
                                 )}
                             />
@@ -312,8 +315,8 @@ const WP_SETTINGS_GROUPS = [
     { labelKey: 'wp.settingsTab.reports', label: 'Reports', items: [
         { id: 'reports', labelKey: 'wp.settingsTab.reports2', label: 'Reports', icon: FileBarChart, render: (ctx) => <ReportsTab siteId={ctx.siteId} /> },
     ] },
-    { labelKey: 'wp.settingsTab.dangerZone2', label: 'Danger Zone', items: [
-        { id: 'danger-zone', labelKey: 'wp.settingsTab.dangerZone3', label: 'Danger Zone', icon: ShieldAlert, render: (ctx) => <DangerZoneSettings site={ctx.site} onUpdate={ctx.onUpdate} /> },
+    { labelKey: 'wp.settingsTab.dangerZone2', label: 'Archive and delete', items: [
+        { id: 'danger-zone', labelKey: 'wp.settingsTab.dangerZone3', label: 'Archive and delete', icon: ShieldAlert, render: (ctx) => <DangerZoneSettings site={ctx.site} onUpdate={ctx.onUpdate} /> },
     ] },
 ];
 

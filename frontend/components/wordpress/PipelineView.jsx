@@ -149,7 +149,7 @@ const PipelineView = ({
                             title={t('wp.pipelineView.pullProductionDataIntoDevelopment', 'Pull production data into development')}
                         >
                             <ArrowDownLeft size={14} />
-                            {t('wp.pipelineView.pullFromProd', 'Pull from Prod')}
+                            {t('wp.pipelineView.pullFromProd', 'Pull from prod')}
                         </Button>
                     </div>
                 )}
@@ -162,7 +162,7 @@ const PipelineView = ({
                             title={t('wp.pipelineView.pullProductionDataIntoStaging', 'Pull production data into staging')}
                         >
                             <ArrowDownLeft size={14} />
-                            {t('wp.pipelineView.pullFromProd2', 'Pull from Prod')}
+                            {t('wp.pipelineView.pullFromProd2', 'Pull from prod')}
                         </Button>
                     </div>
                 )}
@@ -180,7 +180,7 @@ const PipelineView = ({
                             title={t('wp.pipelineView.compareDevelopmentVsProduction', 'Compare development vs production')}
                         >
                             <GitCompare size={14} />
-                            {t('wp.pipelineView.compareVsProd', 'Compare vs Prod')}
+                            {t('wp.pipelineView.compareVsProd', 'Compare vs prod')}
                         </Button>
                     )}
                     {stagingEnv && (
@@ -192,7 +192,7 @@ const PipelineView = ({
                             title={t('wp.pipelineView.compareStagingVsProduction', 'Compare staging vs production')}
                         >
                             <GitCompare size={14} />
-                            {t('wp.pipelineView.compareVsProd2', 'Compare vs Prod')}
+                            {t('wp.pipelineView.compareVsProd2', 'Compare vs prod')}
                         </Button>
                     )}
                     {devEnv && stagingEnv && (
@@ -204,7 +204,7 @@ const PipelineView = ({
                             title={t('wp.pipelineView.compareDevelopmentVsStaging', 'Compare development vs staging')}
                         >
                             <GitCompare size={14} />
-                            {t('wp.pipelineView.devVsStaging', 'Dev vs Staging')}
+                            {t('wp.pipelineView.devVsStaging', 'Dev vs staging')}
                         </Button>
                     )}
                 </div>
@@ -215,7 +215,7 @@ const PipelineView = ({
                 <div className="pipeline-section-header">
                     <h4 className="pipeline-section-title">
                         <GitBranch size={16} />
-                        {t('wp.pipelineView.multidevEnvironments', 'Multidev Environments')}
+                        {t('wp.pipelineView.multidevEnvironments', 'Multidev environments')}
                         {multidevEnvs.length > 0 && (
                             <span className="pipeline-section-count">{multidevEnvs.length}</span>
                         )}
@@ -226,7 +226,7 @@ const PipelineView = ({
                         onClick={onCreateMultidev}
                     >
                         <Plus size={14} />
-                        {t('wp.pipelineView.newMultidev', 'New Multidev')}
+                        {t('wp.pipelineView.newMultidev', 'New multidev')}
                     </Button>
                 </div>
                 {multidevEnvs.length > 0 ? (
@@ -254,10 +254,10 @@ const PipelineView = ({
                     <div className="pipeline-multidev-empty">
                         <GitBranch size={24} />
                         <p>{t('wp.pipelineView.noMultidevEnvironmentsYet', 'No multidev environments yet')}</p>
-                        <span>{t('wp.pipelineView.createBranchBasedEnvironmentsForFeature', 'Create branch-based environments for feature development and testing')}</span>
+                        <span>{t('wp.pipelineView.createBranchBasedEnvironmentsForFeature', 'Create branch-based environments for feature development and testing.')}</span>
                         <Button size="sm" onClick={onCreateMultidev}>
                             <Plus size={14} />
-                            {t('wp.pipelineView.createMultidev', 'Create Multidev')}
+                            {t('wp.pipelineView.createMultidev', 'New multidev')}
                         </Button>
                     </div>
                 )}
@@ -344,7 +344,7 @@ const PipelineCard = ({
                                 <Cpu size={12} /> {t('wp.pipelineView.resources', 'Resources')}
                             </button>
                             <button type="button" onClick={() => { onBasicAuth?.(env); setShowMenu(false); }}>
-                                <Shield size={12} /> {t('wp.pipelineView.basicAuth', 'Basic Auth')}
+                                <Shield size={12} /> {t('wp.pipelineView.basicAuth', 'Basic auth')}
                             </button>
                             <button type="button" onClick={() => { onWpCli?.(env); setShowMenu(false); }}>
                                 <Terminal size={12} /> {t('wp.pipelineView.wpCli', 'WP-CLI')}
@@ -445,13 +445,14 @@ const PipelineArrow = ({ label, direction, disabled, onClick }) => {
 };
 
 const EmptySlot = ({ type }) => {
+    const { t } = useTranslation();
     return (
         <div className="pipeline-card empty">
             <div className="pipeline-empty-content">
                 <span className={`wp-env-badge env-${type}`}>
                     {type.toUpperCase()}
                 </span>
-                <p>No {type} environment</p>
+                <p>{t('wp.pipelineView.noTypeEnvironment', 'No {{type}} environment', { type })}</p>
             </div>
         </div>
     );
@@ -476,7 +477,7 @@ const MultidevCard = ({
                     <span className="wp-env-badge env-multidev">MULTIDEV</span>
                     <span className={`wp-env-status ${isRunning ? 'running' : 'stopped'}`}>
                         <span className="status-dot" />
-                        {isRunning ? 'Running' : 'Stopped'}
+                        {isRunning ? t('wp.pipelineView.running', 'Running') : t('wp.pipelineView.stopped', 'Stopped')}
                     </span>
                     {env.is_locked && (
                         <Lock size={12} className="multidev-lock-icon" />
@@ -507,7 +508,7 @@ const MultidevCard = ({
                                 </button>
                             )}
                             <button type="button" onClick={() => { onSync?.(env); setShowMenu(false); }}>
-                                <ArrowDownLeft size={12} /> {t('wp.pipelineView.syncFromProd', 'Sync from Prod')}
+                                <ArrowDownLeft size={12} /> {t('wp.pipelineView.syncFromProd', 'Sync from prod')}
                             </button>
                             <button type="button" onClick={() => { onViewLogs?.(env); setShowMenu(false); }}>
                                 <FileText size={12} /> {t('wp.pipelineView.logs3', 'Logs')}

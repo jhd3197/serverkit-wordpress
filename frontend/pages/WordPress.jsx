@@ -147,7 +147,7 @@ function WordPress() {
                 if (result.warning) {
                     toast.info(result.warning, { duration: 8000 });
                 }
-                toast.success(t('wp.wordPress.wordpressSiteCreatedSuccessfully', 'WordPress site created successfully'));
+                toast.success(t('wp.wordPress.wordpressSiteCreatedSuccessfully', 'WordPress site created'));
                 emitWalkthroughSignal('wordpress.site-created', { siteId: result.site?.id || result.site_id });
                 setShowCreateModal(false);
                 setCreateForm({ name: '', domain: '', adminEmail: '', phpVersion: '', enablePageCache: false, enableObjectCache: false, baseDomain: '' });
@@ -199,7 +199,7 @@ function WordPress() {
                 wpContentFile: wpContentFile,
             });
             if (result.success) {
-                toast.success(t('wp.wordPress.wordpressSiteImportedSuccessfully', 'WordPress site imported successfully'));
+                toast.success(t('wp.wordPress.wordpressSiteImportedSuccessfully', 'WordPress site imported'));
                 if (result.wp_content_imported) toast.success(t('wp.wordPress.wpContentPluginsThemesUploadsImported', 'wp-content (plugins/themes/uploads) imported'));
                 if (result.warning) toast.info(result.warning, { duration: 8000 });
                 setShowImportModal(false);
@@ -224,11 +224,11 @@ function WordPress() {
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                {t('wp.wordPress.importSite', 'Import Site')}
+                {t('wp.wordPress.importSite', 'Import site')}
             </Button>
             <Button size="sm" onClick={() => setShowCreateModal(true)} data-walkthrough="wordpress-create-site">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                {t('wp.wordPress.createSite', 'Create Site')}
+                {t('wp.wordPress.createSite', 'New site')}
             </Button>
         </>,
         []
@@ -296,7 +296,7 @@ function WordPress() {
             headerKey: 'wp.wordPress.status', header: 'Status',
             render: (site) => (
                 <Pill kind={site.status === 'running' ? 'green' : 'gray'}>
-                    {site.status === 'running' ? 'Running' : 'Stopped'}
+                    {site.status === 'running' ? t('wp.wordPress.running2', 'Running') : t('wp.wordPress.stopped2', 'Stopped')}
                 </Pill>
             ),
         },
@@ -352,7 +352,7 @@ function WordPress() {
                                 {t('wp.wordPress.yourSiteIsLiveAt', 'Your site is live at')}{' '}
                                 <a href={createdSite.url} target="_blank" rel="noopener noreferrer"><code>{createdSite.domain}</code></a>
                                 {createdSite.url?.startsWith('https')
-                                    ? ` ${t('wp.wordPress.httpsIsReady', '— HTTPS is ready.')}`
+                                    ? ` ${t('wp.wordPress.httpsIsReady', '(HTTPS is ready).')}`
                                     : '.'}
                             </span>
                         ) : (
@@ -364,7 +364,7 @@ function WordPress() {
                         ))}
                         {createdCreds && (
                             <>
-                                <strong>{t('wp.wordPress.saveTheseAdminCredentialsTheyAre', 'Save these admin credentials — they are shown only once.')}</strong>
+                                <strong>{t('wp.wordPress.saveTheseAdminCredentialsTheyAre', 'Save these admin credentials. They are shown only once.')}</strong>
                                 <CopyField label={t('wp.wordPress.usernameLabel', 'Username')} value={createdCreds.user} />
                                 <CopyField label={t('wp.wordPress.passwordLabel', 'Password')} value={createdCreds.password} secret />
                             </>
@@ -408,23 +408,23 @@ function WordPress() {
             bulkActions={
                 <>
                     <Button variant="outline" size="sm" disabled={bulkLoading}
-                        onClick={() => bulkRun('Start', s => wordpressApi.unarchiveSite(s.id), s => s.status !== 'running')}>
+                        onClick={() => bulkRun(t('wp.wordPress.bulk.start', 'Start'), s => wordpressApi.unarchiveSite(s.id), s => s.status !== 'running')}>
                         {t('wp.wordPress.start', 'Start')}
                     </Button>
                     <Button variant="outline" size="sm" disabled={bulkLoading}
-                        onClick={() => bulkRun('Stop', s => wordpressApi.archiveSite(s.id), s => s.status === 'running')}>
+                        onClick={() => bulkRun(t('wp.wordPress.bulk.stop', 'Stop'), s => wordpressApi.archiveSite(s.id), s => s.status === 'running')}>
                         {t('wp.wordPress.stop', 'Stop')}
                     </Button>
                     <Button variant="outline" size="sm" disabled={bulkLoading}
-                        onClick={() => bulkRun('Update core', s => wordpressApi.updateCore(s.id), s => s.status === 'running')}>
+                        onClick={() => bulkRun(t('wp.wordPress.bulk.updateCore', 'Update core'), s => wordpressApi.updateCore(s.id), s => s.status === 'running')}>
                         {t('wp.wordPress.update', 'Update')}
                     </Button>
                     <Button variant="outline" size="sm" disabled={bulkLoading}
-                        onClick={() => bulkRun('Backup', s => wordpressApi.createSnapshot(s.id, { name: 'bulk-backup' }), s => s.status === 'running')}>
-                        {t('wp.wordPress.backup', 'Backup')}
+                        onClick={() => bulkRun(t('wp.wordPress.bulk.backUp', 'Back up'), s => wordpressApi.createSnapshot(s.id, { name: 'bulk-backup' }), s => s.status === 'running')}>
+                        {t('wp.wordPress.backup', 'Back up')}
                     </Button>
                     <Button variant="outline" size="sm" disabled={bulkLoading}
-                        onClick={() => bulkRun('Clear cache', s => wordpressApi.flushCache(s.id), s => s.status === 'running')}>
+                        onClick={() => bulkRun(t('wp.wordPress.bulk.clearCache', 'Clear cache'), s => wordpressApi.flushCache(s.id), s => s.status === 'running')}>
                         {t('wp.wordPress.clearCache', 'Clear cache')}
                     </Button>
                 </>
@@ -434,7 +434,7 @@ function WordPress() {
             emptyDescription="Create your first WordPress site powered by Docker. Each site gets its own isolated environment with MySQL."
             emptyAction={
                 <Button onClick={() => setShowCreateModal(true)} data-walkthrough="wordpress-create-site">
-                    {t('wp.wordPress.createSite2', 'Create Site')}
+                    {t('wp.wordPress.createSite2', 'Create site')}
                 </Button>
             }
             filteredEmptyIcon={Globe}
@@ -445,7 +445,7 @@ function WordPress() {
             <Modal
                 open={showImportModal}
                 onClose={() => !importLoading && setShowImportModal(false)}
-                title={t('wp.wordPress.importWordpressSite', 'Import WordPress Site')}
+                title={t('wp.wordPress.importWordpressSite', 'Import WordPress site')}
                 size="lg"
             >
                 <div className="modal-body">
@@ -462,7 +462,7 @@ function WordPress() {
                             </div>
 
                             <div className="form-group">
-                                <Label>{t('wp.wordPress.siteName', 'Site Name')} <span className="required">*</span></Label>
+                                <Label>{t('wp.wordPress.siteName', 'Site name')} <span className="required">*</span></Label>
                                 <Input
                                     type="text"
                                     value={importForm.name}
@@ -474,7 +474,7 @@ function WordPress() {
                             </div>
 
                             <div className="form-group">
-                                <Label>{t('wp.wordPress.originalSiteUrl', 'Original Site URL')} <span className="required">*</span></Label>
+                                <Label>{t('wp.wordPress.originalSiteUrl', 'Original site URL')} <span className="required">*</span></Label>
                                 <Input
                                     type="text"
                                     value={importForm.oldUrl}
@@ -486,7 +486,7 @@ function WordPress() {
                             </div>
 
                             <div className="form-group">
-                                <Label>{t('wp.wordPress.adminEmail', 'Admin Email')}</Label>
+                                <Label>{t('wp.wordPress.adminEmail', 'Admin email')}</Label>
                                 <Input
                                     type="email"
                                     value={importForm.adminEmail}
@@ -497,14 +497,14 @@ function WordPress() {
                             </div>
 
                             <div className="form-group">
-                                <Label>{t('wp.wordPress.databaseDump', 'Database Dump')} <span className="required">*</span></Label>
+                                <Label>{t('wp.wordPress.databaseDump', 'Database dump')} <span className="required">*</span></Label>
                                 <input
                                     type="file"
                                     accept=".sql,.gz,.sql.gz"
                                     disabled={importLoading}
                                     onChange={e => setImportFile(e.target.files?.[0] || null)}
                                 />
-                                <span className="form-hint">{t('wp.wordPress.exportViaPhpmyadminOrTheWp', 'Export via phpMyAdmin or the wp db export command. .sql.gz is supported and recommended (100MB upload limit).')}</span>
+                                <span className="form-hint">{t('wp.wordPress.exportViaPhpmyadminOrTheWp', 'Export via phpMyAdmin or the wp db export command. .sql.gz is supported and recommended (100 MB upload limit).')}</span>
                             </div>
 
                             <div className="form-group">
@@ -523,7 +523,7 @@ function WordPress() {
                                 {t('wp.wordPress.cancel', 'Cancel')}
                             </Button>
                             <Button onClick={handleImport} disabled={importLoading || !importForm.name || !importForm.oldUrl || !importFile}>
-                                {importLoading ? <><Spinner size="sm" /> {t('wp.wordPress.importing', 'Importing...')}</> : 'Import Site'}
+                                {importLoading ? <><Spinner size="sm" /> {t('wp.wordPress.importing', 'Importing…')}</> : t('wp.wordPress.importSite2', 'Import site')}
                             </Button>
                         </div>
             </Modal>
@@ -535,7 +535,7 @@ function WordPress() {
                 flush
                 open={showCreateModal}
                 onOpenChange={(next) => { if (!next && !createLoading) setShowCreateModal(false); }}
-                title={t('wp.wordPress.createWordpressSite', 'Create WordPress Site')}
+                title={t('wp.wordPress.createWordpressSite', 'New WordPress site')}
                 subtitle={t('wp.wordPress.wordpressMysqlOnAnIsolatedDocker', 'WordPress + MySQL on an isolated Docker network')}
                 icon={<Globe size={20} />}
                 width={560}
@@ -557,7 +557,7 @@ function WordPress() {
 
                             <div className="sk-formdrawer__field">
                                 <Label>
-                                    {t('wp.wordPress.siteName2', 'Site Name')} <span className="required">*</span>
+                                    {t('wp.wordPress.siteName2', 'Site name')} <span className="required">*</span>
                                 </Label>
                                 <Input
                                     type="text"
@@ -583,7 +583,7 @@ function WordPress() {
                                 {domainInfo?.mode === 'custom' ? (
                                     <span className="sk-formdrawer__hint">
                                         {baseDomains.length === 0 && (
-                                            <>{t('wp.wordPress.noBaseDomainConfiguredTheSite', 'No base domain configured — the site will be reachable at')} <code>localhost:&lt;port&gt;</code>. </>
+                                            <>{t('wp.wordPress.noBaseDomainConfiguredTheSite', 'No base domain configured. The site will be reachable at')} <code>localhost:&lt;port&gt;</code>. </>
                                         )}
                                         {t('wp.wordPress.optionalTheSiteIsCreatedThen', 'Optional. The site is created, then moved to this domain.')}
                                     </span>
@@ -591,7 +591,7 @@ function WordPress() {
                             </div>
 
                             <div className="sk-formdrawer__field">
-                                <Label>{t('wp.wordPress.adminEmail2', 'Admin Email')}</Label>
+                                <Label>{t('wp.wordPress.adminEmail2', 'Admin email')}</Label>
                                 <Input
                                     type="email"
                                     value={createForm.adminEmail}
@@ -602,13 +602,13 @@ function WordPress() {
                             </div>
 
                             <div className="sk-formdrawer__field">
-                                <Label>{t('wp.wordPress.phpVersion', 'PHP Version')}</Label>
+                                <Label>{t('wp.wordPress.phpVersion', 'PHP version')}</Label>
                                 <Select
                                     value={createForm.phpVersion || PHP_DEFAULT}
                                     onValueChange={v => setCreateForm({ ...createForm, phpVersion: v === PHP_DEFAULT ? '' : v })}
                                     disabled={createLoading}
                                 >
-                                    <SelectTrigger aria-label={t('wp.wordPress.phpVersion', 'PHP Version')}><SelectValue /></SelectTrigger>
+                                    <SelectTrigger aria-label={t('wp.wordPress.phpVersion', 'PHP version')}><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value={PHP_DEFAULT}>{t('wp.wordPress.defaultLatestForWordpress64', 'Default (latest for WordPress 6.4)')}</SelectItem>
                                         <SelectItem value="8.1">{t('wp.wordPress.php81', 'PHP 8.1')}</SelectItem>
@@ -658,7 +658,7 @@ function WordPress() {
                             disabled={createLoading || !createForm.name}
                             data-walkthrough="wordpress-create-submit"
                         >
-                            {createLoading ? <><Spinner size="sm" /> {t('wp.wordPress.creating', 'Creating...')}</> : 'Create Site'}
+                            {createLoading ? <><Spinner size="sm" /> {t('wp.wordPress.creating', 'Creating…')}</> : t('wp.wordPress.createSite3', 'Create site')}
                         </Button>
                     </div>
                 </div>

@@ -44,10 +44,10 @@ const ResourceLimitsModal = ({ environment, currentLimits, onClose, onApply }) =
         }
     }
 
-    const envName = environment?.name || 'Environment';
+    const envName = environment?.name || t('wp.resourceLimitsModal.environment', 'Environment');
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.resourceLimitsModal.resourceLimits', 'Resource Limits')} className="resource-limits-modal">
+        <Modal open={true} onClose={onClose} title={t('wp.resourceLimitsModal.resourceLimits', 'Resource limits')} className="resource-limits-modal">
             <form onSubmit={handleSubmit}>
                 <div className="resource-limits-env-name">{envName}</div>
 
@@ -70,7 +70,7 @@ const ResourceLimitsModal = ({ environment, currentLimits, onClose, onApply }) =
                 <div className="resource-limits-section">
                     <h4>
                         <HardDrive size={14} />
-                        {t('wp.resourceLimitsModal.wordpressContainer', 'WordPress Container')}
+                        {t('wp.resourceLimitsModal.wordpressContainer', 'WordPress container')}
                     </h4>
                     <div className="resource-limits-row">
                         <Label>{t('wp.resourceLimitsModal.memory', 'Memory')}</Label>
@@ -86,7 +86,7 @@ const ResourceLimitsModal = ({ environment, currentLimits, onClose, onApply }) =
                         </Select>
                     </div>
                     <div className="resource-limits-row">
-                        <Label>{t('wp.resourceLimitsModal.cpuCores', 'CPU Cores')}</Label>
+                        <Label>{t('wp.resourceLimitsModal.cpuCores', 'CPU cores')}</Label>
                         <Select value={limits.cpus} onValueChange={v => handleChange('cpus', v)}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -103,7 +103,7 @@ const ResourceLimitsModal = ({ environment, currentLimits, onClose, onApply }) =
                 <div className="resource-limits-section">
                     <h4>
                         <HardDrive size={14} />
-                        {t('wp.resourceLimitsModal.databaseContainer', 'Database Container')}
+                        {t('wp.resourceLimitsModal.databaseContainer', 'Database container')}
                     </h4>
                     <div className="resource-limits-row">
                         <Label>{t('wp.resourceLimitsModal.memory2', 'Memory')}</Label>
@@ -119,7 +119,7 @@ const ResourceLimitsModal = ({ environment, currentLimits, onClose, onApply }) =
                         </Select>
                     </div>
                     <div className="resource-limits-row">
-                        <Label>{t('wp.resourceLimitsModal.cpuCores2', 'CPU Cores')}</Label>
+                        <Label>{t('wp.resourceLimitsModal.cpuCores2', 'CPU cores')}</Label>
                         <Select value={limits.db_cpus} onValueChange={v => handleChange('db_cpus', v)}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -143,7 +143,7 @@ const ResourceLimitsModal = ({ environment, currentLimits, onClose, onApply }) =
                         {t('wp.resourceLimitsModal.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
-                        {loading ? <><Spinner size="sm" /> {t('wp.resourceLimitsModal.applying', 'Applying...')}</> : 'Apply Limits'}
+                        {loading ? <><Spinner size="sm" /> {t('wp.resourceLimitsModal.applying', 'Applying…')}</> : t('wp.resourceLimitsModal.applyLimits', 'Apply limits')}
                     </Button>
                 </div>
             </form>

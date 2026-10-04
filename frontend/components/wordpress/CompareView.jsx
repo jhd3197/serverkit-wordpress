@@ -25,7 +25,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
             const data = await wordpressApi.compareEnvironments(projectId, envA.id, envB.id);
             setComparison(data);
         } catch (err) {
-            setError(err.message || 'Failed to compare environments');
+            setError(err.message || t('wp.compareView.failedToCompareEnvironments', 'Failed to compare environments'));
         } finally {
             setLoading(false);
         }
@@ -35,16 +35,16 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
     const envBType = envB?.environment_type || 'development';
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.compareView.compareEnvironments', 'Compare Environments')} size="xl">
+        <Modal open={true} onClose={onClose} title={t('wp.compareView.compareEnvironments', 'Compare environments')} size="xl">
             <div className="compare-header">
                 <div className={`compare-env-pill ${envAType}`}>
                     <span className="compare-env-type">{envAType}</span>
-                    <span className="compare-env-name">{envA?.name || 'Environment A'}</span>
+                    <span className="compare-env-name">{envA?.name || t('wp.compareView.environmentA', 'Environment A')}</span>
                 </div>
                 <GitCompare size={16} className="compare-vs-icon" />
                 <div className={`compare-env-pill ${envBType}`}>
                     <span className="compare-env-type">{envBType}</span>
-                    <span className="compare-env-name">{envB?.name || 'Environment B'}</span>
+                    <span className="compare-env-name">{envB?.name || t('wp.compareView.environmentB', 'Environment B')}</span>
                 </div>
                 <Button variant="ghost" size="sm" onClick={loadComparison} disabled={loading}>
                     <RefreshCw size={14} />
@@ -55,7 +55,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                 {loading && (
                     <div className="compare-loading">
                         <Spinner size="md" />
-                        <span>{t('wp.compareView.comparingEnvironments', 'Comparing environments...')}</span>
+                        <span>{t('wp.compareView.comparingEnvironments', 'Comparing environments…')}</span>
                     </div>
                 )}
 
@@ -83,7 +83,7 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                                 valueB={comparison.env_b?.php_version}
                             />
                             <CompareRow
-                                label={t('wp.compareView.activeTheme', 'Active Theme')}
+                                label={t('wp.compareView.activeTheme', 'Active theme')}
                                 valueA={comparison.env_a?.active_theme}
                                 valueB={comparison.env_b?.active_theme}
                             />
@@ -99,8 +99,8 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                                     <CompareRow
                                         key={plugin.name}
                                         label={plugin.name}
-                                        valueA={plugin.version_a || (plugin.in_a ? 'Installed' : null)}
-                                        valueB={plugin.version_b || (plugin.in_b ? 'Installed' : null)}
+                                        valueA={plugin.version_a || (plugin.in_a ? t('wp.compareView.installed', 'Installed') : null)}
+                                        valueB={plugin.version_b || (plugin.in_b ? t('wp.compareView.installed', 'Installed') : null)}
                                         status={plugin.status}
                                     />
                                 ))}
@@ -120,8 +120,8 @@ const CompareView = ({ projectId, envA, envB, onClose }) => {
                                     <CompareRow
                                         key={theme.name}
                                         label={theme.name}
-                                        valueA={theme.version_a || (theme.in_a ? 'Installed' : null)}
-                                        valueB={theme.version_b || (theme.in_b ? 'Installed' : null)}
+                                        valueA={theme.version_a || (theme.in_a ? t('wp.compareView.installed', 'Installed') : null)}
+                                        valueB={theme.version_b || (theme.in_b ? t('wp.compareView.installed', 'Installed') : null)}
                                         status={theme.status}
                                     />
                                 ))}

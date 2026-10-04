@@ -77,7 +77,7 @@ const AnalyticsTab = ({ siteId }) => {
                             <span> {t('wp.analyticsTab.addThisSiteThereForPersistent', 'Add this site there for persistent, cookieless visitor tracking with a full dashboard. The view below is parsed on demand from access logs.')}</span>
                         </div>
                         <Link to="/analytics/sites" className="wp-analytics-banner__link">
-                            {t('wp.analyticsTab.openAnalytics', 'Open Analytics')} <ExternalLink size={13} />
+                            {t('wp.analyticsTab.openAnalytics', 'Open analytics')} <ExternalLink size={13} />
                         </Link>
                     </div>
                 )}
@@ -156,7 +156,7 @@ const AnalyticsTab = ({ siteId }) => {
                         <div className="app-panel-header">{t('wp.analyticsTab.phpErrors', 'PHP errors')}</div>
                         <div className="app-panel-body">
                             {!phpErr.available ? (
-                                <p className="hint">{phpErr.note || 'PHP error logging is off.'}</p>
+                                <p className="hint">{phpErr.note || t('wp.analyticsTab.phpErrorLoggingIsOff', 'PHP error logging is off.')}</p>
                             ) : (
                                 <>
                                     <InfoList>
@@ -172,7 +172,7 @@ const AnalyticsTab = ({ siteId }) => {
                                             ))}
                                         </InfoList>
                                     ) : (
-                                        <p className="hint">{phpErr.note || 'No PHP errors recorded.'}</p>
+                                        <p className="hint">{phpErr.note || t('wp.analyticsTab.noPhpErrorsRecorded', 'No PHP errors recorded.')}</p>
                                     )}
                                 </>
                             )}

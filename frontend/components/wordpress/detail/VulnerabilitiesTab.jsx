@@ -64,11 +64,11 @@ const VulnerabilitiesTab = ({ siteId }) => {
                     <div className="app-panel-body">
                         <div className="app-detail-actions">
                             <Button size="sm" onClick={handleScan} disabled={scanning || running}>
-                                {running ? 'Scanning…' : 'Run scan'}
+                                {running ? t('wp.vulnerabilitiesTab.scanning', 'Scanning…') : t('wp.vulnerabilitiesTab.runScan', 'Run scan')}
                             </Button>
                         </div>
                         <InfoList>
-                            <InfoItem label={t('wp.vulnerabilitiesTab.lastScan', 'Last scan')} value={data?.scanned_at ? formatDateTime(data.scanned_at) : 'Never'} />
+                            <InfoItem label={t('wp.vulnerabilitiesTab.lastScan', 'Last scan')} value={data?.scanned_at ? formatDateTime(data.scanned_at) : t('wp.vulnerabilitiesTab.never', 'Never')} />
                             <InfoItem label={t('wp.vulnerabilitiesTab.findings', 'Findings')} value={summary.total ?? 0} />
                         </InfoList>
                         {data?.scan_error && <p className="hint">{t('wp.vulnerabilitiesTab.lastScanError', 'Last scan error:')} {data.scan_error}</p>}
@@ -91,7 +91,7 @@ const VulnerabilitiesTab = ({ siteId }) => {
                 {vulns.length === 0 ? (
                     <div className="app-panel">
                         <div className="app-panel-body">
-                            <p className="hint">{data?.scanned_at ? 'No known vulnerabilities found.' : 'No scan has run yet — click Run scan to check this site.'}</p>
+                            <p className="hint">{data?.scanned_at ? t('wp.vulnerabilitiesTab.noKnownVulnerabilitiesFound', 'No known vulnerabilities found.') : t('wp.vulnerabilitiesTab.noScanHasRunYet', 'No scan has run yet. Click Run scan to check this site.')}</p>
                         </div>
                     </div>
                 ) : (

@@ -71,9 +71,9 @@ export default function WordPressSshImport() {
                 clearInterval(pollRef.current);
                 pollRef.current = null;
                 if (status.status === 'completed') {
-                    toast.success(t('wp.wordPressSshImport.wordpressSiteImportedSuccessfully', 'WordPress site imported successfully'));
+                    toast.success(t('wp.wordPressSshImport.wordpressSiteImportedSuccessfully', 'WordPress site imported'));
                 } else {
-                    toast.error(status.error || t('wp.wordPressSshImport.importFailedSeeTheStepLog', 'Import failed — see the step log'));
+                    toast.error(status.error || t('wp.wordPressSshImport.importFailedSeeTheStepLog', 'Import failed. See the step log.'));
                 }
             }
         } catch {
@@ -120,13 +120,13 @@ export default function WordPressSshImport() {
     const canProbe = conn.host.trim() && conn.username.trim() && conn.wpPath.trim()
         && (conn.authMethod === 'password' ? conn.password : conn.privateKey);
     const facts = probe && [
-        ['WordPress version', probe.wp_version || 'unknown'],
-        ['Site URL', probe.site_url || 'unknown'],
-        ['Database', probe.db_name],
-        ['Table prefix', probe.table_prefix],
-        ['Docroot size', probe.docroot_size_kb != null
-            ? `${(probe.docroot_size_kb / 1024).toFixed(1)} MB` : 'unknown'],
-        ['WP-CLI on source', probe.has_wp_cli ? 'yes' : 'no (fallbacks used)'],
+        [t('wp.wordPressSshImport.wordpressVersion', 'WordPress version'), probe.wp_version || t('wp.wordPressSshImport.unknown', 'unknown')],
+        [t('wp.wordPressSshImport.siteUrl', 'Site URL'), probe.site_url || t('wp.wordPressSshImport.unknown', 'unknown')],
+        [t('wp.wordPressSshImport.database', 'Database'), probe.db_name],
+        [t('wp.wordPressSshImport.tablePrefix', 'Table prefix'), probe.table_prefix],
+        [t('wp.wordPressSshImport.docrootSize', 'Docroot size'), probe.docroot_size_kb != null
+            ? `${(probe.docroot_size_kb / 1024).toFixed(1)} MB` : t('wp.wordPressSshImport.unknown', 'unknown')],
+        [t('wp.wordPressSshImport.wpCliOnSource', 'WP-CLI on source'), probe.has_wp_cli ? t('wp.wordPressSshImport.yes', 'yes') : t('wp.wordPressSshImport.noFallbacksUsed', 'no (fallbacks used)')],
     ];
 
     return (
@@ -134,7 +134,7 @@ export default function WordPressSshImport() {
             <div className="page-section">
                 <h2 className="text-lg font-semibold">{t('wp.wordPressSshImport.importALiveSiteOverSsh', 'Import a live site over SSH')}</h2>
                 <p className="text-sm text-muted-foreground">
-                    {t('wp.wordPressSshImport.pointAtAnyWordpressInstallYou', 'Point at any WordPress install you can reach over SSH. The panel pulls the files and database through the tunnel and rebuilds it as a managed site — nothing is installed on the source server.')}
+                    {t('wp.wordPressSshImport.pointAtAnyWordpressInstallYou', 'Point at any WordPress install you can reach over SSH. The panel pulls the files and database through the tunnel and rebuilds it as a managed site. Nothing is installed on the source server.')}
                 </p>
             </div>
 
@@ -194,19 +194,19 @@ export default function WordPressSshImport() {
                                 onChange={e => setConn({ ...conn, privateKey: e.target.value })}
                                 placeholder={t('wp.wordPressSshImport.beginOpensshPrivateKey', '-----BEGIN OPENSSH PRIVATE KEY-----\n…')}
                             />
-                            <span className="form-hint">{t('wp.wordPressSshImport.usedForThisImportOnlyNever', 'Used for this import only — never stored.')}</span>
+                            <span className="form-hint">{t('wp.wordPressSshImport.usedForThisImportOnlyNever', 'Used for this import only, never stored.')}</span>
                         </>
                     ) : (
                         <>
                             <Input type="password" value={conn.password} disabled={running}
                                    onChange={e => setConn({ ...conn, password: e.target.value })}
                                    placeholder={t('wp.wordPressSshImport.sshPassword', 'SSH password')} />
-                            <span className="form-hint">{t('wp.wordPressSshImport.usedForThisImportOnlyNever2', 'Used for this import only — never stored. Password auth requires the sshpass package on the panel host.')}</span>
+                            <span className="form-hint">{t('wp.wordPressSshImport.usedForThisImportOnlyNever2', 'Used for this import only, never stored. Password auth requires the sshpass package on the panel server.')}</span>
                         </>
                     )}
                 </div>
                 <Button onClick={handleProbe} disabled={!canProbe || probing || running}>
-                    {probing ? <><Spinner size="sm" /> {t('wp.wordPressSshImport.probing', 'Probing…')}</> : 'Probe server'}
+                    {probing ? <><Spinner size="sm" /> {t('wp.wordPressSshImport.probing', 'Probing…')}</> : t('wp.wordPressSshImport.probeServer', 'Probe server')}
                 </Button>
             </div>
 
@@ -229,7 +229,7 @@ export default function WordPressSshImport() {
                     <label className="flex items-center gap-2 text-sm mt-3">
                         <input type="checkbox" checked={trusted} disabled={running}
                                onChange={e => setTrusted(e.target.checked)} />
-                        {t('wp.wordPressSshImport.iRecognizeThisFingerprintTrustThis', 'I recognize this fingerprint — trust this host for the import')}
+                        {t('wp.wordPressSshImport.iRecognizeThisFingerprintTrustThis', 'I recognize this fingerprint and trust this host for the import')}
                     </label>
                 </div>
             )}
@@ -261,7 +261,7 @@ export default function WordPressSshImport() {
                         </div>
                     </div>
                     <Button onClick={handleStart} disabled={!trusted || starting || running}>
-                        {starting ? <><Spinner size="sm" /> {t('wp.wordPressSshImport.starting', 'Starting…')}</> : 'Pull and import'}
+                        {starting ? <><Spinner size="sm" /> {t('wp.wordPressSshImport.starting', 'Starting…')}</> : t('wp.wordPressSshImport.pullAndImport', 'Pull and import')}
                     </Button>
                 </div>
             )}
@@ -286,7 +286,7 @@ export default function WordPressSshImport() {
                     {job.status === 'completed' && (
                         <p className="text-sm mt-2">
                             {t('wp.wordPressSshImport.done', 'Done.')} <Link to="/wordpress" className="underline">{t('wp.wordPressSshImport.openTheWordpressSitesList', 'Open the WordPress sites list')}</Link>
-                            {job.result?.new_url && <> {t('wp.wordPressSshImport.newAddress', '— new address:')} <code>{job.result.new_url}</code></>}
+                            {job.result?.new_url && <> {t('wp.wordPressSshImport.newAddress', 'New address:')} <code>{job.result.new_url}</code></>}
                         </p>
                     )}
                 </div>

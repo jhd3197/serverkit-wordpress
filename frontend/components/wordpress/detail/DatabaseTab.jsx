@@ -41,10 +41,10 @@ const DatabaseTab = ({ siteId, site }) => {
     }
 
     async function handleCreateSnapshot(data) {
-        toast.info(t('wp.databaseTab.creatingSnapshot', 'Creating snapshot...'), { duration: 3000 });
+        toast.info(t('wp.databaseTab.creatingSnapshot', 'Creating snapshot…'), { duration: 3000 });
         try {
             await wordpressApi.createSnapshot(siteId, data);
-            toast.success(t('wp.databaseTab.snapshotCreatedSuccessfully', 'Snapshot created successfully'));
+            toast.success(t('wp.databaseTab.snapshotCreatedSuccessfully', 'Snapshot created'));
             loadSnapshots();
             setShowCreateModal(false);
         } catch (err) {
@@ -53,7 +53,7 @@ const DatabaseTab = ({ siteId, site }) => {
     }
 
     async function handleRestore(snapId) {
-        toast.info(t('wp.databaseTab.restoringDatabaseThisMayTakeA', 'Restoring database... This may take a moment.'), { duration: 5000 });
+        toast.info(t('wp.databaseTab.restoringDatabaseThisMayTakeA', 'Restoring database… This may take a moment.'), { duration: 5000 });
         try {
             await wordpressApi.restoreSnapshot(siteId, snapId);
             toast.success(t('wp.databaseTab.databaseRestoredFromSnapshot', 'Database restored from snapshot'));
@@ -88,14 +88,14 @@ const DatabaseTab = ({ siteId, site }) => {
             <div className="app-panel">
                 <div className="app-panel-header">
                     <Database size={16} />
-                    {t('wp.databaseTab.databaseConnection', 'Database Connection')}
+                    {t('wp.databaseTab.databaseConnection', 'Database connection')}
                 </div>
                 <div className="app-panel-body">
                     <InfoList>
-                        <InfoItem label={t('wp.databaseTab.databaseName', 'Database Name')} value={site?.db_name || 'wordpress'} mono />
-                        <InfoItem label={t('wp.databaseTab.databaseUser', 'Database User')} value={site?.db_user || 'wordpress'} mono />
-                        <InfoItem label={t('wp.databaseTab.databaseHost', 'Database Host')} value={site?.db_host || 'db'} mono />
-                        <InfoItem label={t('wp.databaseTab.tablePrefix', 'Table Prefix')} value={site?.db_prefix || 'wp_'} mono />
+                        <InfoItem label={t('wp.databaseTab.databaseName', 'Database name')} value={site?.db_name || 'wordpress'} mono />
+                        <InfoItem label={t('wp.databaseTab.databaseUser', 'Database user')} value={site?.db_user || 'wordpress'} mono />
+                        <InfoItem label={t('wp.databaseTab.databaseHost', 'Database host')} value={site?.db_host || 'db'} mono />
+                        <InfoItem label={t('wp.databaseTab.tablePrefix', 'Table prefix')} value={site?.db_prefix || 'wp_'} mono />
                         <InfoItem label={t('wp.databaseTab.container', 'Container')} value={site?.compose_project_name ? `${site.compose_project_name}-db` : '-'} mono />
                         <InfoItem label={t('wp.databaseTab.engine', 'Engine')} value={t('wp.databaseTab.mysql80', 'MySQL 8.0')} />
                     </InfoList>
@@ -104,9 +104,9 @@ const DatabaseTab = ({ siteId, site }) => {
 
             {/* Snapshots */}
             <div className="section-header mt-6">
-                <h3>{t('wp.databaseTab.databaseSnapshots', 'Database Snapshots')}</h3>
+                <h3>{t('wp.databaseTab.databaseSnapshots', 'Database snapshots')}</h3>
                 <Button onClick={() => setShowCreateModal(true)}>
-                    <Plus size={14} /> {t('wp.databaseTab.createSnapshot', 'Create Snapshot')}
+                    <Plus size={14} /> {t('wp.databaseTab.createSnapshot', 'New snapshot')}
                 </Button>
             </div>
 
@@ -154,10 +154,10 @@ const CreateSnapshotModal = ({ onClose, onCreate }) => {
     }
 
     return (
-        <Modal open onClose={onClose} title={t('wp.databaseTab.createSnapshot2', 'Create Snapshot')}>
+        <Modal open onClose={onClose} title={t('wp.databaseTab.createSnapshot2', 'New snapshot')}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <Label>{t('wp.databaseTab.snapshotName', 'Snapshot Name *')}</Label>
+                    <Label>{t('wp.databaseTab.snapshotName', 'Snapshot name *')}</Label>
                     <Input
                         type="text"
                         name="name"
@@ -173,7 +173,7 @@ const CreateSnapshotModal = ({ onClose, onCreate }) => {
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
-                        placeholder={t('wp.databaseTab.optionalDescription', 'Optional description...')}
+                        placeholder={t('wp.databaseTab.optionalDescription', 'Optional description…')}
                         rows={3}
                     />
                 </div>
@@ -185,7 +185,7 @@ const CreateSnapshotModal = ({ onClose, onCreate }) => {
                         name="tag"
                         value={formData.tag}
                         onChange={handleChange}
-                        placeholder={t('wp.databaseTab.eGV100Before', 'e.g., v1.0.0, before-update')}
+                        placeholder={t('wp.databaseTab.eGV100Before', 'e.g. v1.0.0, before-update')}
                     />
                 </div>
 
@@ -194,7 +194,7 @@ const CreateSnapshotModal = ({ onClose, onCreate }) => {
                         {t('wp.databaseTab.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
-                        {loading ? 'Creating...' : 'Create Snapshot'}
+                        {loading ? t('wp.databaseTab.creating', 'Creating…') : t('wp.databaseTab.createSnapshot3', 'Create snapshot')}
                     </Button>
                 </div>
             </form>

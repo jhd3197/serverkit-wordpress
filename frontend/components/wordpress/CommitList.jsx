@@ -38,7 +38,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
         const diffDays = Math.floor(diffHours / 24);
 
-        if (diffHours < 1) return 'Just now';
+        if (diffHours < 1) return t('wp.commitList.justNow', 'Just now');
         if (diffHours < 24) return `${diffHours}h ago`;
         if (diffDays < 7) return `${diffDays}d ago`;
         return formatDateLocalized(date);
@@ -70,7 +70,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
     }
 
     if (loading) {
-        return <EmptyState loading title={t('wp.commitList.loadingCommits', 'Loading commits...')} />;
+        return <EmptyState loading title={t('wp.commitList.loadingCommits', 'Loading commits…')} />;
     }
 
     if (!commits || commits.length === 0) {
@@ -133,7 +133,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
                                     title={t('wp.commitList.deployThisCommit', 'Deploy this commit')}
                                 >
                                     <Rocket size={12} />
-                                    {isDeploying ? 'Deploying...' : 'Deploy'}
+                                    {isDeploying ? t('wp.commitList.deploying', 'Deploying…') : t('wp.commitList.deploy', 'Deploy')}
                                 </Button>
                             )}
                             <Button
@@ -144,7 +144,7 @@ const CommitList = ({ commits, currentCommit, onDeploy, onCreateDev, loading = f
                                 title={t('wp.commitList.createDevEnvironmentFromThisCommit', 'Create dev environment from this commit')}
                             >
                                 <Copy size={12} />
-                                {isCreatingDev ? 'Creating...' : 'Create Dev'}
+                                {isCreatingDev ? t('wp.commitList.creating', 'Creating…') : t('wp.commitList.newDev', 'New dev')}
                             </Button>
                         </div>
                     </div>
@@ -181,7 +181,7 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
     }
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.commitList.createDevEnvironment', 'Create Dev Environment')}>
+        <Modal open={true} onClose={onClose} title={t('wp.commitList.createDevEnvironment', 'New dev environment')}>
             <p className="hint">
                 {t('wp.commitList.createADevelopmentEnvironmentWithCode', 'Create a development environment with code from commit')}{' '}
                 <code>{commit.sha.substring(0, 7)}</code>
@@ -190,7 +190,7 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <Label>{t('wp.commitList.environmentName', 'Environment Name')}</Label>
+                    <Label>{t('wp.commitList.environmentName', 'Environment name')}</Label>
                     <Input
                         type="text"
                         name="name"
@@ -209,7 +209,7 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
                         modes={['custom']}
                         onChange={domain => setFormData(prev => ({ ...prev, domain }))}
                     />
-                    <span className="form-hint">{t('wp.commitList.leaveEmptyToAutoGenerate', 'Leave empty to auto-generate')}</span>
+                    <span className="form-hint">{t('wp.commitList.leaveEmptyToAutoGenerate', 'Leave empty to auto-generate.')}</span>
                 </div>
 
                 <div className="modal-actions">
@@ -217,7 +217,7 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
                         {t('wp.commitList.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
-                        {loading ? 'Creating...' : 'Create Environment'}
+                        {loading ? t('wp.commitList.creating', 'Creating…') : t('wp.commitList.createEnvironment', 'Create environment')}
                     </Button>
                 </div>
             </form>

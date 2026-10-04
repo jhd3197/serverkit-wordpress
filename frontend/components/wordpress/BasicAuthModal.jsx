@@ -60,23 +60,23 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
         }
     }
 
-    const envName = environment?.name || 'Environment';
+    const envName = environment?.name || t('wp.basicAuthModal.environment', 'Environment');
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.basicAuthModal.basicAuth', 'Basic Auth')} className="basic-auth-modal">
+        <Modal open={true} onClose={onClose} title={t('wp.basicAuthModal.basicAuth', 'Basic auth')} className="basic-auth-modal">
             <div className="basic-auth-body">
                 <div className="basic-auth-env-name">{envName}</div>
 
                 {loading ? (
                     <div className="basic-auth-loading">
                         <Spinner size="sm" />
-                        <span>{t('wp.basicAuthModal.loadingStatus', 'Loading status...')}</span>
+                        <span>{t('wp.basicAuthModal.loadingStatus', 'Loading status…')}</span>
                     </div>
                 ) : (
                     <>
                         <div className="basic-auth-toggle">
                             <label className="basic-auth-toggle-label">
-                                <span>{t('wp.basicAuthModal.httpBasicAuthentication', 'HTTP Basic Authentication')}</span>
+                                <span>{t('wp.basicAuthModal.httpBasicAuthentication', 'HTTP basic authentication')}</span>
                                 <Switch
                                     checked={status.enabled}
                                     onCheckedChange={status.enabled ? handleDisable : handleEnable}
@@ -92,7 +92,7 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
                             <div className="basic-auth-current">
                                 <CopyField label={t('wp.basicAuthModal.username', 'Username')} value={status.username} />
                                 <p className="basic-auth-hint">
-                                    {t('wp.basicAuthModal.passwordWasShownWhenBasicAuth', 'Password was shown when Basic Auth was first enabled. Disable and re-enable to generate new credentials.')}
+                                    {t('wp.basicAuthModal.passwordWasShownWhenBasicAuth', 'Password was shown when basic auth was first enabled. Disable and re-enable to generate new credentials.')}
                                 </p>
                             </div>
                         )}

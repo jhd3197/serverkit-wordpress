@@ -28,13 +28,13 @@ export default function AttachDomainModal({ site, onClose, onChanged }) {
         e?.preventDefault();
         if (!valid || attaching) return;
         setAttaching(true);
-        toast.info(t('wp.attachDomainModal.attachingDomainCreatingDnsAndMoving', 'Attaching domain — creating DNS and moving the site…'), { duration: 5000 });
+        toast.info(t('wp.attachDomainModal.attachingDomainCreatingDnsAndMoving', 'Attaching domain: creating DNS and moving the site…'), { duration: 5000 });
         try {
             const res = await wordpressApi.attachDomain(site.id, { domain, issueSsl });
             if (res.success) {
                 setResult(res);
                 if (res.dns?.created) toast.success(t('wp.attachDomainModal.dnsARecordCreatedVia', 'DNS A record created via {{provider}}', { provider: res.dns.provider }));
-                else toast.warning(t('wp.attachDomainModal.domainAttachedAddTheDnsRecord', 'Domain attached — add the DNS record shown to finish.'), { duration: 7000 });
+                else toast.warning(t('wp.attachDomainModal.domainAttachedAddTheDnsRecord', 'Domain attached. Add the DNS record shown to finish.'), { duration: 7000 });
                 onChanged?.();
             } else {
                 toast.error(res.error || t('wp.attachDomainModal.failedToAttachDomain', 'Failed to attach domain'));
@@ -49,14 +49,14 @@ export default function AttachDomainModal({ site, onClose, onChanged }) {
     const rec = result?.dns?.record;
 
     return (
-        <Modal open onClose={() => !attaching && onClose()} title={<><Globe size={18} /> {t('wp.attachDomainModal.addCustomDomain', 'Add Custom Domain')}</>}>
+        <Modal open onClose={() => !attaching && onClose()} title={<><Globe size={18} /> {t('wp.attachDomainModal.addCustomDomain', 'Add custom domain')}</>}>
             {!result ? (
                 <form onSubmit={handleAttach}>
                     <div className="wp-url-swap">
                         <div className="wp-url-swap__warning">
                             <AlertTriangle size={18} aria-hidden="true" />
                             <span>
-                                {t('wp.attachDomainModal.pointsADomainYouOwnAt', 'Points a domain you own at this site. If a connected DNS provider manages it, the A record is created automatically — otherwise you\'ll get the exact record to add. The site URL is then migrated to the domain (serialization-safe).')}
+                                {t('wp.attachDomainModal.pointsADomainYouOwnAt', "Points a domain you own at this site. If a connected DNS provider manages it, the A record is created automatically. Otherwise you'll get the exact record to add. The site URL is then migrated to the domain (serialization-safe).")}
                             </span>
                         </div>
 
@@ -69,7 +69,7 @@ export default function AttachDomainModal({ site, onClose, onChanged }) {
                                 disabled={attaching}
                                 autoFocus
                             />
-                            <span className="form-hint">{t('wp.attachDomainModal.aDomainOrSubdomainYouControl', 'A domain or subdomain you control, without http://')}</span>
+                            <span className="form-hint">{t('wp.attachDomainModal.aDomainOrSubdomainYouControl', 'A domain or subdomain you control, without the http:// prefix.')}</span>
                         </div>
 
                         <label className="wp-url-swap__keep">
@@ -84,7 +84,7 @@ export default function AttachDomainModal({ site, onClose, onChanged }) {
                     <div className="modal-actions">
                         <Button type="button" variant="outline" onClick={onClose} disabled={attaching}>{t('wp.attachDomainModal.cancel', 'Cancel')}</Button>
                         <Button type="submit" disabled={!valid || attaching}>
-                            {attaching ? 'Attaching…' : 'Attach Domain'}
+                            {attaching ? t('wp.attachDomainModal.attaching', 'Attaching…') : t('wp.attachDomainModal.attachDomain', 'Attach domain')}
                         </Button>
                     </div>
                 </form>

@@ -110,7 +110,7 @@ const WordPressProjects = () => {
             headerKey: 'wp.wordPressProjects.status', header: 'Status',
             render: (p) => (
                 <Pill kind={p.status === 'running' ? 'green' : 'gray'}>
-                    {p.status === 'running' ? 'Running' : 'Stopped'}
+                    {p.status === 'running' ? t('wp.wordPressProjects.running2', 'Running') : t('wp.wordPressProjects.stopped2', 'Stopped')}
                 </Pill>
             ),
         },
@@ -152,7 +152,7 @@ const WordPressProjects = () => {
                             <div className="sk-cell-sub">{p.wp_version ? `WordPress ${p.wp_version}` : 'WordPress'}</div>
                         </div>
                         <Pill kind={p.status === 'running' ? 'green' : 'gray'}>
-                            {p.status === 'running' ? 'Running' : 'Stopped'}
+                            {p.status === 'running' ? t('wp.wordPressProjects.running2', 'Running') : t('wp.wordPressProjects.stopped2', 'Stopped')}
                         </Pill>
                     </div>
 
@@ -167,11 +167,11 @@ const WordPressProjects = () => {
                         </div>
                         <div>
                             <span className="l">{t('wp.wordPressProjects.source2', 'Source')}</span>
-                            <span className="v">{p.git_repo_url ? 'Git' : 'Local'}</span>
+                            <span className="v">{p.git_repo_url ? 'Git' : t('wp.wordPressProjects.local', 'Local')}</span>
                         </div>
                         <div>
                             <span className="l">{t('wp.wordPressProjects.status2', 'Status')}</span>
-                            <span className="v">{p.status === 'running' ? 'Running' : 'Stopped'}</span>
+                            <span className="v">{p.status === 'running' ? t('wp.wordPressProjects.running2', 'Running') : t('wp.wordPressProjects.stopped2', 'Stopped')}</span>
                         </div>
                     </div>
                 </>

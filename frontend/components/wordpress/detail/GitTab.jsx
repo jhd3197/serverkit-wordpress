@@ -110,7 +110,7 @@ const GitTab = ({ siteId, site, onUpdate }) => {
             {gitStatus?.connected && (
                 <div className="git-commits-section">
                     <div className="section-header">
-                        <h3>{t('wp.gitTab.recentCommits', 'Recent Commits')}</h3>
+                        <h3>{t('wp.gitTab.recentCommits', 'Recent commits')}</h3>
                         <Button variant="outline" size="sm" onClick={loadGitData}>
                             <RefreshCw size={14} /> {t('wp.gitTab.refresh', 'Refresh')}
                         </Button>

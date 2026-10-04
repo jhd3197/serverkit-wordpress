@@ -45,14 +45,14 @@ const OverviewTab = ({ site, onUpdate }) => {
 
     async function handleQuickSnapshot() {
         setCreatingSnapshot(true);
-        toast.info(t('wp.overviewTab.creatingSnapshot', 'Creating snapshot...'), { duration: 2000 });
+        toast.info(t('wp.overviewTab.creatingSnapshot', 'Creating snapshot…'), { duration: 2000 });
         try {
             await wordpressApi.createSnapshot(site.id, {
                 name: `Quick Snapshot ${formatDate(new Date())}`,
                 tag: 'quick',
                 descriptionKey: 'wp.overviewTab.createdFromOverviewQuickAction', description: 'Created from Overview quick action'
             });
-            toast.success(t('wp.overviewTab.snapshotCreatedSuccessfully', 'Snapshot created successfully'));
+            toast.success(t('wp.overviewTab.snapshotCreatedSuccessfully', 'Snapshot created'));
         } catch (err) {
             toast.error(err.message || t('wp.overviewTab.failedToCreateSnapshot', 'Failed to create snapshot'));
         } finally {
@@ -63,7 +63,7 @@ const OverviewTab = ({ site, onUpdate }) => {
     async function handleSyncAll() {
         if (!site.environments?.length) return;
         setSyncingAll(true);
-        toast.info(t('wp.overviewTab.syncingEnvironmentS', 'Syncing {{length}} environment(s)...', { length: site.environments.length }), { duration: 3000 });
+        toast.info(t('wp.overviewTab.syncingEnvironmentS', 'Syncing {{length}} environment(s)…', { length: site.environments.length }), { duration: 3000 });
         try {
             // Sync each environment sequentially
             for (let i = 0; i < site.environments.length; i++) {
@@ -80,10 +80,10 @@ const OverviewTab = ({ site, onUpdate }) => {
     }
 
     async function handleCreateEnvironment(data) {
-        toast.info(t('wp.overviewTab.creatingEnvironmentThisMayTakeA', 'Creating environment... This may take a moment.'), { duration: 5000 });
+        toast.info(t('wp.overviewTab.creatingEnvironmentThisMayTakeA', 'Creating environment… This may take a moment.'), { duration: 5000 });
         try {
             await wordpressApi.createEnvironment(site.id, data);
-            toast.success(t('wp.overviewTab.environmentCreatedSuccessfully', 'Environment created successfully'));
+            toast.success(t('wp.overviewTab.environmentCreatedSuccessfully', 'Environment created'));
             setShowEnvModal(false);
             onUpdate?.();
         } catch (err) {
@@ -105,7 +105,7 @@ const OverviewTab = ({ site, onUpdate }) => {
     async function handleTogglePageCache() {
         setTogglingPageCache(true);
         const enabling = !pageCacheActive;
-        toast.info(enabling ? t('wp.overviewTab.enablingPageCache', 'Enabling page cache...') : t('wp.overviewTab.disablingPageCache', 'Disabling page cache...'), { duration: 4000 });
+        toast.info(enabling ? t('wp.overviewTab.enablingPageCache', 'Enabling page cache…') : t('wp.overviewTab.disablingPageCache', 'Disabling page cache…'), { duration: 4000 });
         try {
             const res = enabling
                 ? await wordpressApi.enablePageCache(site.id)
@@ -126,7 +126,7 @@ const OverviewTab = ({ site, onUpdate }) => {
     async function handleToggleObjectCache() {
         setTogglingCache(true);
         const enabling = !objectCache?.enabled;
-        toast.info(enabling ? t('wp.overviewTab.enablingRedisObjectCache', 'Enabling Redis object cache...') : t('wp.overviewTab.disablingObjectCache', 'Disabling object cache...'), { duration: 4000 });
+        toast.info(enabling ? t('wp.overviewTab.enablingRedisObjectCache', 'Enabling Redis object cache…') : t('wp.overviewTab.disablingObjectCache', 'Disabling object cache…'), { duration: 4000 });
         try {
             const res = enabling
                 ? await wordpressApi.enableObjectCache(site.id)
@@ -147,7 +147,7 @@ const OverviewTab = ({ site, onUpdate }) => {
 
     async function handleFlushCache() {
         setFlushingCache(true);
-        toast.info(t('wp.overviewTab.flushingCache', 'Flushing cache...'), { duration: 2000 });
+        toast.info(t('wp.overviewTab.flushingCache', 'Flushing cache…'), { duration: 2000 });
         try {
             const res = await wordpressApi.flushCache(site.id);
             toast.success(res.message || t('wp.overviewTab.cacheFlushed', 'Cache flushed'));
@@ -159,11 +159,11 @@ const OverviewTab = ({ site, onUpdate }) => {
     }
 
     async function handleHarden() {
-        if (!window.confirm(t('wp.overviewTab.applySecurityHardeningThisDisablesFile', 'Apply security hardening? This disables file editing, the XML-RPC endpoint, forces SSL on wp-admin, tightens file permissions, and regenerates security keys (logs users out).'))) {
+        if (!window.confirm(t('wp.overviewTab.applySecurityHardeningThisDisablesFile', 'Apply security hardening? This disables file editing, the XML-RPC endpoint, forces SSL on wp-admin, tightens file permissions, and regenerates security keys (signs users out).'))) {
             return;
         }
         setHardening(true);
-        toast.info(t('wp.overviewTab.applyingSecurityHardening', 'Applying security hardening...'), { duration: 4000 });
+        toast.info(t('wp.overviewTab.applyingSecurityHardening', 'Applying security hardening…'), { duration: 4000 });
         try {
             const res = await wordpressApi.harden(site.id);
             toast.success(res.message || t('wp.overviewTab.securityHardeningApplied', 'Security hardening applied'));
@@ -176,14 +176,14 @@ const OverviewTab = ({ site, onUpdate }) => {
 
     async function handleSearchReplace(data) {
         // data = { search, replace, dry_run }
-        toast.info(data.dry_run ? t('wp.overviewTab.runningSearchReplacePreview', 'Running search-replace preview...') : t('wp.overviewTab.runningSearchReplace', 'Running search-replace...'), { duration: 3000 });
+        toast.info(data.dry_run ? t('wp.overviewTab.runningSearchReplacePreview', 'Running search-replace preview…') : t('wp.overviewTab.runningSearchReplace', 'Running search-replace…'), { duration: 3000 });
         try {
             const res = await wordpressApi.searchReplace(site.id, data);
             if (res.success === false) {
                 toast.error(res.error || res.message || t('wp.overviewTab.searchReplaceFailed', 'Search-replace failed'));
                 return;
             }
-            toast.success(data.dry_run ? t('wp.overviewTab.dryRunCompleteNoChangesWritten', 'Dry run complete - no changes written') : t('wp.overviewTab.searchReplaceComplete', 'Search-replace complete'));
+            toast.success(data.dry_run ? t('wp.overviewTab.dryRunCompleteNoChangesWritten', 'Dry run complete. No changes written.') : t('wp.overviewTab.searchReplaceComplete', 'Search-replace complete'));
             if (!data.dry_run) setShowSearchReplace(false);
         } catch (err) {
             toast.error(err.message || t('wp.overviewTab.searchReplaceFailed2', 'Search-replace failed'));
@@ -238,7 +238,7 @@ const OverviewTab = ({ site, onUpdate }) => {
 
             <div className="wp-overview-main">
                 <div className="app-panel">
-                    <div className="app-panel-header">{t('wp.overviewTab.quickActions', 'Quick Actions')}</div>
+                    <div className="app-panel-header">{t('wp.overviewTab.quickActions', 'Quick actions')}</div>
                     <div className="app-panel-body">
                         <div className="quick-actions-grid">
                             {site.url && (
@@ -250,7 +250,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                         className="quick-action-btn"
                                     >
                                         <ExternalLink size={16} />
-                                        {t('wp.overviewTab.visitSite', 'Visit Site')}
+                                        {t('wp.overviewTab.visitSite', 'Visit site')}
                                     </a>
                                     <a
                                         href={`${site.url}/wp-admin`}
@@ -269,7 +269,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                     onClick={() => setShowEnvModal(true)}
                                 >
                                     <Plus size={16} />
-                                    {t('wp.overviewTab.createEnvironment', 'Create Environment')}
+                                    {t('wp.overviewTab.createEnvironment', 'New environment')}
                                 </button>
                             )}
                             <button type="button"
@@ -278,7 +278,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 disabled={creatingSnapshot}
                             >
                                 <Database size={16} />
-                                {creatingSnapshot ? 'Creating...' : 'Create Snapshot'}
+                                {creatingSnapshot ? t('wp.overviewTab.creating', 'Creating…') : t('wp.overviewTab.createSnapshot', 'Create snapshot')}
                             </button>
                             {site.environments?.length > 0 && (
                                 <button type="button"
@@ -287,7 +287,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                     disabled={syncingAll}
                                 >
                                     <RefreshCw size={16} className={syncingAll ? 'spinning' : ''} />
-                                    {syncingAll ? 'Syncing...' : 'Sync All Envs'}
+                                    {syncingAll ? t('wp.overviewTab.syncing', 'Syncing…') : t('wp.overviewTab.syncAllEnvironments', 'Sync all environments')}
                                 </button>
                             )}
                             <button type="button"
@@ -296,7 +296,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 disabled={flushingCache}
                             >
                                 <Trash2 size={16} />
-                                {flushingCache ? 'Flushing...' : 'Purge Cache'}
+                                {flushingCache ? t('wp.overviewTab.purging', 'Purging…') : t('wp.overviewTab.purgeCache', 'Purge cache')}
                             </button>
                             <button type="button"
                                 className="quick-action-btn"
@@ -306,15 +306,15 @@ const OverviewTab = ({ site, onUpdate }) => {
                             >
                                 <Zap size={16} />
                                 {togglingPageCache
-                                    ? 'Working...'
-                                    : (pageCacheActive ? 'Page Cache: On' : 'Enable Page Cache')}
+                                    ? t('wp.overviewTab.working', 'Working…')
+                                    : (pageCacheActive ? t('wp.overviewTab.pageCacheOn', 'Page cache: on') : t('wp.overviewTab.enablePageCache', 'Enable page cache'))}
                             </button>
                             <button type="button"
                                 className="quick-action-btn"
                                 onClick={() => setShowSearchReplace(true)}
                             >
                                 <Replace size={16} />
-                                {t('wp.overviewTab.searchReplace', 'Search & Replace')}
+                                {t('wp.overviewTab.searchReplace', 'Search and replace')}
                             </button>
                             <button type="button"
                                 className="quick-action-btn"
@@ -322,7 +322,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 disabled={hardening}
                             >
                                 <ShieldCheck size={16} />
-                                {hardening ? 'Hardening...' : 'Harden'}
+                                {hardening ? t('wp.overviewTab.hardening', 'Hardening…') : t('wp.overviewTab.harden', 'Harden')}
                             </button>
                             <button type="button"
                                 className="quick-action-btn"
@@ -332,8 +332,8 @@ const OverviewTab = ({ site, onUpdate }) => {
                             >
                                 <Database size={16} />
                                 {togglingCache
-                                    ? (objectCache?.enabled ? 'Disabling...' : 'Enabling...')
-                                    : (objectCache?.enabled ? 'Object Cache: On' : 'Enable Object Cache')}
+                                    ? (objectCache?.enabled ? t('wp.overviewTab.disabling', 'Disabling…') : t('wp.overviewTab.enabling', 'Enabling…'))
+                                    : (objectCache?.enabled ? t('wp.overviewTab.objectCacheOn', 'Object cache: on') : t('wp.overviewTab.enableObjectCache', 'Enable object cache'))}
                             </button>
                         </div>
                     </div>
@@ -362,7 +362,7 @@ const OverviewTab = ({ site, onUpdate }) => {
                                 </AreaChart>
                             </ResponsiveContainer>
                         ) : (
-                            <p className="hint">{t('wp.overviewTab.noTrafficRecordedForThisPeriod', 'No traffic recorded for this period yet — it\'s parsed from the site\'s access log.')}</p>
+                            <p className="hint">{t('wp.overviewTab.noTrafficRecordedForThisPeriod', "No traffic recorded for this period yet. It's parsed from the site's access log.")}</p>
                         )}
                     </div>
                 </div>

@@ -71,7 +71,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
     const envType = environment.environment_type || 'development';
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.syncModal.syncFromProduction', 'Sync from Production')}>
+        <Modal open={true} onClose={onClose} title={t('wp.syncModal.syncFromProduction', 'Sync from production')}>
             <form onSubmit={handleSubmit}>
                 <div className="sync-direction">
                     <div className="promote-env-pill production">
@@ -86,7 +86,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                 </div>
 
                 <div className="form-group">
-                    <Label>{t('wp.syncModal.syncType', 'Sync Type')}</Label>
+                    <Label>{t('wp.syncModal.syncType', 'Sync type')}</Label>
                     <div className="radio-group">
                         <label className="radio-label">
                             <input
@@ -97,7 +97,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                                 onChange={e => setSyncType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>{t('wp.syncModal.databaseOnly', 'Database Only')}</strong>
+                                <strong>{t('wp.syncModal.databaseOnly', 'Database only')}</strong>
                                 <span>{t('wp.syncModal.pullProductionDatabaseIntoThisEnvironment', 'Pull production database into this environment')}</span>
                             </div>
                         </label>
@@ -110,7 +110,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                                 onChange={e => setSyncType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>{t('wp.syncModal.filesOnly', 'Files Only')}</strong>
+                                <strong>{t('wp.syncModal.filesOnly', 'Files only')}</strong>
                                 <span>{t('wp.syncModal.pullProductionFilesWpContentInto', 'Pull production files (wp-content) into this environment')}</span>
                             </div>
                         </label>
@@ -123,7 +123,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                                 onChange={e => setSyncType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>{t('wp.syncModal.fullSync', 'Full Sync')}</strong>
+                                <strong>{t('wp.syncModal.fullSync', 'Full sync')}</strong>
                                 <span>{t('wp.syncModal.pullBothDatabaseAndFilesFrom', 'Pull both database and files from production')}</span>
                             </div>
                         </label>
@@ -146,7 +146,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                             <div className="form-group">
                                 <Label>
                                     <Shield size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
-                                    {t('wp.syncModal.sanitizationProfile', 'Sanitization Profile')}
+                                    {t('wp.syncModal.sanitizationProfile', 'Sanitization profile')}
                                 </Label>
                                 <Select
                                     value={config.sanitization_profile_id}
@@ -173,25 +173,25 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                         )}
 
                         <div className="form-group">
-                            <Label>{t('wp.syncModal.excludeTablesCommaSeparatedOptional', 'Exclude Tables (comma-separated, optional)')}</Label>
+                            <Label>{t('wp.syncModal.excludeTablesCommaSeparatedOptional', 'Exclude tables (comma-separated, optional)')}</Label>
                             <Input
                                 type="text"
                                 value={config.exclude_tables}
                                 onChange={e => handleConfigChange('exclude_tables', e.target.value)}
                                 placeholder={t('wp.syncModal.wpUsersWpUsermeta', 'wp_users, wp_usermeta')}
                             />
-                            <span className="form-hint">{t('wp.syncModal.tablesToSkipDuringSync', 'Tables to skip during sync')}</span>
+                            <span className="form-hint">{t('wp.syncModal.tablesToSkipDuringSync', 'Tables to skip during sync.')}</span>
                         </div>
 
                         <div className="form-group">
-                            <Label>{t('wp.syncModal.truncateTablesCommaSeparatedOptional', 'Truncate Tables (comma-separated, optional)')}</Label>
+                            <Label>{t('wp.syncModal.truncateTablesCommaSeparatedOptional', 'Truncate tables (comma-separated, optional)')}</Label>
                             <Input
                                 type="text"
                                 value={config.truncate_tables}
                                 onChange={e => handleConfigChange('truncate_tables', e.target.value)}
                                 placeholder={t('wp.syncModal.wpActionschedulerActionsWpActionschedulerLogs', 'wp_actionscheduler_actions, wp_actionscheduler_logs')}
                             />
-                            <span className="form-hint">{t('wp.syncModal.tablesToEmptyStructureKeptData', 'Tables to empty (structure kept, data removed)')}</span>
+                            <span className="form-hint">{t('wp.syncModal.tablesToEmptyStructureKeptData', 'Tables to empty (structure kept, data removed).')}</span>
                         </div>
                     </>
                 )}
@@ -203,7 +203,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                     </svg>
                     <div>
                         <strong>{t('wp.syncModal.thisWillOverwriteData', 'This will overwrite data')}</strong>
-                        <p>{t('wp.syncModal.theCurrent', 'The current')} {syncType === 'files' ? 'files' : syncType === 'database' ? 'database' : 'database and files'} {t('wp.syncModal.inThisEnvironmentWillBeReplaced', 'in this environment will be replaced with production data. A snapshot will be created before syncing.')}</p>
+                        <p>{t('wp.syncModal.theCurrent', 'The current')} {syncType === 'files' ? t('wp.syncModal.files', 'files') : syncType === 'database' ? t('wp.syncModal.database', 'database') : t('wp.syncModal.databaseAndFiles', 'database and files')} {t('wp.syncModal.inThisEnvironmentWillBeReplaced', 'in this environment will be replaced with production data. A snapshot will be created before syncing.')}</p>
                     </div>
                 </div>
 
@@ -212,7 +212,7 @@ const SyncModal = ({ environment, productionName, onClose, onSync }) => {
                         {t('wp.syncModal.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
-                        {loading ? <><Spinner size="sm" /> {t('wp.syncModal.syncing', 'Syncing...')}</> : 'Sync Now'}
+                        {loading ? <><Spinner size="sm" /> {t('wp.syncModal.syncing', 'Syncing…')}</> : t('wp.syncModal.syncNow', 'Sync now')}
                     </Button>
                 </div>
             </form>

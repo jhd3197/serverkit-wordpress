@@ -63,7 +63,7 @@ const ContainerLogs = ({ projectId, envId, onClose }) => {
                         <Terminal size={15} />
                     </span>
                     <div className="container-logs-titles">
-                        <span>{t('wp.containerLogs.containerLogs', 'Container Logs')}</span>
+                        <span>{t('wp.containerLogs.containerLogs', 'Container logs')}</span>
                         <span className="container-logs-sub">env-{envId} · {service}</span>
                     </div>
                 </div>
@@ -106,7 +106,7 @@ const ContainerLogs = ({ projectId, envId, onClose }) => {
                 onScroll={handleScroll}
             >
                 {loading ? (
-                    <div className="logs-loading">{t('wp.containerLogs.loadingLogs', 'Loading logs...')}</div>
+                    <div className="logs-loading">{t('wp.containerLogs.loadingLogs', 'Loading logs…')}</div>
                 ) : logs.length === 0 ? (
                     <div className="logs-empty">{t('wp.containerLogs.noLogsAvailable', 'No logs available.')}</div>
                 ) : (

@@ -65,7 +65,7 @@ const SecurityTab = ({ siteId }) => {
         setBusy(true);
         try {
             const r = await wordpressApi.runCron(siteId);
-            toast[r.success ? 'success' : 'error'](r.success ? 'Ran due events' : (r.error || 'Failed to run cron'));
+            toast[r.success ? 'success' : 'error'](r.success ? t('wp.securityTab.ranDueEvents', 'Ran due events') : (r.error || t('wp.securityTab.failedToRunCron', 'Failed to run cron')));
             setCron(await wordpressApi.getCron(siteId));
         } catch (err) { toast.error(err.message || t('wp.securityTab.failedToRunCron', 'Failed to run cron')); }
         finally { setBusy(false); }
@@ -91,7 +91,7 @@ const SecurityTab = ({ siteId }) => {
         setBusy(true);
         try {
             const res = await wordpressApi.unbanBruteForceIp(siteId, ip);
-            toast[res.success ? 'success' : 'error'](res.success ? `Unbanned ${ip}` : (res.error || 'Failed to unban'));
+            toast[res.success ? 'success' : 'error'](res.success ? t('wp.securityTab.unbannedIp', 'Unbanned {{ip}}', { ip }) : (res.error || t('wp.securityTab.failedToUnban', 'Failed to unban')));
             setBrute(await wordpressApi.getBruteForce(siteId));
         } catch (err) { toast.error(err.message || t('wp.securityTab.failedToUnban', 'Failed to unban')); }
         finally { setBusy(false); }
@@ -107,28 +107,28 @@ const SecurityTab = ({ siteId }) => {
     const vsum = vulns?.summary || {};
     const checks = [
         {
-            labelKey: 'wp.securityTab.corePluginFilesVerified', label: 'Core & plugin files verified',
+            labelKey: 'wp.securityTab.corePluginFilesVerified', label: 'Core and plugin files verified',
             state: integrity?.status === 'completed' ? (issues.length === 0 ? 'pass' : 'fail') : 'unknown',
             detail: integrity?.status === 'completed'
-                ? (issues.length === 0 ? 'checksums clean' : `${issues.length} issue${issues.length === 1 ? '' : 's'}`)
-                : 'not checked yet',
+                ? (issues.length === 0 ? t('wp.securityTab.checksumsClean', 'checksums clean') : issues.length === 1 ? t('wp.securityTab.oneIssue', '1 issue') : t('wp.securityTab.issuesCount', '{{count}} issues', { count: issues.length }))
+                : t('wp.securityTab.notCheckedYet', 'not checked yet'),
         },
         {
             labelKey: 'wp.securityTab.wpDebugDisabled', label: 'WP_DEBUG disabled',
             state: debug ? (debug.debug?.WP_DEBUG ? 'fail' : 'pass') : 'unknown',
-            detail: debug ? (debug.debug?.WP_DEBUG ? 'debug is on' : 'off') : 'unavailable',
+            detail: debug ? (debug.debug?.WP_DEBUG ? t('wp.securityTab.debugIsOn', 'debug is on') : t('wp.securityTab.off', 'off')) : t('wp.securityTab.unavailable', 'unavailable'),
         },
         {
             labelKey: 'wp.securityTab.noCriticalHighVulnerabilities', label: 'No critical / high vulnerabilities',
             state: vulns?.scanned_at ? (((vsum.critical ?? 0) + (vsum.high ?? 0)) === 0 ? 'pass' : 'fail') : 'unknown',
             detail: vulns?.scanned_at
-                ? `${(vsum.critical ?? 0) + (vsum.high ?? 0)} found`
-                : 'no scan yet',
+                ? t('wp.securityTab.foundCount', '{{count}} found', { count: (vsum.critical ?? 0) + (vsum.high ?? 0) })
+                : t('wp.securityTab.noScanYet', 'no scan yet'),
         },
         {
             labelKey: 'wp.securityTab.loginBruteForceProtection', label: 'Login brute-force protection',
             state: brute?.available === false ? 'unknown' : (brute?.enabled ? 'pass' : 'fail'),
-            detail: brute?.available === false ? 'fail2ban unavailable' : (brute?.enabled ? 'jail active' : 'not protected'),
+            detail: brute?.available === false ? t('wp.securityTab.fail2banUnavailable', 'Fail2ban unavailable') : (brute?.enabled ? t('wp.securityTab.jailActive', 'jail active') : t('wp.securityTab.notProtected', 'not protected')),
         },
     ];
     const scored = checks.filter(c => c.state !== 'unknown');
@@ -143,7 +143,7 @@ const SecurityTab = ({ siteId }) => {
                     <div className="app-panel-header">{t('wp.securityTab.securityPosture', 'Security posture')}</div>
                     <div className="app-panel-body wp-posture">
                         {score !== null ? (
-                            <ScoreGauge value={score} size={110} stroke={9} color={scoreColor} label="posture" />
+                            <ScoreGauge value={score} size={110} stroke={9} color={scoreColor} label={t('wp.securityTab.posture', 'posture')} />
                         ) : (
                             <p className="hint">{t('wp.securityTab.runTheChecksBelowToCompute', 'Run the checks below to compute a posture score.')}</p>
                         )}
@@ -163,7 +163,7 @@ const SecurityTab = ({ siteId }) => {
                     <div className="app-panel-header">{t('wp.securityTab.fileIntegrity', 'File integrity')}</div>
                     <div className="app-panel-body">
                         <div className="app-detail-actions">
-                            <Button size="sm" onClick={runIntegrity} disabled={intRunning}>{intRunning ? 'Checking…' : 'Verify checksums'}</Button>
+                            <Button size="sm" onClick={runIntegrity} disabled={intRunning}>{intRunning ? t('wp.securityTab.checking', 'Checking…') : t('wp.securityTab.verifyChecksums', 'Verify checksums')}</Button>
                         </div>
                         {(!integrity || integrity.status === 'idle') && <p className="hint">{t('wp.securityTab.verifiesWordpressCoreAndWordpressOrg', 'Verifies WordPress core and wordpress.org plugins against official checksums to detect tampered or unexpected files.')}</p>}
                         {integrity?.status === 'error' && <p className="hint">{t('wp.securityTab.checkFailed', 'Check failed:')} {integrity.error}</p>}
@@ -171,7 +171,7 @@ const SecurityTab = ({ siteId }) => {
                             issues.length === 0
                                 ? <p className="hint">{t('wp.securityTab.allCoreAndPluginFilesVerify', 'All core and plugin files verify against official checksums.')}</p>
                                 : <>
-                                    <div className="app-detail-actions"><Pill kind="red">{issues.length} issue{issues.length === 1 ? '' : 's'}</Pill></div>
+                                    <div className="app-detail-actions"><Pill kind="red">{issues.length === 1 ? t('wp.securityTab.oneIssue', '1 issue') : t('wp.securityTab.issuesCount', '{{count}} issues', { count: issues.length })}</Pill></div>
                                     <div className="wp-code-list">
                                         {issues.slice(0, 50).map((line, i) => <div key={i}>{line}</div>)}
                                     </div>
@@ -184,12 +184,12 @@ const SecurityTab = ({ siteId }) => {
                     <div className="app-panel-header">{t('wp.securityTab.debugMode', 'Debug mode')}</div>
                     <div className="app-panel-body">
                         <InfoList>
-                            <InfoItem label="WP_DEBUG" value={<Pill kind={debug?.debug?.WP_DEBUG ? 'amber' : 'gray'}>{debug?.debug?.WP_DEBUG ? 'on' : 'off'}</Pill>} />
+                            <InfoItem label="WP_DEBUG" value={<Pill kind={debug?.debug?.WP_DEBUG ? 'amber' : 'gray'}>{debug?.debug?.WP_DEBUG ? t('wp.securityTab.on', 'on') : t('wp.securityTab.off', 'off')}</Pill>} />
                             <InfoItem label={t('wp.securityTab.debugLog', 'Debug log')} value={debug?.debug?.WP_DEBUG_LOG ? 'on' : 'off'} />
                             <InfoItem label={t('wp.securityTab.scriptDebug', 'Script debug')} value={debug?.debug?.SCRIPT_DEBUG ? 'on' : 'off'} />
                         </InfoList>
                         <div className="app-detail-actions">
-                            <Button variant="outline" size="sm" onClick={toggleDebug} disabled={busy}>{debug?.enabled ? 'Disable debugging' : 'Enable debugging'}</Button>
+                            <Button variant="outline" size="sm" onClick={toggleDebug} disabled={busy}>{debug?.enabled ? t('wp.securityTab.disableDebugging', 'Disable debugging') : t('wp.securityTab.enableDebugging', 'Enable debugging')}</Button>
                         </div>
                         <p className="hint">{t('wp.securityTab.logsErrorsToAPrivateFile', 'Logs errors to a private file outside the web root (never to the page or a public URL). Enable to capture PHP fatals; disable in production.')}</p>
                     </div>
@@ -206,7 +206,7 @@ const SecurityTab = ({ siteId }) => {
                             <Button variant="outline" size="sm" onClick={runCron} disabled={busy}>{t('wp.securityTab.runDueEvents', 'Run due events')}</Button>
                             <Button variant="outline" size="sm" onClick={toggleCron} disabled={busy}>{cron?.disabled ? 'Enable WP-Cron' : 'Disable WP-Cron'}</Button>
                         </div>
-                        <p className="hint">{t('wp.securityTab.disableWpCronOnlyIfA', 'Disable WP-Cron only if a real system cron hits wp-cron.php — otherwise scheduled tasks (publishing, updates) will not run.')}</p>
+                        <p className="hint">{t('wp.securityTab.disableWpCronOnlyIfA', 'Disable WP-Cron only if a real system cron hits wp-cron.php. Otherwise scheduled tasks (publishing, updates) will not run.')}</p>
                     </div>
                 </div>
 
@@ -214,7 +214,7 @@ const SecurityTab = ({ siteId }) => {
                     <div className="app-panel-header">{t('wp.securityTab.bruteForceProtection', 'Brute-force protection')}</div>
                     <div className="app-panel-body">
                         {brute?.available === false ? (
-                            <p className="hint">{t('wp.securityTab.fail2banIsnTInstalledOnThis', 'Fail2ban isn’t installed on this server, so login brute-force protection is inactive. Install it from the')} <strong>{t('wp.securityTab.securityFail2ban', 'Security → Fail2ban')}</strong> {t('wp.securityTab.pageToEnablePerSiteJails', 'page to enable per-site jails.')}</p>
+                            <p className="hint">{t('wp.securityTab.fail2banIsnTInstalledOnThis', "Fail2ban isn't installed on this server, so login brute-force protection is inactive. Install it from the")} <strong>{t('wp.securityTab.securityFail2ban', 'Security → Fail2ban')}</strong> {t('wp.securityTab.pageToEnablePerSiteJails', 'page to enable per-site jails.')}</p>
                         ) : (
                             <>
                                 <InfoList>
@@ -223,7 +223,7 @@ const SecurityTab = ({ siteId }) => {
                                     <InfoItem label={t('wp.securityTab.totalBans', 'Total bans')} value={brute?.total_banned ?? 0} />
                                 </InfoList>
                                 <div className="app-detail-actions">
-                                    <Button variant="outline" size="sm" onClick={toggleBrute} disabled={busy}>{brute?.enabled ? 'Disable protection' : 'Enable protection'}</Button>
+                                    <Button variant="outline" size="sm" onClick={toggleBrute} disabled={busy}>{brute?.enabled ? t('wp.securityTab.disableProtection', 'Disable protection') : t('wp.securityTab.enableProtection', 'Enable protection')}</Button>
                                 </div>
                                 {(brute?.banned_ips?.length > 0) && (
                                     <div className="wp-banlist">
@@ -236,9 +236,9 @@ const SecurityTab = ({ siteId }) => {
                                     </div>
                                 )}
                                 <p className="hint">
-                                    {t('wp.securityTab.bansIpsThatRepeatedlyPostTo', 'Bans IPs that repeatedly POST to')} <code>wp-login.php</code> or <code>xmlrpc.php</code>
-                                    {brute?.thresholds ? ` (${brute.thresholds.maxretry} attempts / ${Math.round(brute.thresholds.findtime / 60)} min → ${Math.round(brute.thresholds.bantime / 60)} min ban)` : ''}.
-                                    {brute?.available && brute?.fail2ban_running === false ? ' Fail2ban is installed but not running — start it on the Security page.' : ''}
+                                    {t('wp.securityTab.bansIpsThatRepeatedlyPostTo', 'Bans IPs that repeatedly POST to')} <code>wp-login.php</code> {t('wp.securityTab.or', 'or')} <code>xmlrpc.php</code>
+                                    {brute?.thresholds ? ` ${t('wp.securityTab.banThresholds', '({{attempts}} attempts / {{findtime}} min → {{bantime}} min ban)', { attempts: brute.thresholds.maxretry, findtime: Math.round(brute.thresholds.findtime / 60), bantime: Math.round(brute.thresholds.bantime / 60) })}` : ''}.
+                                    {brute?.available && brute?.fail2ban_running === false ? ` ${t('wp.securityTab.fail2banIsInstalledButNotRunning', 'Fail2ban is installed but not running. Start it on the Security page.')}` : ''}
                                 </p>
                             </>
                         )}

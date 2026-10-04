@@ -26,7 +26,7 @@ const EnvironmentStatusBadge = ({ type, status, isLocked }) => {
             )}
             <span className={`wp-env-status ${isRunning ? 'running' : 'stopped'}`}>
                 <span className="status-dot" />
-                {isRunning ? 'Running' : 'Stopped'}
+                {isRunning ? t('wp.environmentStatusBadge.running', 'Running') : t('wp.environmentStatusBadge.stopped', 'Stopped')}
             </span>
         </div>
     );

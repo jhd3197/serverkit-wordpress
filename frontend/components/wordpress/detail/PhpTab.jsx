@@ -44,7 +44,7 @@ const PhpTab = ({ siteId }) => {
     async function handleSwitch(version) {
         if (!window.confirm(t('wp.phpTab.switchThisSiteToPhpThis', 'Switch this site to PHP {{version}}? This pulls the wordpress:php{{version2}}-apache image and recreates the container (brief downtime; database and files are preserved).', { version: version, version2: version }))) return;
         setSwitching(true);
-        toast.info(t('wp.phpTab.switchingToPhp', 'Switching to PHP {{version}}...', { version: version }), { duration: 4000 });
+        toast.info(t('wp.phpTab.switchingToPhp', 'Switching to PHP {{version}}…', { version: version }), { duration: 4000 });
         try {
             const res = await wordpressApi.setPhpVersion(siteId, version);
             if (res.success === false) { toast.error(res.error || t('wp.phpTab.failedToSwitchPhpVersion', 'Failed to switch PHP version')); return; }
@@ -83,7 +83,7 @@ const PhpTab = ({ siteId }) => {
     if (loading) return <SkeletonBoundary loading skeleton={<OverviewGridSkeleton panels={2} />} />;
 
     const limits = php?.limits || {};
-    const current = php?.php_version || 'Unknown';
+    const current = php?.php_version || t('wp.phpTab.unknown', 'Unknown');
     const versions = php?.available_versions || [];
     const editableKeys = php?.editable_limits || [];
 
@@ -94,19 +94,19 @@ const PhpTab = ({ siteId }) => {
                     <div className="app-panel-header">PHP</div>
                     <div className="app-panel-body">
                         <InfoList>
-                            <InfoItem label={t('wp.phpTab.phpVersion', 'PHP Version')} value={current} />
-                            <InfoItem label={t('wp.phpTab.memoryLimit', 'Memory Limit')} value={limits.memory_limit || '-'} />
-                            <InfoItem label={t('wp.phpTab.uploadMaxFilesize', 'Upload Max Filesize')} value={limits.upload_max_filesize || '-'} />
-                            <InfoItem label={t('wp.phpTab.postMaxSize', 'Post Max Size')} value={limits.post_max_size || '-'} />
-                            <InfoItem label={t('wp.phpTab.maxExecutionTime', 'Max Execution Time')} value={limits.max_execution_time || '-'} />
-                            <InfoItem label={t('wp.phpTab.maxInputTime', 'Max Input Time')} value={limits.max_input_time || '-'} />
+                            <InfoItem label={t('wp.phpTab.phpVersion', 'PHP version')} value={current} />
+                            <InfoItem label={t('wp.phpTab.memoryLimit', 'Memory limit')} value={limits.memory_limit || '-'} />
+                            <InfoItem label={t('wp.phpTab.uploadMaxFilesize', 'Upload max filesize')} value={limits.upload_max_filesize || '-'} />
+                            <InfoItem label={t('wp.phpTab.postMaxSize', 'Post max size')} value={limits.post_max_size || '-'} />
+                            <InfoItem label={t('wp.phpTab.maxExecutionTime', 'Max execution time')} value={limits.max_execution_time || '-'} />
+                            <InfoItem label={t('wp.phpTab.maxInputTime', 'Max input time')} value={limits.max_input_time || '-'} />
                         </InfoList>
                     </div>
                 </div>
 
                 {versions.length > 0 && (
                     <div className="app-panel">
-                        <div className="app-panel-header">{t('wp.phpTab.changePhpVersion', 'Change PHP Version')}</div>
+                        <div className="app-panel-header">{t('wp.phpTab.changePhpVersion', 'Change PHP version')}</div>
                         <div className="app-panel-body">
                             <p className="hint">{t('wp.phpTab.switchingRebuildsTheContainerFromThe', 'Switching rebuilds the container from the official wordpress php-apache image. The database and uploaded files are preserved.')}</p>
                             <div className="app-detail-actions">
@@ -122,7 +122,7 @@ const PhpTab = ({ siteId }) => {
 
                 {editableKeys.length > 0 && (
                     <div className="app-panel">
-                        <div className="app-panel-header">{t('wp.phpTab.editPhpLimits', 'Edit PHP Limits')}</div>
+                        <div className="app-panel-header">{t('wp.phpTab.editPhpLimits', 'Edit PHP limits')}</div>
                         <div className="app-panel-body">
                             <p className="hint">{t('wp.phpTab.savedAsADurableConfD', 'Saved as a durable conf.d drop-in bind-mounted into the container, so limits survive a container recreate. Saving reloads the container (brief downtime).')}</p>
                             {editableKeys.map(k => (
@@ -133,7 +133,7 @@ const PhpTab = ({ siteId }) => {
                                 </div>
                             ))}
                             <div className="app-detail-actions">
-                                <Button size="sm" onClick={handleSaveLimits} disabled={saving}>{saving ? 'Saving…' : 'Save limits'}</Button>
+                                <Button size="sm" onClick={handleSaveLimits} disabled={saving}>{saving ? t('wp.phpTab.saving', 'Saving…') : t('wp.phpTab.saveLimits', 'Save limits')}</Button>
                             </div>
                         </div>
                     </div>

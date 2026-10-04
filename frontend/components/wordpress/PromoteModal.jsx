@@ -76,7 +76,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
     const targetType = targetEnv.environment_type || 'staging';
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.promoteModal.promoteEnvironment', 'Promote Environment')} size="lg">
+        <Modal open={true} onClose={onClose} title={t('wp.promoteModal.promoteEnvironment', 'Promote environment')} size="lg">
             <form onSubmit={handleSubmit}>
                 <div className="promote-direction">
                     <div className={`promote-env-pill ${sourceType}`}>
@@ -91,7 +91,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                 </div>
 
                 <div className="form-group">
-                    <Label>{t('wp.promoteModal.promotionType', 'Promotion Type')}</Label>
+                    <Label>{t('wp.promoteModal.promotionType', 'Promotion type')}</Label>
                     <div className="radio-group">
                         <label className="radio-label">
                             <input
@@ -102,7 +102,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                                 onChange={e => setPromotionType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>{t('wp.promoteModal.codeOnly', 'Code Only')}</strong>
+                                <strong>{t('wp.promoteModal.codeOnly', 'Code only')}</strong>
                                 <span>{t('wp.promoteModal.syncThemesPluginsAndMuPlugins', 'Sync themes, plugins, and mu-plugins via rsync')}</span>
                             </div>
                         </label>
@@ -115,7 +115,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                                 onChange={e => setPromotionType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>{t('wp.promoteModal.databaseOnly', 'Database Only')}</strong>
+                                <strong>{t('wp.promoteModal.databaseOnly', 'Database only')}</strong>
                                 <span>{t('wp.promoteModal.exportTransformAndImportDatabase', 'Export, transform, and import database')}</span>
                             </div>
                         </label>
@@ -128,7 +128,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                                 onChange={e => setPromotionType(e.target.value)}
                             />
                             <div className="radio-content">
-                                <strong>{t('wp.promoteModal.fullCodeDatabase', 'Full (Code + Database)')}</strong>
+                                <strong>{t('wp.promoteModal.fullCodeDatabase', 'Full (code + database)')}</strong>
                                 <span>{t('wp.promoteModal.completeEnvironmentPromotion', 'Complete environment promotion')}</span>
                             </div>
                         </label>
@@ -137,7 +137,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
 
                 {(promotionType === 'code' || promotionType === 'full') && (
                     <div className="form-group">
-                        <Label>{t('wp.promoteModal.codeOptions', 'Code Options')}</Label>
+                        <Label>{t('wp.promoteModal.codeOptions', 'Code options')}</Label>
                         <div className="checkbox-group">
                             <label className="checkbox-label">
                                 <Checkbox
@@ -187,7 +187,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                             <div className="form-group">
                                 <Label>
                                     <Shield size={14} style={{ marginRight: 4, verticalAlign: -2 }} />
-                                    {t('wp.promoteModal.sanitizationProfile', 'Sanitization Profile')}
+                                    {t('wp.promoteModal.sanitizationProfile', 'Sanitization profile')}
                                 </Label>
                                 <Select
                                     value={config.sanitization_profile_id}
@@ -252,7 +252,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                             <line x1="12" y1="9" x2="12" y2="13" />
                             <line x1="12" y1="17" x2="12.01" y2="17" />
                         </svg>
-                        <span>{t('wp.promoteModal.youArePromotingTo', 'You are promoting to')} <strong>production</strong>. This will affect the live site.</span>
+                        <span>{t('wp.promoteModal.youArePromotingTo', 'You are promoting to')} <strong>{t('wp.promoteModal.production', 'production')}</strong>. {t('wp.promoteModal.thisWillAffectTheLiveSite', 'This will affect the live site.')}</span>
                     </div>
                 )}
 
@@ -261,7 +261,7 @@ const PromoteModal = ({ sourceEnv, targetEnv, onClose, onPromote }) => {
                         {t('wp.promoteModal.cancel', 'Cancel')}
                     </Button>
                     <Button type="submit" disabled={loading}>
-                        {loading ? <><Spinner size="sm" /> {t('wp.promoteModal.promoting', 'Promoting...')}</> : 'Promote'}
+                        {loading ? <><Spinner size="sm" /> {t('wp.promoteModal.promoting', 'Promoting…')}</> : t('wp.promoteModal.promote', 'Promote')}
                     </Button>
                 </div>
             </form>

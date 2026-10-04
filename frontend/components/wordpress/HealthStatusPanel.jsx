@@ -30,7 +30,7 @@ const HealthDot = ({ status, size = 8 }) => {
                 display: 'inline-block',
                 backgroundColor: colorMap[status] || colorMap.unknown,
             }}
-            title={STATUS_CONFIG[status]?.label || t('wp.healthStatusPanel.unknown2', 'Unknown')}
+            title={STATUS_CONFIG[status] ? t(STATUS_CONFIG[status].labelKey, { defaultValue: STATUS_CONFIG[status].label }) : t('wp.healthStatusPanel.unknown2', 'Unknown')}
         />
     );
 };
@@ -74,7 +74,7 @@ const HealthStatusPanel = ({ projectId, environments, api, compact = false }) =>
             <div className="health-status-panel">
                 <div className="health-panel-loading">
                     <Spinner size="sm" />
-                    <span>{t('wp.healthStatusPanel.checkingHealth', 'Checking health...')}</span>
+                    <span>{t('wp.healthStatusPanel.checkingHealth', 'Checking health…')}</span>
                 </div>
             </div>
         );
@@ -85,7 +85,7 @@ const HealthStatusPanel = ({ projectId, environments, api, compact = false }) =>
             <div className="health-panel-header">
                 <h4>
                     <Activity size={16} />
-                    {t('wp.healthStatusPanel.environmentHealth', 'Environment Health')}
+                    {t('wp.healthStatusPanel.environmentHealth', 'Environment health')}
                 </h4>
                 <Button variant="ghost" size="sm" onClick={loadHealth}>
                     <RefreshCw size={12} />
@@ -106,7 +106,7 @@ const HealthStatusPanel = ({ projectId, environments, api, compact = false }) =>
                                 <HealthDot status={overall} size={10} />
                                 <span className="health-panel-env-name">{envName}</span>
                                 <span className={`health-panel-overall health-${overall}`}>
-                                    {STATUS_CONFIG[overall]?.label || 'Unknown'}
+                                    {STATUS_CONFIG[overall] ? t(STATUS_CONFIG[overall].labelKey, { defaultValue: STATUS_CONFIG[overall].label }) : t('wp.healthStatusPanel.unknown2', 'Unknown')}
                                 </span>
                             </div>
                             <div className="health-panel-checks">

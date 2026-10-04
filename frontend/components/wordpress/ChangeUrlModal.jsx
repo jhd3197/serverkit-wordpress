@@ -35,7 +35,7 @@ export default function ChangeUrlModal({ site, onClose, onChanged }) {
                 const res = await wordpressApi.previewUrlChange(site.id, target);
                 if (!cancelled) setPreview(res);
             } catch (err) {
-                if (!cancelled) setPreview({ success: false, error: err.message || 'Preview failed' });
+                if (!cancelled) setPreview({ success: false, error: err.message || t('wp.changeUrlModal.previewFailed', 'Preview failed') });
             } finally {
                 if (!cancelled) setPreviewing(false);
             }
@@ -47,7 +47,7 @@ export default function ChangeUrlModal({ site, onClose, onChanged }) {
         e?.preventDefault();
         if (!dirty || applying) return;
         setApplying(true);
-        toast.info(t('wp.changeUrlModal.changingSiteUrlBackingUpAnd', 'Changing site URL — backing up and rewriting the database…'), { duration: 5000 });
+        toast.info(t('wp.changeUrlModal.changingSiteUrlBackingUpAnd', 'Changing site URL: backing up and rewriting the database…'), { duration: 5000 });
         try {
             const res = await wordpressApi.changeUrl(site.id, target, keepOld);
             if (res.success) {
@@ -66,7 +66,7 @@ export default function ChangeUrlModal({ site, onClose, onChanged }) {
     }
 
     return (
-        <Modal open onClose={() => !applying && onClose()} title={<><Globe size={18} /> {t('wp.changeUrlModal.changeSiteUrl', 'Change Site URL')}</>} size="lg">
+        <Modal open onClose={() => !applying && onClose()} title={<><Globe size={18} /> {t('wp.changeUrlModal.changeSiteUrl', 'Change site URL')}</>} size="lg">
             <form onSubmit={handleApply}>
                 <div className="wp-url-swap">
                     <div className="wp-url-swap__warning">
@@ -136,7 +136,7 @@ export default function ChangeUrlModal({ site, onClose, onChanged }) {
                 <div className="modal-actions">
                     <Button type="button" variant="outline" onClick={onClose} disabled={applying}>{t('wp.changeUrlModal.cancel', 'Cancel')}</Button>
                     <Button type="submit" disabled={!dirty || applying}>
-                        {applying ? 'Changing…' : 'Change URL'}
+                        {applying ? t('wp.changeUrlModal.changing', 'Changing…') : t('wp.changeUrlModal.changeUrl', 'Change URL')}
                     </Button>
                 </div>
             </form>

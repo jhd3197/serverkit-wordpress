@@ -7,9 +7,9 @@ import { Input } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 
 const QUICK_COMMANDS = [
-    { labelKey: 'wp.wpCliTerminal.pluginList', label: 'Plugin List', command: 'wp plugin list --format=table' },
-    { labelKey: 'wp.wpCliTerminal.cacheFlush', label: 'Cache Flush', command: 'wp cache flush' },
-    { labelKey: 'wp.wpCliTerminal.dbCheck', label: 'DB Check', command: 'wp db check' },
+    { labelKey: 'wp.wpCliTerminal.pluginList', label: 'Plugin list', command: 'wp plugin list --format=table' },
+    { labelKey: 'wp.wpCliTerminal.cacheFlush', label: 'Cache flush', command: 'wp cache flush' },
+    { labelKey: 'wp.wpCliTerminal.dbCheck', label: 'DB check', command: 'wp db check' },
     { labelKey: 'wp.wpCliTerminal.siteUrl', label: 'Site URL', command: 'wp option get siteurl' },
 ];
 
@@ -60,10 +60,10 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
             if (result.success) {
                 setOutput(prev => [...prev, { type: 'output', text: result.output || '(no output)' }]);
             } else {
-                setOutput(prev => [...prev, { type: 'error', text: result.error || 'Command failed' }]);
+                setOutput(prev => [...prev, { type: 'error', text: result.error || t('wp.wpCliTerminal.commandFailed', 'Command failed') }]);
             }
         } catch (err) {
-            setOutput(prev => [...prev, { type: 'error', text: err.message || 'Execution failed' }]);
+            setOutput(prev => [...prev, { type: 'error', text: err.message || t('wp.wpCliTerminal.executionFailed', 'Execution failed') }]);
         } finally {
             setExecuting(false);
             inputRef.current?.focus();
@@ -93,10 +93,10 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
         }
     }
 
-    const envName = environment?.name || 'Environment';
+    const envName = environment?.name || t('wp.wpCliTerminal.environment', 'Environment');
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.wpCliTerminal.wpCli', 'WP-CLI - {{envName}}', { envName: envName })} className="wpcli-terminal-modal">
+        <Modal open={true} onClose={onClose} title={t('wp.wpCliTerminal.wpCli', 'WP-CLI: {{envName}}', { envName: envName })} className="wpcli-terminal-modal">
             <div className="wpcli-quick-actions">
                 {QUICK_COMMANDS.map(qc => (
                     <Button
@@ -162,7 +162,7 @@ const WpCliTerminal = ({ environment, prodId, onClose, api }) => {
                 {executing && (
                     <div className="wpcli-executing">
                         <Spinner size="sm" />
-                        <span>{t('wp.wpCliTerminal.executing', 'Executing...')}</span>
+                        <span>{t('wp.wpCliTerminal.executing', 'Executing…')}</span>
                     </div>
                 )}
             </div>

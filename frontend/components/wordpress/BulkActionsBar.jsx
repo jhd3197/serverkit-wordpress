@@ -47,7 +47,7 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                         onClick={() => executeAction(confirmAction)}
                         disabled={executing}
                     >
-                        {executing ? <Spinner size="sm" /> : 'Confirm'}
+                        {executing ? <Spinner size="sm" /> : t('wp.bulkActionsBar.confirm', 'Confirm')}
                     </Button>
                     <Button
                         variant="ghost"
@@ -62,7 +62,7 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                 <>
                     <div className="bulk-actions-info">
                         <span className="bulk-actions-count">{selectedIds.length}</span>
-                        <span>selected</span>
+                        <span>{t('wp.bulkActionsBar.selected', 'selected')}</span>
                     </div>
 
                     <div className="bulk-actions-buttons">
@@ -71,7 +71,7 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                             size="sm"
                             onClick={() => handleAction('start')}
                             disabled={executing}
-                            title={t('wp.bulkActionsBar.startSelected', 'Start Selected')}
+                            title={t('wp.bulkActionsBar.startSelected', 'Start selected')}
                         >
                             <Play size={12} />
                             {t('wp.bulkActionsBar.start', 'Start')}
@@ -81,7 +81,7 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                             size="sm"
                             onClick={() => handleAction('stop')}
                             disabled={executing}
-                            title={t('wp.bulkActionsBar.stopSelected', 'Stop Selected')}
+                            title={t('wp.bulkActionsBar.stopSelected', 'Stop selected')}
                         >
                             <Square size={12} />
                             {t('wp.bulkActionsBar.stop', 'Stop')}
@@ -91,7 +91,7 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                             size="sm"
                             onClick={() => handleAction('restart')}
                             disabled={executing}
-                            title={t('wp.bulkActionsBar.restartSelected', 'Restart Selected')}
+                            title={t('wp.bulkActionsBar.restartSelected', 'Restart selected')}
                         >
                             <RefreshCw size={12} />
                             {t('wp.bulkActionsBar.restart', 'Restart')}
@@ -101,10 +101,10 @@ const BulkActionsBar = ({ selectedIds, environments, prodId, onClear, onExecute,
                             size="sm"
                             onClick={() => handleAction('sync')}
                             disabled={executing}
-                            title={t('wp.bulkActionsBar.syncFromProduction', 'Sync from Production')}
+                            title={t('wp.bulkActionsBar.syncFromProduction', 'Sync from production')}
                         >
                             <ArrowDownLeft size={12} />
-                            {t('wp.bulkActionsBar.syncFromProd', 'Sync from Prod')}
+                            {t('wp.bulkActionsBar.syncFromProd', 'Sync from prod')}
                         </Button>
                     </div>
 

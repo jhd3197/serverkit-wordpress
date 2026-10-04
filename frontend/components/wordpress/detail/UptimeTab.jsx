@@ -78,8 +78,8 @@ const UptimeTab = ({ siteId }) => {
                     <div className="app-panel-header">{t('wp.uptimeTab.health', 'Health')}</div>
                     <div className="app-panel-body">
                         <InfoList>
-                            <InfoItem label={t('wp.uptimeTab.currentStatus', 'Current Status')} value={<><HealthDot status={data?.health_status} /> {data?.health_status || 'unknown'}</>} />
-                            <InfoItem label={t('wp.uptimeTab.lastChecked', 'Last Checked')} value={data?.last_health_check ? formatDateTime(data.last_health_check) : 'Never'} />
+                            <InfoItem label={t('wp.uptimeTab.currentStatus', 'Current status')} value={<><HealthDot status={data?.health_status} /> {data?.health_status || 'unknown'}</>} />
+                            <InfoItem label={t('wp.uptimeTab.lastChecked', 'Last checked')} value={data?.last_health_check ? formatDateTime(data.last_health_check) : t('wp.uptimeTab.never', 'Never')} />
                         </InfoList>
                         <p className="hint">{t('wp.uptimeTab.healthIsPolledAutomaticallyEvery5', 'Health is polled automatically every 5 minutes. Outages and recoveries alert your configured notification channels.')}</p>
                     </div>
@@ -115,7 +115,7 @@ const UptimeTab = ({ siteId }) => {
                                 <>
                                     <p className="hint">{t('wp.uptimeTab.trackUptimeForThisSiteOn', 'Track uptime for this site on a status page. It accrues a real uptime % and auto-opens/resolves incidents on outages.')}</p>
                                     <div className="form-group">
-                                        <Label htmlFor="wp-uptime-page">{t('wp.uptimeTab.statusPage', 'Status Page')}</Label>
+                                        <Label htmlFor="wp-uptime-page">{t('wp.uptimeTab.statusPage', 'Status page')}</Label>
                                         <Select value={pageId} onValueChange={setPageId} disabled={busy}>
                                             <SelectTrigger id="wp-uptime-page"><SelectValue /></SelectTrigger>
                                             <SelectContent>

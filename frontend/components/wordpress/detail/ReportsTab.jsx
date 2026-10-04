@@ -85,7 +85,7 @@ const ReportsTab = ({ siteId }) => {
     async function handleDelete(report) {
         const ok = await confirm({
             title: t('wp.reportsTab.deleteReport', 'Delete report'),
-            message: t('wp.reportsTab.deleteTheReportForThisCannot', 'Delete the report for {{value}}? This cannot be undone.', { value: report.data?.period?.month_name || report.period_label }),
+            message: t('wp.reportsTab.deleteTheReportForThisCannot', "Delete the report for {{value}}? This can't be undone.", { value: report.data?.period?.month_name || report.period_label }),
             confirmText: t('wp.reportsTab.delete', 'Delete'),
             variant: 'danger',
         });
@@ -143,7 +143,7 @@ const ReportsTab = ({ siteId }) => {
                                 </SelectContent>
                             </Select>
                             <Button size="sm" onClick={handleGenerate} disabled={busy}>
-                                {busy ? 'Generating…' : 'Generate'}
+                                {busy ? t('wp.reportsTab.generating', 'Generating…') : t('wp.reportsTab.generate', 'Generate')}
                             </Button>
                         </div>
                         {reports.length > 0 && (
@@ -166,7 +166,7 @@ const ReportsTab = ({ siteId }) => {
                 {!selected ? (
                     <div className="app-panel wp-report-no-print">
                         <div className="app-panel-body">
-                            <p className="hint">{t('wp.reportsTab.noReportsYetPickAMonth', 'No reports yet — pick a month above and click Generate.')}</p>
+                            <p className="hint">{t('wp.reportsTab.noReportsYetPickAMonth', 'No reports yet. Pick a month above and click Generate.')}</p>
                         </div>
                     </div>
                 ) : (
@@ -205,7 +205,7 @@ const ReportView = ({ report, onPrint, onDownload, onDelete }) => {
         <div className="wp-report-printable">
             <div className="app-panel">
                 <div className="app-panel-header">
-                    {t('wp.reportsTab.report', 'Report —')} {period.month_name || report.period_label}
+                    {t('wp.reportsTab.report', 'Report:')} {period.month_name || report.period_label}
                     <span className="wp-report-actions wp-report-no-print">
                         <Button variant="outline" size="sm" onClick={onPrint}><Printer size={14} /> {t('wp.reportsTab.print', 'Print')}</Button>
                         <Button variant="outline" size="sm" onClick={onDownload}><Download size={14} /> JSON</Button>
@@ -238,9 +238,9 @@ const ReportView = ({ report, onPrint, onDownload, onDelete }) => {
                     </InfoList>
                     {(updates.rolled_back > 0 || updates.failed > 0) && (
                         <div className="app-detail-actions">
-                            {updates.completed > 0 && <Pill kind="green">{updates.completed} completed</Pill>}
+                            {updates.completed > 0 && <Pill kind="green">{t('wp.reportsTab.completedCount', '{{count}} completed', { count: updates.completed })}</Pill>}
                             {updates.rolled_back > 0 && <Pill kind="amber">{updates.rolled_back} {t('wp.reportsTab.rolledBack', 'rolled back')}</Pill>}
-                            {updates.failed > 0 && <Pill kind="red">{updates.failed} failed</Pill>}
+                            {updates.failed > 0 && <Pill kind="red">{t('wp.reportsTab.failedCount', '{{count}} failed', { count: updates.failed })}</Pill>}
                         </div>
                     )}
                 </div>
@@ -303,8 +303,8 @@ const ReportView = ({ report, onPrint, onDownload, onDelete }) => {
                                         <span className="wp-run-row-meta">{fmt(r.started_at)} · {r.trigger}</span>
                                     </div>
                                     <span className="form-hint">
-                                        {n === 0 ? 'No components needed updating' : `${n} component${n === 1 ? '' : 's'} updated`}
-                                        {r.rolled_back ? ' · auto-rolled back' : ''}
+                                        {n === 0 ? t('wp.reportsTab.noComponentsNeededUpdating', 'No components needed updating') : n === 1 ? t('wp.reportsTab.oneComponentUpdated', '1 component updated') : t('wp.reportsTab.componentsUpdatedCount', '{{count}} components updated', { count: n })}
+                                        {r.rolled_back ? ` · ${t('wp.reportsTab.autoRolledBack', 'auto-rolled back')}` : ''}
                                         {r.error ? ` · ${r.error}` : ''}
                                     </span>
                                 </div>
@@ -328,30 +328,30 @@ const ReportView = ({ report, onPrint, onDownload, onDelete }) => {
             )}
 
             <div className="app-panel">
-                <div className="app-panel-header">{t('wp.reportsTab.securityPosture', 'Security posture')} {vulns.as_of ? `(as of ${fmt(vulns.as_of)})` : ''}</div>
+                <div className="app-panel-header">{t('wp.reportsTab.securityPosture', 'Security posture')} {vulns.as_of ? t('wp.reportsTab.asOf', '(as of {{date}})', { date: fmt(vulns.as_of) }) : ''}</div>
                 <div className="app-panel-body">
                     {vulns.total > 0 ? (
                         <>
                             <div className="app-detail-actions">
-                                {sev.critical > 0 && <Pill kind="red">{sev.critical} critical</Pill>}
-                                {sev.high > 0 && <Pill kind="red">{sev.high} high</Pill>}
-                                {sev.medium > 0 && <Pill kind="amber">{sev.medium} medium</Pill>}
-                                {sev.low > 0 && <Pill kind="cyan">{sev.low} low</Pill>}
-                                {sev.unknown > 0 && <Pill kind="gray">{sev.unknown} unrated</Pill>}
+                                {sev.critical > 0 && <Pill kind="red">{t('wp.reportsTab.criticalCount', '{{count}} critical', { count: sev.critical })}</Pill>}
+                                {sev.high > 0 && <Pill kind="red">{t('wp.reportsTab.highCount', '{{count}} high', { count: sev.high })}</Pill>}
+                                {sev.medium > 0 && <Pill kind="amber">{t('wp.reportsTab.mediumCount', '{{count}} medium', { count: sev.medium })}</Pill>}
+                                {sev.low > 0 && <Pill kind="cyan">{t('wp.reportsTab.lowCount', '{{count}} low', { count: sev.low })}</Pill>}
+                                {sev.unknown > 0 && <Pill kind="gray">{t('wp.reportsTab.unratedCount', '{{count}} unrated', { count: sev.unknown })}</Pill>}
                             </div>
                             {(vulns.items || []).map((v, i) => (
                                 <div className="wp-run-row" key={i}>
                                     <div className="wp-run-row-head"><Pill kind={sevTone(v.severity)}>{v.severity}</Pill><strong>{v.name}</strong></div>
                                     <span className="form-hint">
                                         {v.source}{v.slug ? ` · ${v.slug}` : ''} {t('wp.reportsTab.installed', '· installed')} {v.installed_version}
-                                        {v.fixed_in ? ` · fixed in ${v.fixed_in}` : ' · no fix yet'}
+                                        {v.fixed_in ? ` · ${t('wp.reportsTab.fixedIn', 'fixed in {{version}}', { version: v.fixed_in })}` : ` · ${t('wp.reportsTab.noFixYet', 'no fix yet')}`}
                                         {v.advisory_id ? ` · ${v.advisory_id}` : ''}
                                     </span>
                                 </div>
                             ))}
                         </>
                     ) : (
-                        <p className="hint">{vulns.as_of ? 'No known vulnerabilities at last scan.' : 'No vulnerability scan has run for this site yet.'}</p>
+                        <p className="hint">{vulns.as_of ? t('wp.reportsTab.noKnownVulnerabilitiesAtLastScan', 'No known vulnerabilities at last scan.') : t('wp.reportsTab.noVulnerabilityScanHasRun', 'No vulnerability scan has run for this site yet.')}</p>
                     )}
                 </div>
             </div>

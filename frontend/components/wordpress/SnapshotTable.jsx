@@ -38,14 +38,14 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
     }
 
     if (loading) {
-        return <EmptyState loading title={t('wp.snapshotTable.loadingSnapshots', 'Loading snapshots...')} />;
+        return <EmptyState loading title={t('wp.snapshotTable.loadingSnapshots', 'Loading snapshots…')} />;
     }
 
     if (!snapshots || snapshots.length === 0) {
         return (
             <div className="empty-state-small">
                 <p>{t('wp.snapshotTable.noDatabaseSnapshotsYet', 'No database snapshots yet.')}</p>
-                <p className="hint">{t('wp.snapshotTable.createASnapshotToBackupYour', 'Create a snapshot to backup your database.')}</p>
+                <p className="hint">{t('wp.snapshotTable.createASnapshotToBackupYour', 'Create a snapshot to back up your database.')}</p>
             </div>
         );
     }
@@ -58,7 +58,7 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
                         <th>{t('wp.snapshotTable.snapshot', 'Snapshot')}</th>
                         <th>{t('wp.snapshotTable.size', 'Size')}</th>
                         <th>{t('wp.snapshotTable.created', 'Created')}</th>
-                        <th>{t('wp.snapshotTable.gitContext', 'Git Context')}</th>
+                        <th>{t('wp.snapshotTable.gitContext', 'Git context')}</th>
                         <th className="wp-th-right">{t('wp.snapshotTable.actions', 'Actions')}</th>
                     </tr>
                 </thead>
@@ -126,7 +126,7 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
 
             <ConfirmDialog
                 isOpen={!!confirmRestore}
-                title={t('wp.snapshotTable.restoreDatabaseSnapshot', 'Restore Database Snapshot')}
+                title={t('wp.snapshotTable.restoreDatabaseSnapshot', 'Restore database snapshot')}
                 message={t('wp.snapshotTable.restoreDatabaseFrom', 'Restore database from "{{value}}"?', { value: confirmRestore?.name })}
                 details={
                     <ul>
@@ -138,7 +138,7 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
                         )}
                     </ul>
                 }
-                confirmText={t('wp.snapshotTable.restoreSnapshot', 'Restore Snapshot')}
+                confirmText={t('wp.snapshotTable.restoreSnapshot', 'Restore snapshot')}
                 variant="warning"
                 onConfirm={() => handleRestore(confirmRestore)}
                 onCancel={() => setConfirmRestore(null)}
@@ -146,15 +146,15 @@ const SnapshotTable = ({ snapshots, onRestore, onDelete, loading = false }) => {
 
             <ConfirmDialog
                 isOpen={!!confirmDelete}
-                title={t('wp.snapshotTable.deleteSnapshot', 'Delete Snapshot')}
+                title={t('wp.snapshotTable.deleteSnapshot', 'Delete snapshot')}
                 message={t('wp.snapshotTable.deleteSnapshot2', 'Delete snapshot "{{value}}"?', { value: confirmDelete?.name })}
                 details={
                     <ul>
                         <li>{t('wp.snapshotTable.thisSnapshotWillBePermanentlyDeleted', 'This snapshot will be permanently deleted')}</li>
-                        <li>{t('wp.snapshotTable.thisActionCannotBeUndone', 'This action cannot be undone')}</li>
+                        <li>{t('wp.snapshotTable.thisActionCannotBeUndone', "This can't be undone")}</li>
                     </ul>
                 }
-                confirmText={t('wp.snapshotTable.deleteSnapshot3', 'Delete Snapshot')}
+                confirmText={t('wp.snapshotTable.deleteSnapshot3', 'Delete snapshot')}
                 variant="danger"
                 onConfirm={() => handleDelete(confirmDelete)}
                 onCancel={() => setConfirmDelete(null)}

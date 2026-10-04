@@ -96,7 +96,7 @@ const WordPressDetail = () => {
             return;
         }
         setCloning(true);
-        toast.info(t('wp.wordPressDetail.cloningSiteThisSpinsUpA', 'Cloning site... this spins up a new stack and may take a minute.'), { duration: 6000 });
+        toast.info(t('wp.wordPressDetail.cloningSiteThisSpinsUpA', 'Cloning site… This spins up a new stack and may take a minute.'), { duration: 6000 });
         try {
             const res = await wordpressApi.cloneSite(site.id, { name: cloneName.trim() });
             if (res.success) {
@@ -105,7 +105,7 @@ const WordPressDetail = () => {
                 if (res.admin_password) {
                     setClonedCreds({ user: res.admin_user || 'admin', password: res.admin_password, id: res.site?.id });
                 }
-                toast.success(t('wp.wordPressDetail.siteClonedSuccessfully', 'Site cloned successfully'));
+                toast.success(t('wp.wordPressDetail.siteClonedSuccessfully', 'Site cloned'));
             } else {
                 toast.error(res.error || t('wp.wordPressDetail.failedToCloneSite', 'Failed to clone site'));
             }
@@ -118,16 +118,16 @@ const WordPressDetail = () => {
 
     async function handleAutoLogin() {
         setAutoLoggingIn(true);
-        toast.info(t('wp.wordPressDetail.creatingOneTimeLoginLink', 'Creating one-time login link...'), { duration: 3000 });
+        toast.info(t('wp.wordPressDetail.creatingOneTimeLoginLink', 'Creating one-time sign-in link…'), { duration: 3000 });
         try {
             const res = await wordpressApi.autoLogin(site.id);
             if (res && res.url) {
                 window.open(res.url, '_blank', 'noopener,noreferrer');
             } else {
-                toast.error(t('wp.wordPressDetail.noLoginUrlReturned', 'No login URL returned'));
+                toast.error(t('wp.wordPressDetail.noLoginUrlReturned', 'No sign-in URL returned'));
             }
         } catch (err) {
-            toast.error(err.message || t('wp.wordPressDetail.failedToCreateLoginLink', 'Failed to create login link'));
+            toast.error(err.message || t('wp.wordPressDetail.failedToCreateLoginLink', 'Failed to create sign-in link'));
         } finally {
             setAutoLoggingIn(false);
         }
@@ -143,7 +143,7 @@ const WordPressDetail = () => {
                 icon={Globe}
                 title={t('wp.wordPressDetail.siteNotFound', 'Site not found')}
                 description={t('wp.wordPressDetail.thisWordpressSiteDoesNotExist', 'This WordPress site does not exist or has been removed.')}
-                action={<Button onClick={() => navigate('/wordpress')}>{t('wp.wordPressDetail.backToWordpressSites', 'Back to WordPress Sites')}</Button>}
+                action={<Button onClick={() => navigate('/wordpress')}>{t('wp.wordPressDetail.backToWordpressSites', 'Back to WordPress sites')}</Button>}
             />
         );
     }
@@ -177,7 +177,7 @@ const WordPressDetail = () => {
             {clonedCreds && (
                 <div className="wp-creds-banner">
                     <div className="wp-creds-banner-text">
-                        <strong>{t('wp.wordPressDetail.newSiteCreatedSaveTheseAdmin', 'New site created — save these admin credentials, shown only once.')}</strong>
+                        <strong>{t('wp.wordPressDetail.newSiteCreatedSaveTheseAdmin', 'New site created. Save these admin credentials; they are shown only once.')}</strong>
                         <CopyField label={t('wp.wordPressDetail.usernameLabel', 'Username')} value={clonedCreds.user} />
                         <CopyField label={t('wp.wordPressDetail.passwordLabel', 'Password')} value={clonedCreds.password} secret />
                         {clonedCreds.id && (
@@ -207,19 +207,19 @@ const WordPressDetail = () => {
                         variant="ghost"
                         onClick={() => navigate(`/files?path=${encodeURIComponent(site.application?.root_path || '/')}`)}
                         disabled={!site.application?.root_path}
-                        title={site.application?.root_path ? t('wp.wordPressDetail.openInTheFileManager', 'Open {{rootpath}} in the File Manager', { rootpath: site.application.root_path }) : t('wp.wordPressDetail.noRootPathConfiguredForThis', 'No root path configured for this site')}
+                        title={site.application?.root_path ? t('wp.wordPressDetail.openInTheFileManager', 'Open {{rootpath}} in the file manager', { rootpath: site.application.root_path }) : t('wp.wordPressDetail.noRootPathConfiguredForThis', 'No root path configured for this site')}
                     >
                         <FolderOpen size={16} />
-                        {t('wp.wordPressDetail.openFiles', 'Open Files')}
+                        {t('wp.wordPressDetail.openFiles', 'Open files')}
                     </Button>
                     {site.db_name && (
                         <Button
                             variant="ghost"
                             onClick={() => navigate(`/databases/mysql?db=${encodeURIComponent(site.db_name)}`)}
-                            title={t('wp.wordPressDetail.openInTheDatabaseManager', 'Open {{dbname}} in the Database manager', { dbname: site.db_name })}
+                            title={t('wp.wordPressDetail.openInTheDatabaseManager', 'Open {{dbname}} in the database manager', { dbname: site.db_name })}
                         >
                             <Database size={16} />
-                            {t('wp.wordPressDetail.openDatabase', 'Open Database')}
+                            {t('wp.wordPressDetail.openDatabase', 'Open database')}
                         </Button>
                     )}
                     <Button
@@ -228,7 +228,7 @@ const WordPressDetail = () => {
                         title={t('wp.wordPressDetail.viewLiveContainerLogs', 'View live container logs')}
                     >
                         <FileText size={16} />
-                        {t('wp.wordPressDetail.viewLogs', 'View Logs')}
+                        {t('wp.wordPressDetail.viewLogs', 'View logs')}
                     </Button>
                     {site.url && (
                         <Button variant="ghost" asChild>
@@ -246,10 +246,10 @@ const WordPressDetail = () => {
                         variant="default"
                         onClick={handleAutoLogin}
                         disabled={autoLoggingIn}
-                        title={t('wp.wordPressDetail.openWpAdminLoggedInNo', 'Open wp-admin logged in, no password (one-time link)')}
+                        title={t('wp.wordPressDetail.openWpAdminLoggedInNo', 'Open wp-admin signed in, no password (one-time link)')}
                     >
                         <Lock size={16} />
-                        {autoLoggingIn ? 'Signing in...' : 'Auto Login'}
+                        {autoLoggingIn ? t('wp.wordPressDetail.signingIn', 'Signing in…') : t('wp.wordPressDetail.autoSignIn', 'Auto sign-in')}
                     </Button>
                     </>
                 )}
@@ -269,7 +269,7 @@ const WordPressDetail = () => {
                 <div className="app-detail-title-block">
                     <h1>
                         {site.name}
-                        <Pill kind={isRunning ? 'green' : 'gray'}>{isRunning ? 'Running' : 'Stopped'}</Pill>
+                        <Pill kind={isRunning ? 'green' : 'gray'}>{isRunning ? t('wp.wordPressDetail.running', 'Running') : t('wp.wordPressDetail.stopped', 'Stopped')}</Pill>
                         {site.is_production ? (
                             <EnvTag env="PROD" />
                         ) : site.production_site_id ? (
@@ -297,7 +297,7 @@ const WordPressDetail = () => {
                         {site.multisite && (
                             <>
                                 <span className="separator">·</span>
-                                <span>multisite</span>
+                                <span>{t('wp.wordPressDetail.multisite', 'multisite')}</span>
                             </>
                         )}
                     </div>
@@ -310,7 +310,7 @@ const WordPressDetail = () => {
                     <div
                         className="wp-detail__repo-pill"
                         onClick={() => navigate(`/wordpress/${id}/settings/git`)}
-                        title={t('wp.wordPressDetail.repositoryConnectedOpenGitSettings', 'Repository connected — open Git settings')}
+                        title={t('wp.wordPressDetail.repositoryConnectedOpenGitSettings', 'Repository connected. Open Git settings')}
                     >
                         <GitBranch size={14} />
                         <span className="wp-detail__repo-url">{extractRepoDisplay(gitStatus.repo_url)}</span>
@@ -400,11 +400,11 @@ const WordPressDetail = () => {
             )}
 
             {/* Clone Site Modal */}
-            <Modal open={showCloneModal} onClose={() => !cloning && setShowCloneModal(false)} title={t('wp.wordPressDetail.cloneSite', 'Clone Site')}>
+            <Modal open={showCloneModal} onClose={() => !cloning && setShowCloneModal(false)} title={t('wp.wordPressDetail.cloneSite', 'Clone site')}>
                 <form onSubmit={(e) => { e.preventDefault(); handleClone(); }}>
                     <p className="hint">{t('wp.wordPressDetail.createsABrandNewIndependentWordpress', 'Creates a brand-new independent WordPress site (its own Docker stack and database) seeded from')} <strong>{site.name}</strong>{t('wp.wordPressDetail.withFreshAdminCredentialsShownOnce', ', with fresh admin credentials shown once.')}</p>
                     <div className="form-group">
-                        <Label>{t('wp.wordPressDetail.newSiteName', 'New Site Name *')}</Label>
+                        <Label>{t('wp.wordPressDetail.newSiteName', 'New site name *')}</Label>
                         <Input
                             type="text"
                             value={cloneName}
@@ -416,7 +416,7 @@ const WordPressDetail = () => {
                     </div>
                     <div className="modal-actions">
                         <Button type="button" variant="outline" onClick={() => setShowCloneModal(false)} disabled={cloning}>{t('wp.wordPressDetail.cancel', 'Cancel')}</Button>
-                        <Button type="submit" disabled={cloning || !cloneName.trim()}>{cloning ? 'Cloning...' : 'Clone Site'}</Button>
+                        <Button type="submit" disabled={cloning || !cloneName.trim()}>{cloning ? t('wp.wordPressDetail.cloning', 'Cloning…') : t('wp.wordPressDetail.cloneSite2', 'Clone site')}</Button>
                     </div>
                 </form>
             </Modal>

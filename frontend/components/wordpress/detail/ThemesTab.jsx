@@ -48,7 +48,7 @@ const ThemesTab = ({ siteId }) => {
         setInstalling(true);
         try {
             await wordpressApi.installTheme(siteId, { theme: newTheme.trim() });
-            toast.success(t('wp.themesTab.themeInstalledSuccessfully', 'Theme installed successfully'));
+            toast.success(t('wp.themesTab.themeInstalledSuccessfully', 'Theme installed'));
             setNewTheme('');
             loadThemes();
         } catch (err) {
@@ -60,7 +60,7 @@ const ThemesTab = ({ siteId }) => {
 
     async function handleUpdate(themeName) {
         setUpdating(themeName || 'all');
-        toast.info(themeName ? t('wp.themesTab.updating', 'Updating {{themeName}}...', { themeName: themeName }) : t('wp.themesTab.updatingAllThemes', 'Updating all themes...'), { duration: 4000 });
+        toast.info(themeName ? t('wp.themesTab.updating', 'Updating {{themeName}}…', { themeName: themeName }) : t('wp.themesTab.updatingAllThemes', 'Updating all themes…'), { duration: 4000 });
         try {
             const res = await wordpressApi.updateThemes(siteId, themeName ? [themeName] : undefined);
             if (res.success === false) {
@@ -132,10 +132,10 @@ const ThemesTab = ({ siteId }) => {
                     type="text"
                     value={newTheme}
                     onChange={(e) => setNewTheme(e.target.value)}
-                    placeholder={t('wp.themesTab.themeSlugEGTwentytwentyfour', 'Theme slug (e.g., twentytwentyfour)')}
+                    placeholder={t('wp.themesTab.themeSlugEGTwentytwentyfour', 'Theme slug (e.g. twentytwentyfour)')}
                 />
                 <Button type="submit" disabled={installing}>
-                    {installing ? 'Installing...' : 'Install Theme'}
+                    {installing ? t('wp.themesTab.installing', 'Installing…') : t('wp.themesTab.installTheme', 'Install theme')}
                 </Button>
             </form>
 
@@ -148,7 +148,7 @@ const ThemesTab = ({ siteId }) => {
                         onClick={() => handleUpdate(null)}
                         disabled={updating !== null}
                     >
-                        {updating === 'all' ? 'Updating...' : 'Update all'}
+                        {updating === 'all' ? t('wp.themesTab.updating2', 'Updating…') : t('wp.themesTab.updateAll', 'Update all')}
                     </Button>
                 </div>
             )}
@@ -178,7 +178,7 @@ const ThemesTab = ({ siteId }) => {
                                                 onClick={() => handleActivate(theme)}
                                                 disabled={activating === theme.name}
                                             >
-                                                {activating === theme.name ? 'Activating…' : 'Activate'}
+                                                {activating === theme.name ? t('wp.themesTab.activating', 'Activating…') : t('wp.themesTab.activate', 'Activate')}
                                             </Button>
                                         )}
                                         {theme.update === 'available' && (
@@ -188,7 +188,7 @@ const ThemesTab = ({ siteId }) => {
                                                 onClick={() => handleUpdate(theme.name)}
                                                 disabled={updating !== null}
                                             >
-                                                {updating === theme.name ? 'Updating…' : 'Update'}
+                                                {updating === theme.name ? t('wp.themesTab.updating2', 'Updating…') : t('wp.themesTab.update', 'Update')}
                                             </Button>
                                         )}
                                     </div>

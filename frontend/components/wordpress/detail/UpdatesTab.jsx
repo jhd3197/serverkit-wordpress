@@ -86,7 +86,7 @@ const UpdatesTab = ({ siteId }) => {
                             <span className="form-hint">{t('wp.updatesTab.commaSeparatedSlugsToNeverAuto', 'Comma-separated slugs to never auto-update.')}</span>
                         </div>
                         <div className="app-detail-actions">
-                            <Button size="sm" onClick={runUpdate} disabled={busy || running}>{running ? 'Updating…' : 'Run safe update now'}</Button>
+                            <Button size="sm" onClick={runUpdate} disabled={busy || running}>{running ? t('wp.updatesTab.updating', 'Updating…') : t('wp.updatesTab.runSafeUpdateNow', 'Run safe update now')}</Button>
                         </div>
                     </div>
                 </div>
@@ -132,8 +132,8 @@ const UpdatesTab = ({ siteId }) => {
                                         <span className="wp-run-row-meta">{r.started_at ? formatDateTime(r.started_at) : ''} · {r.trigger}</span>
                                     </div>
                                     <span className="form-hint">
-                                        {n === 0 ? 'No components needed updating' : `${n} component${n === 1 ? '' : 's'} updated`}
-                                        {d.rolled_back ? ' · auto-rolled back (update regressed the site)' : ''}
+                                        {n === 0 ? t('wp.updatesTab.noComponentsNeededUpdating', 'No components needed updating') : n === 1 ? t('wp.updatesTab.oneComponentUpdated', '1 component updated') : t('wp.updatesTab.componentsUpdatedCount', '{{count}} components updated', { count: n })}
+                                        {d.rolled_back ? ` · ${t('wp.updatesTab.autoRolledBack', 'auto-rolled back (update regressed the site)')}` : ''}
                                         {r.error ? ` · ${r.error}` : ''}
                                     </span>
                                     {d.warning && <span className="form-hint">⚠ {d.warning}</span>}

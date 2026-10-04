@@ -10,7 +10,7 @@ const GitConnectForm = (props) => (
         idPrefix="wp"
         intro={{
             titleKey: 'wp.gitConnectForm.connectAGitRepository', title: 'Connect a Git repository',
-            subtitleKey: 'wp.gitConnectForm.manageThemesAndPluginsForThis', subtitle: 'Manage themes and plugins for this site with version control — push to deploy.',
+            subtitleKey: 'wp.gitConnectForm.manageThemesAndPluginsForThis', subtitle: 'Manage themes and plugins for this site with version control. Push to deploy.',
         }}
         showPaths
         defaultPaths={['wp-content/themes', 'wp-content/plugins']}

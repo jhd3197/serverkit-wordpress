@@ -198,7 +198,7 @@ export const SSLAlert = ({ site }) => {
             className="sk-pill sk-pill--amber"
         >
             <span className="sk-pill__dot" />
-            {t('wp.wpDetailShared.notSecured', 'Not Secured')}
+            {t('wp.wpDetailShared.notSecured', 'Not secured')}
         </Link>
     );
 };
@@ -285,7 +285,7 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
     async function handleEnableSSL() {
         if (!primaryDomain || !site.admin_email) return;
         setIssuing(true);
-        toast.info(t('wp.wpDetailShared.requestingCertificateFor', 'Requesting certificate for {{primaryDomain}}...', { primaryDomain: primaryDomain }), { duration: 4000 });
+        toast.info(t('wp.wpDetailShared.requestingCertificateFor', 'Requesting certificate for {{primaryDomain}}…', { primaryDomain: primaryDomain }), { duration: 4000 });
         try {
             const res = await api.obtainCertificate({ domains: [primaryDomain], email: site.admin_email, use_nginx: true });
             if (res.success) {
@@ -307,13 +307,13 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
         const domain = attachDomain;
         if (!domain || attaching) return;
         setAttaching(true);
-        toast.info(t('wp.wpDetailShared.attachingDomainCreatingDnsAndMoving', 'Attaching domain — creating DNS and moving the site…'), { duration: 5000 });
+        toast.info(t('wp.wpDetailShared.attachingDomainCreatingDnsAndMoving', 'Attaching domain: creating DNS and moving the site…'), { duration: 5000 });
         try {
             const res = await wordpressApi.attachDomain(site.id, { domain, issueSsl: true });
             if (res.success) {
                 setAttachResult(res);
                 if (res.dns?.created) toast.success(t('wp.wpDetailShared.dnsARecordCreatedVia', 'DNS A record created via {{provider}}', { provider: res.dns.provider }));
-                else toast.warning(t('wp.wpDetailShared.domainAttachedAddTheDnsRecord', 'Domain attached — add the DNS record shown to finish.'), { duration: 7000 });
+                else toast.warning(t('wp.wpDetailShared.domainAttachedAddTheDnsRecord', 'Domain attached. Add the DNS record shown to finish.'), { duration: 7000 });
                 onUpdate?.();
             } else {
                 toast.error(res.error || t('wp.wpDetailShared.failedToAttachDomain', 'Failed to attach domain'));
@@ -339,15 +339,15 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
 
     return (
         <div className="app-panel">
-            <div className="app-panel-header"><Lock size={16} /> {t('wp.wpDetailShared.sslCertificate', 'SSL Certificate')}</div>
+            <div className="app-panel-header"><Lock size={16} /> {t('wp.wpDetailShared.sslCertificate', 'SSL certificate')}</div>
             <div className="app-panel-body">
                 <InfoList>
-                    <InfoItem label={t('wp.wpDetailShared.primaryDomain', 'Primary Domain')} value={primaryDomain || 'None configured'} mono />
+                    <InfoItem label={t('wp.wpDetailShared.primaryDomain', 'Primary domain')} value={primaryDomain || t('wp.wpDetailShared.noneConfigured', 'None configured')} mono />
                     <InfoItem
                         label={t('wp.wpDetailShared.status', 'Status')}
                         value={(
                             <Pill kind={checking ? 'gray' : issued ? 'green' : 'amber'}>
-                                {checking ? 'Checking...' : issued ? `Active (${health.grade})` : 'Not Secured'}
+                                {checking ? t('wp.wpDetailShared.checking', 'Checking…') : issued ? t('wp.wpDetailShared.activeGrade', 'Active ({{grade}})', { grade: health.grade }) : t('wp.wpDetailShared.notSecured', 'Not secured')}
                             </Pill>
                         )}
                     />
@@ -387,7 +387,7 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                                         ) : (
                                             <div className="ssl-provider-status ssl-provider-status--missing">
                                                 <CircleX size={14} />
-                                                {t('wp.wpDetailShared.noDnsProviderConnectedAddCloudflare', 'No DNS provider connected — add Cloudflare/Route53/etc. for automatic records, or add the DNS record manually after attaching.')}
+                                                {t('wp.wpDetailShared.noDnsProviderConnectedAddCloudflare', 'No DNS provider connected. Add Cloudflare, Route 53 or another provider for automatic records, or add the DNS record manually after attaching.')}
                                             </div>
                                         )}
                                         <div className="ssl-context-links">
@@ -407,12 +407,12 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                                         onChange={setAttachDomain}
                                         disabled={attaching}
                                     />
-                                    <span className="form-hint">{t('wp.wpDetailShared.pickAnExistingServerkitDomainOr', 'Pick an existing ServerKit domain or type one you control, without http://')}</span>
+                                    <span className="form-hint">{t('wp.wpDetailShared.pickAnExistingServerkitDomainOr', 'Pick an existing ServerKit domain or type one you control, without the http:// prefix.')}</span>
                                 </div>
                                 <div className="app-detail-actions">
                                     <Button type="submit" disabled={!attachValid || attaching}>
                                         <Globe size={14} />
-                                        {attaching ? 'Attaching…' : 'Attach Domain & Enable SSL'}
+                                        {attaching ? t('wp.wpDetailShared.attaching', 'Attaching…') : t('wp.wpDetailShared.attachDomainAndEnableSsl', 'Attach domain and enable SSL')}
                                     </Button>
                                 </div>
                             </form>
@@ -463,7 +463,7 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                         <div className="app-detail-actions">
                             <Button onClick={handleEnableSSL} disabled={issuing}>
                                 {issued ? <Shield size={14} /> : <Lock size={14} />}
-                                {issuing ? 'Requesting...' : issued ? 'Re-issue Certificate' : 'Enable SSL'}
+                                {issuing ? t('wp.wpDetailShared.requesting', 'Requesting…') : issued ? t('wp.wpDetailShared.reissueCertificate', 'Re-issue certificate') : t('wp.wpDetailShared.enableSsl', 'Enable SSL')}
                             </Button>
                         </div>
                     </div>

@@ -78,7 +78,7 @@ const SanitizationProfileForm = ({ onClose, onProfilesChange }) => {
     }
 
     return (
-        <Modal open={true} onClose={onClose} title={t('wp.sanitizationProfileForm.sanitizationProfiles', 'Sanitization Profiles')} size="lg">
+        <Modal open={true} onClose={onClose} title={t('wp.sanitizationProfileForm.sanitizationProfiles', 'Sanitization profiles')} size="lg">
             <div className="sanitization-profiles-body">
                 {loading ? (
                     <div className="sanitization-loading">
@@ -105,7 +105,7 @@ const SanitizationProfileForm = ({ onClose, onProfilesChange }) => {
                                 onClick={() => setShowCreateForm(true)}
                             >
                                 <Plus size={14} />
-                                {t('wp.sanitizationProfileForm.createCustomProfile', 'Create Custom Profile')}
+                                {t('wp.sanitizationProfileForm.createCustomProfile', 'New custom profile')}
                             </Button>
                         )}
 
@@ -127,7 +127,9 @@ const SanitizationProfileForm = ({ onClose, onProfilesChange }) => {
     );
 };
 
-const ProfileCard = ({ profile, onEdit, onDelete, onSetDefault }) => (
+const ProfileCard = ({ profile, onEdit, onDelete, onSetDefault }) => {
+    const { t } = useTranslation();
+    return (
     <div className={`sanitization-profile-card ${profile.is_default ? 'default' : ''}`}>
         <div className="sanitization-profile-card-header">
             <div className="sanitization-profile-card-title">
@@ -158,20 +160,21 @@ const ProfileCard = ({ profile, onEdit, onDelete, onSetDefault }) => (
             <ProfileRuleTags config={profile.config} />
         </div>
     </div>
-);
+    );
+};
 
 const ProfileRuleTags = ({ config }) => {
     const { t } = useTranslation();
     const tags = [];
-    if (config.anonymize_emails) tags.push('Anonymize emails');
-    if (config.anonymize_names) tags.push('Anonymize names');
-    if (config.reset_passwords) tags.push('Reset passwords');
-    if (config.strip_payment_data) tags.push('Strip payments');
-    if (config.remove_transients) tags.push('Clear transients');
-    if (config.truncate_tables?.length > 0) tags.push(`Truncate ${config.truncate_tables.length} tables`);
-    if (config.exclude_tables?.length > 0) tags.push(`Exclude ${config.exclude_tables.length} tables`);
+    if (config.anonymize_emails) tags.push(t('wp.sanitizationProfileForm.anonymizeEmails', 'Anonymize emails'));
+    if (config.anonymize_names) tags.push(t('wp.sanitizationProfileForm.anonymizeNames', 'Anonymize names'));
+    if (config.reset_passwords) tags.push(t('wp.sanitizationProfileForm.resetPasswords', 'Reset passwords'));
+    if (config.strip_payment_data) tags.push(t('wp.sanitizationProfileForm.stripPayments', 'Strip payments'));
+    if (config.remove_transients) tags.push(t('wp.sanitizationProfileForm.clearTransients', 'Clear transients'));
+    if (config.truncate_tables?.length > 0) tags.push(t('wp.sanitizationProfileForm.truncateCountTables', 'Truncate {{count}} tables', { count: config.truncate_tables.length }));
+    if (config.exclude_tables?.length > 0) tags.push(t('wp.sanitizationProfileForm.excludeCountTables', 'Exclude {{count}} tables', { count: config.exclude_tables.length }));
     if (config.custom_search_replace && Object.keys(config.custom_search_replace).length > 0) {
-        tags.push(`${Object.keys(config.custom_search_replace).length} replacements`);
+        tags.push(t('wp.sanitizationProfileForm.replacementsCount', '{{count}} replacements', { count: Object.keys(config.custom_search_replace).length }));
     }
 
     return (
@@ -229,15 +232,15 @@ const ProfileEditor = ({ profile, onSave, onCancel }) => {
 
     return (
         <form className="sanitization-editor" onSubmit={handleSubmit}>
-            <h4>{profile ? 'Edit Profile' : 'Create Profile'}</h4>
+            <h4>{profile ? t('wp.sanitizationProfileForm.editProfile', 'Edit profile') : t('wp.sanitizationProfileForm.newProfile', 'New profile')}</h4>
 
             <div className="form-group">
-                <Label>{t('wp.sanitizationProfileForm.profileName', 'Profile Name *')}</Label>
+                <Label>{t('wp.sanitizationProfileForm.profileName', 'Profile name *')}</Label>
                 <Input
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    placeholder={t('wp.sanitizationProfileForm.myCustomProfile', 'My Custom Profile')}
+                    placeholder={t('wp.sanitizationProfileForm.myCustomProfile', 'My custom profile')}
                     required
                     disabled={profile?.is_builtin}
                 />
@@ -249,12 +252,12 @@ const ProfileEditor = ({ profile, onSave, onCancel }) => {
                     type="text"
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    placeholder={t('wp.sanitizationProfileForm.whatThisProfileDoes', 'What this profile does...')}
+                    placeholder={t('wp.sanitizationProfileForm.whatThisProfileDoes', 'What this profile does…')}
                 />
             </div>
 
             <div className="form-group">
-                <Label>{t('wp.sanitizationProfileForm.dataSanitization', 'Data Sanitization')}</Label>
+                <Label>{t('wp.sanitizationProfileForm.dataSanitization', 'Data sanitization')}</Label>
                 <div className="checkbox-group">
                     <label className="checkbox-label">
                         <Checkbox
@@ -295,25 +298,25 @@ const ProfileEditor = ({ profile, onSave, onCancel }) => {
             </div>
 
             <div className="form-group">
-                <Label>{t('wp.sanitizationProfileForm.truncateTablesCommaSeparated', 'Truncate Tables (comma-separated)')}</Label>
+                <Label>{t('wp.sanitizationProfileForm.truncateTablesCommaSeparated', 'Truncate tables (comma-separated)')}</Label>
                 <Input
                     type="text"
                     value={truncateInput}
                     onChange={e => setTruncateInput(e.target.value)}
                     placeholder={t('wp.sanitizationProfileForm.actionschedulerActionsActionschedulerLogs', 'actionscheduler_actions, actionscheduler_logs')}
                 />
-                <span className="form-hint">{t('wp.sanitizationProfileForm.tablesToEmptyStructurePreservedData', 'Tables to empty (structure preserved, data removed)')}</span>
+                <span className="form-hint">{t('wp.sanitizationProfileForm.tablesToEmptyStructurePreservedData', 'Tables to empty (structure preserved, data removed).')}</span>
             </div>
 
             <div className="form-group">
-                <Label>{t('wp.sanitizationProfileForm.excludeTablesCommaSeparated', 'Exclude Tables (comma-separated)')}</Label>
+                <Label>{t('wp.sanitizationProfileForm.excludeTablesCommaSeparated', 'Exclude tables (comma-separated)')}</Label>
                 <Input
                     type="text"
                     value={excludeInput}
                     onChange={e => setExcludeInput(e.target.value)}
                     placeholder={t('wp.sanitizationProfileForm.wpUsersWpUsermeta', 'wp_users, wp_usermeta')}
                 />
-                <span className="form-hint">{t('wp.sanitizationProfileForm.tablesToSkipDuringSyncPromote', 'Tables to skip during sync/promote')}</span>
+                <span className="form-hint">{t('wp.sanitizationProfileForm.tablesToSkipDuringSyncPromote', 'Tables to skip during sync/promote.')}</span>
             </div>
 
             <div className="sanitization-editor-actions">
@@ -321,7 +324,7 @@ const ProfileEditor = ({ profile, onSave, onCancel }) => {
                     {t('wp.sanitizationProfileForm.cancel', 'Cancel')}
                 </Button>
                 <Button type="submit" size="sm" disabled={saving || !name.trim()}>
-                    {saving ? <><Spinner size="sm" /> {t('wp.sanitizationProfileForm.saving', 'Saving...')}</> : <><Save size={14} /> {t('wp.sanitizationProfileForm.saveProfile', 'Save Profile')}</>}
+                    {saving ? <><Spinner size="sm" /> {t('wp.sanitizationProfileForm.saving', 'Saving…')}</> : <><Save size={14} /> {t('wp.sanitizationProfileForm.saveProfile', 'Save profile')}</>}
                 </Button>
             </div>
         </form>
