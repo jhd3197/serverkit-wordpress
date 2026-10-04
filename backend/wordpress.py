@@ -100,6 +100,8 @@ def create_site():
     enable_object_cache = bool(data.get('enableObjectCache'))
     domain = (data.get('domain') or '').strip()
     base_domain = (data.get('baseDomain') or data.get('base_domain') or '').strip()
+    # The label in <label>.<base>; defaults to the site-name slug.
+    subdomain = (data.get('subdomain') or '').strip()
 
     if not name:
         return jsonify({'error': 'Site name is required'}), 400
@@ -115,6 +117,7 @@ def create_site():
         enable_object_cache=enable_object_cache,
         domain=domain or None,
         base_domain=base_domain or None,
+        subdomain=subdomain or None,
     )
 
     if result.get('success'):
