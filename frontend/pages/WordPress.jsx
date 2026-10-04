@@ -13,7 +13,6 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Checkbox } from 'serverkit-sdk';
-import { SkeletonBoundary } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 import { emitWalkthroughSignal } from 'serverkit-sdk';
 
@@ -203,43 +202,6 @@ function WordPress() {
         []
     );
 
-    const wpListSkeleton = (
-        <div className="wp-sites-grid">
-            {[1, 2, 3].map(i => (
-                <div key={i} className="wp-site-card-skeleton">
-                    <div className="wp-site-card-skeleton-header">
-                        <div className="wp-site-card-skeleton-icon" />
-                        <div className="wp-site-card-skeleton-info">
-                            <div className="wp-site-card-skeleton-name" />
-                            <div className="wp-site-card-skeleton-url" />
-                        </div>
-                        <div className="wp-site-card-skeleton-status" />
-                    </div>
-                    <div className="wp-site-card-skeleton-body">
-                        <div className="wp-site-card-skeleton-meta">
-                            <div className="wp-site-card-skeleton-label" />
-                            <div className="wp-site-card-skeleton-value" />
-                        </div>
-                        <div className="wp-site-card-skeleton-meta">
-                            <div className="wp-site-card-skeleton-label" />
-                            <div className="wp-site-card-skeleton-value" />
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-
-    if (loading) {
-        return (
-            <SkeletonBoundary
-                className="sk-tabgroup__inner wordpress-page"
-                loading
-                skeleton={wpListSkeleton}
-            />
-        );
-    }
-
     const allTags = Array.from(new Set(sites.flatMap(s => s.tags || []))).sort();
     const runningCount = sites.filter(s => s.status === 'running').length;
     const q = siteSearch.trim().toLowerCase();
@@ -339,6 +301,7 @@ function WordPress() {
     return (
         <ResourceListPage
             className="wordpress-page"
+            loading={loading}
             totalCount={sites.length}
             items={shownSites}
             columns={columns}
