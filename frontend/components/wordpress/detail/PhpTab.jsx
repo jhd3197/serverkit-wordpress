@@ -6,6 +6,7 @@ import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton, PHP_LIMIT_LABELS } from './wpDetailShared';
+import { InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 
 // PHP Tab — live PHP version + ini limits for the Docker (apache/mod_php) site.
@@ -92,32 +93,14 @@ const PhpTab = ({ siteId }) => {
                 <div className="app-panel">
                     <div className="app-panel-header">PHP</div>
                     <div className="app-panel-body">
-                        <div className="app-info-grid">
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.phpTab.phpVersion', 'PHP Version')}</span>
-                                <span className="app-info-value">{current}</span>
-                            </div>
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.phpTab.memoryLimit', 'Memory Limit')}</span>
-                                <span className="app-info-value">{limits.memory_limit || '-'}</span>
-                            </div>
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.phpTab.uploadMaxFilesize', 'Upload Max Filesize')}</span>
-                                <span className="app-info-value">{limits.upload_max_filesize || '-'}</span>
-                            </div>
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.phpTab.postMaxSize', 'Post Max Size')}</span>
-                                <span className="app-info-value">{limits.post_max_size || '-'}</span>
-                            </div>
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.phpTab.maxExecutionTime', 'Max Execution Time')}</span>
-                                <span className="app-info-value">{limits.max_execution_time || '-'}</span>
-                            </div>
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.phpTab.maxInputTime', 'Max Input Time')}</span>
-                                <span className="app-info-value">{limits.max_input_time || '-'}</span>
-                            </div>
-                        </div>
+                        <InfoList>
+                            <InfoItem label={t('wp.phpTab.phpVersion', 'PHP Version')} value={current} />
+                            <InfoItem label={t('wp.phpTab.memoryLimit', 'Memory Limit')} value={limits.memory_limit || '-'} />
+                            <InfoItem label={t('wp.phpTab.uploadMaxFilesize', 'Upload Max Filesize')} value={limits.upload_max_filesize || '-'} />
+                            <InfoItem label={t('wp.phpTab.postMaxSize', 'Post Max Size')} value={limits.post_max_size || '-'} />
+                            <InfoItem label={t('wp.phpTab.maxExecutionTime', 'Max Execution Time')} value={limits.max_execution_time || '-'} />
+                            <InfoItem label={t('wp.phpTab.maxInputTime', 'Max Input Time')} value={limits.max_input_time || '-'} />
+                        </InfoList>
                     </div>
                 </div>
 

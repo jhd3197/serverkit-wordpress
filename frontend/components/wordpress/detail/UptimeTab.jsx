@@ -6,8 +6,10 @@ import { HealthDot } from '../HealthStatusPanel';
 import { MetricCard } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton } from './wpDetailShared';
+import { InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Uptime Tab — per-site health + uptime % via a bound status-page component (#26).
@@ -75,18 +77,10 @@ const UptimeTab = ({ siteId }) => {
                 <div className="app-panel">
                     <div className="app-panel-header">{t('wp.uptimeTab.health', 'Health')}</div>
                     <div className="app-panel-body">
-                        <div className="app-info-grid">
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.uptimeTab.currentStatus', 'Current Status')}</span>
-                                <span className="app-info-value">
-                                    <HealthDot status={data?.health_status} /> {data?.health_status || 'unknown'}
-                                </span>
-                            </div>
-                            <div className="app-info-item">
-                                <span className="app-info-label">{t('wp.uptimeTab.lastChecked', 'Last Checked')}</span>
-                                <span className="app-info-value">{data?.last_health_check ? formatDateTime(data.last_health_check) : 'Never'}</span>
-                            </div>
-                        </div>
+                        <InfoList>
+                            <InfoItem label={t('wp.uptimeTab.currentStatus', 'Current Status')} value={<><HealthDot status={data?.health_status} /> {data?.health_status || 'unknown'}</>} />
+                            <InfoItem label={t('wp.uptimeTab.lastChecked', 'Last Checked')} value={data?.last_health_check ? formatDateTime(data.last_health_check) : 'Never'} />
+                        </InfoList>
                         <p className="hint">{t('wp.uptimeTab.healthIsPolledAutomaticallyEvery5', 'Health is polled automatically every 5 minutes. Outages and recoveries alert your configured notification channels.')}</p>
                     </div>
                 </div>
@@ -121,10 +115,13 @@ const UptimeTab = ({ siteId }) => {
                                 <>
                                     <p className="hint">{t('wp.uptimeTab.trackUptimeForThisSiteOn', 'Track uptime for this site on a status page. It accrues a real uptime % and auto-opens/resolves incidents on outages.')}</p>
                                     <div className="form-group">
-                                        <Label>{t('wp.uptimeTab.statusPage', 'Status Page')}</Label>
-                                        <select value={pageId} onChange={e => setPageId(e.target.value)} disabled={busy}>
-                                            {pages.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                        </select>
+                                        <Label htmlFor="wp-uptime-page">{t('wp.uptimeTab.statusPage', 'Status Page')}</Label>
+                                        <Select value={pageId} onValueChange={setPageId} disabled={busy}>
+                                            <SelectTrigger id="wp-uptime-page"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                {pages.map(p => <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                     <div className="app-detail-actions">
                                         <Button size="sm" disabled={busy} onClick={handleAttach}>{t('wp.uptimeTab.addToStatusPage2', 'Add to status page')}</Button>

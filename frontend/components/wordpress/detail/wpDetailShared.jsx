@@ -6,7 +6,7 @@ import wordpressApi from '../../../services/wordpress';
 import { useToast } from 'serverkit-sdk';
 import { Pill } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
-import { Input } from 'serverkit-sdk';
+import { DomainField, InfoList, InfoItem } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { useTranslation, useFormat } from 'serverkit-sdk';
 
@@ -227,6 +227,7 @@ export const ANALYTICS_PERIODS = [{ label: '24h', hours: 24 }, { label: '7d', ho
 // prerequisites (public domain, DNS, admin email) and then issues the cert.
 export const SiteSSLPanel = ({ site, onUpdate }) => {
     const { t } = useTranslation();
+    const { formatDate } = useFormat();
     const toast = useToast();
     const domains = site.application?.domains || [];
     const primaryDomain = (domains.find(d => d.is_primary) || domains[0])?.name || null;
@@ -239,15 +240,15 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
     const [checking, setChecking] = useState(true);
     const [issuing, setIssuing] = useState(false);
 
-    // Inline domain attach state (replaces the modal for the SSL flow).
+    // Inline domain attach state (replaces the modal for the SSL flow). The
+    // hostname is '' until the DomainField reads it as valid.
     const [attachDomain, setAttachDomain] = useState('');
     const [attaching, setAttaching] = useState(false);
     const [attachResult, setAttachResult] = useState(null);
 
-    // Connected DNS providers + ServerKit domains so the SSL panel feels linked
-    // to the rest of the app.
+    // Connected DNS providers so the SSL panel feels linked to the rest of the
+    // app (the DomainField offers the existing ServerKit domains itself).
     const [dnsProviders, setDnsProviders] = useState([]);
-    const [serverkitDomains, setServerkitDomains] = useState([]);
     const [contextLoading, setContextLoading] = useState(true);
 
     useEffect(() => {
@@ -272,14 +273,8 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
         (async () => {
             setContextLoading(true);
             try {
-                const [providersRes, domainsRes] = await Promise.all([
-                    api.getEmailDNSProviders().then(d => d.providers || []).catch(() => []),
-                    api.getDomains().then(d => d.domains || []).catch(() => []),
-                ]);
-                if (!cancelled) {
-                    setDnsProviders(providersRes);
-                    setServerkitDomains(domainsRes);
-                }
+                const providersRes = await api.getEmailDNSProviders().then(d => d.providers || []).catch(() => []);
+                if (!cancelled) setDnsProviders(providersRes);
             } finally {
                 if (!cancelled) setContextLoading(false);
             }
@@ -309,7 +304,7 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
 
     async function handleAttachDomain(e) {
         e?.preventDefault();
-        const domain = attachDomain.trim();
+        const domain = attachDomain;
         if (!domain || attaching) return;
         setAttaching(true);
         toast.info(t('wp.wpDetailShared.attachingDomainCreatingDnsAndMoving', 'Attaching domain — creating DNS and moving the site…'), { duration: 5000 });
@@ -331,7 +326,7 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
     }
 
     const issued = health?.valid;
-    const attachValid = /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(attachDomain.trim());
+    const attachValid = !!attachDomain;
 
     const CheckItem = ({ ok, label }) => (
         <div className="ssl-check-item">
@@ -346,35 +341,29 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
         <div className="app-panel">
             <div className="app-panel-header"><Lock size={16} /> {t('wp.wpDetailShared.sslCertificate', 'SSL Certificate')}</div>
             <div className="app-panel-body">
-                <div className="app-info-grid">
-                    <div className="app-info-item">
-                        <span className="app-info-label">{t('wp.wpDetailShared.primaryDomain', 'Primary Domain')}</span>
-                        <span className="app-info-value mono">{primaryDomain || 'None configured'}</span>
-                    </div>
-                    <div className="app-info-item">
-                        <span className="app-info-label">{t('wp.wpDetailShared.status', 'Status')}</span>
-                        <span className="app-info-value">
+                <InfoList>
+                    <InfoItem label={t('wp.wpDetailShared.primaryDomain', 'Primary Domain')} value={primaryDomain || 'None configured'} mono />
+                    <InfoItem
+                        label={t('wp.wpDetailShared.status', 'Status')}
+                        value={(
                             <Pill kind={checking ? 'gray' : issued ? 'green' : 'amber'}>
                                 {checking ? 'Checking...' : issued ? `Active (${health.grade})` : 'Not Secured'}
                             </Pill>
-                        </span>
-                    </div>
+                        )}
+                    />
                     {issued && health.expires_at && (
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.wpDetailShared.expires', 'Expires')}</span>
-                            <span className="app-info-value">
+                        <InfoItem
+                            label={t('wp.wpDetailShared.expires', 'Expires')}
+                            value={<>
                                 {formatDate(health.expires_at)}
                                 {typeof health.days_remaining === 'number' ? ` (${health.days_remaining}d)` : ''}
-                            </span>
-                        </div>
+                            </>}
+                        />
                     )}
                     {issued && health.issuer && (
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.wpDetailShared.issuer', 'Issuer')}</span>
-                            <span className="app-info-value">{health.issuer}</span>
-                        </div>
+                        <InfoItem label={t('wp.wpDetailShared.issuer', 'Issuer')} value={health.issuer} />
                     )}
-                </div>
+                </InfoList>
 
                 {!isPublicDomain ? (
                     <div className="ssl-guide">
@@ -410,24 +399,14 @@ export const SiteSSLPanel = ({ site, onUpdate }) => {
                                 )}
 
                                 <div className="form-group">
-                                    <Label>{t('wp.wpDetailShared.domain', 'Domain')}</Label>
-                                    <Input
-                                        type="text"
-                                        value={attachDomain}
-                                        onChange={(e) => setAttachDomain(e.target.value)}
-                                        placeholder="example.com"
+                                    <Label htmlFor="ssl-attach-domain">{t('wp.wpDetailShared.domain', 'Domain')}</Label>
+                                    <DomainField
+                                        id="ssl-attach-domain"
+                                        modes={['custom']}
+                                        exclude={domains.map(d => d.name)}
+                                        onChange={setAttachDomain}
                                         disabled={attaching}
-                                        list="ssl-existing-domains"
                                     />
-                                    <datalist id="ssl-existing-domains">
-                                        {serverkitDomains
-                                            .filter(d => !domains.some(ad => ad.name === d.name))
-                                            .map(d => (
-                                                <option key={d.id} value={d.name}>
-                                                    {d.ssl_enabled ? 'SSL enabled' : 'No SSL'}
-                                                </option>
-                                            ))}
-                                    </datalist>
                                     <span className="form-hint">{t('wp.wpDetailShared.pickAnExistingServerkitDomainOr', 'Pick an existing ServerKit domain or type one you control, without http://')}</span>
                                 </div>
                                 <div className="app-detail-actions">

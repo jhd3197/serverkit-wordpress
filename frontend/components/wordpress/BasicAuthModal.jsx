@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Shield, Copy, Check, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Spinner } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Switch } from 'serverkit-sdk';
+import { CopyField } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 
 const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
@@ -12,7 +13,6 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
     const [status, setStatus] = useState({ enabled: false, username: null });
     const [credentials, setCredentials] = useState(null);
     const [toggling, setToggling] = useState(false);
-    const [copied, setCopied] = useState(null);
 
     useEffect(() => {
         loadStatus();
@@ -60,12 +60,6 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
         }
     }
 
-    function copyToClipboard(text, field) {
-        navigator.clipboard.writeText(text);
-        setCopied(field);
-        setTimeout(() => setCopied(null), 2000);
-    }
-
     const envName = environment?.name || 'Environment';
 
     return (
@@ -96,12 +90,7 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
 
                         {status.enabled && status.username && !credentials && (
                             <div className="basic-auth-current">
-                                <div className="basic-auth-field">
-                                    <label>{t('wp.basicAuthModal.username', 'Username')}</label>
-                                    <div className="basic-auth-value">
-                                        <code>{status.username}</code>
-                                    </div>
-                                </div>
+                                <CopyField label={t('wp.basicAuthModal.username', 'Username')} value={status.username} />
                                 <p className="basic-auth-hint">
                                     {t('wp.basicAuthModal.passwordWasShownWhenBasicAuth', 'Password was shown when Basic Auth was first enabled. Disable and re-enable to generate new credentials.')}
                                 </p>
@@ -114,32 +103,8 @@ const BasicAuthModal = ({ environment, prodId, onClose, api }) => {
                                     <AlertTriangle size={14} />
                                     <span>{t('wp.basicAuthModal.saveTheseCredentialsNowThePassword', 'Save these credentials now. The password will not be shown again.')}</span>
                                 </div>
-                                <div className="basic-auth-field">
-                                    <label>{t('wp.basicAuthModal.username2', 'Username')}</label>
-                                    <div className="basic-auth-value">
-                                        <code>{credentials.username}</code>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => copyToClipboard(credentials.username, 'user')}
-                                        >
-                                            {copied === 'user' ? <Check size={12} /> : <Copy size={12} />}
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="basic-auth-field">
-                                    <label>{t('wp.basicAuthModal.password', 'Password')}</label>
-                                    <div className="basic-auth-value">
-                                        <code>{credentials.password}</code>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => copyToClipboard(credentials.password, 'pass')}
-                                        >
-                                            {copied === 'pass' ? <Check size={12} /> : <Copy size={12} />}
-                                        </Button>
-                                    </div>
-                                </div>
+                                <CopyField label={t('wp.basicAuthModal.username2', 'Username')} value={credentials.username} />
+                                <CopyField label={t('wp.basicAuthModal.password', 'Password')} value={credentials.password} secret />
                             </div>
                         )}
                     </>

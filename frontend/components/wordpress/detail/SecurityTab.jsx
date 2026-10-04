@@ -5,6 +5,7 @@ import { Pill, ScoreGauge } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton } from './wpDetailShared';
+import { InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 
 // Security Tab — per-site security depth (#30): file-integrity verification,
@@ -182,11 +183,11 @@ const SecurityTab = ({ siteId }) => {
                 <div className="app-panel">
                     <div className="app-panel-header">{t('wp.securityTab.debugMode', 'Debug mode')}</div>
                     <div className="app-panel-body">
-                        <div className="app-info-grid">
-                            <div className="app-info-item"><span className="app-info-label">WP_DEBUG</span><span className="app-info-value"><Pill kind={debug?.debug?.WP_DEBUG ? 'amber' : 'gray'}>{debug?.debug?.WP_DEBUG ? 'on' : 'off'}</Pill></span></div>
-                            <div className="app-info-item"><span className="app-info-label">{t('wp.securityTab.debugLog', 'Debug log')}</span><span className="app-info-value">{debug?.debug?.WP_DEBUG_LOG ? 'on' : 'off'}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">{t('wp.securityTab.scriptDebug', 'Script debug')}</span><span className="app-info-value">{debug?.debug?.SCRIPT_DEBUG ? 'on' : 'off'}</span></div>
-                        </div>
+                        <InfoList>
+                            <InfoItem label="WP_DEBUG" value={<Pill kind={debug?.debug?.WP_DEBUG ? 'amber' : 'gray'}>{debug?.debug?.WP_DEBUG ? 'on' : 'off'}</Pill>} />
+                            <InfoItem label={t('wp.securityTab.debugLog', 'Debug log')} value={debug?.debug?.WP_DEBUG_LOG ? 'on' : 'off'} />
+                            <InfoItem label={t('wp.securityTab.scriptDebug', 'Script debug')} value={debug?.debug?.SCRIPT_DEBUG ? 'on' : 'off'} />
+                        </InfoList>
                         <div className="app-detail-actions">
                             <Button variant="outline" size="sm" onClick={toggleDebug} disabled={busy}>{debug?.enabled ? 'Disable debugging' : 'Enable debugging'}</Button>
                         </div>
@@ -197,10 +198,10 @@ const SecurityTab = ({ siteId }) => {
                 <div className="app-panel">
                     <div className="app-panel-header">{t('wp.securityTab.wpCron', 'WP-Cron')}</div>
                     <div className="app-panel-body">
-                        <div className="app-info-grid">
-                            <div className="app-info-item"><span className="app-info-label">{t('wp.securityTab.pseudoCron', 'Pseudo-cron')}</span><span className="app-info-value">{cron?.disabled ? 'disabled' : 'enabled'}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">{t('wp.securityTab.scheduledEvents', 'Scheduled events')}</span><span className="app-info-value">{(cron?.events || []).length}</span></div>
-                        </div>
+                        <InfoList>
+                            <InfoItem label={t('wp.securityTab.pseudoCron', 'Pseudo-cron')} value={cron?.disabled ? 'disabled' : 'enabled'} />
+                            <InfoItem label={t('wp.securityTab.scheduledEvents', 'Scheduled events')} value={(cron?.events || []).length} />
+                        </InfoList>
                         <div className="app-detail-actions">
                             <Button variant="outline" size="sm" onClick={runCron} disabled={busy}>{t('wp.securityTab.runDueEvents', 'Run due events')}</Button>
                             <Button variant="outline" size="sm" onClick={toggleCron} disabled={busy}>{cron?.disabled ? 'Enable WP-Cron' : 'Disable WP-Cron'}</Button>
@@ -216,11 +217,11 @@ const SecurityTab = ({ siteId }) => {
                             <p className="hint">{t('wp.securityTab.fail2banIsnTInstalledOnThis', 'Fail2ban isn’t installed on this server, so login brute-force protection is inactive. Install it from the')} <strong>{t('wp.securityTab.securityFail2ban', 'Security → Fail2ban')}</strong> {t('wp.securityTab.pageToEnablePerSiteJails', 'page to enable per-site jails.')}</p>
                         ) : (
                             <>
-                                <div className="app-info-grid">
-                                    <div className="app-info-item"><span className="app-info-label">{t('wp.securityTab.loginJail', 'Login jail')}</span><span className="app-info-value"><Pill kind={brute?.enabled ? 'green' : 'gray'}>{brute?.enabled ? 'active' : 'off'}</Pill></span></div>
-                                    <div className="app-info-item"><span className="app-info-label">{t('wp.securityTab.currentlyBanned', 'Currently banned')}</span><span className="app-info-value">{brute?.currently_banned ?? 0}</span></div>
-                                    <div className="app-info-item"><span className="app-info-label">{t('wp.securityTab.totalBans', 'Total bans')}</span><span className="app-info-value">{brute?.total_banned ?? 0}</span></div>
-                                </div>
+                                <InfoList>
+                                    <InfoItem label={t('wp.securityTab.loginJail', 'Login jail')} value={<Pill kind={brute?.enabled ? 'green' : 'gray'}>{brute?.enabled ? 'active' : 'off'}</Pill>} />
+                                    <InfoItem label={t('wp.securityTab.currentlyBanned', 'Currently banned')} value={brute?.currently_banned ?? 0} />
+                                    <InfoItem label={t('wp.securityTab.totalBans', 'Total bans')} value={brute?.total_banned ?? 0} />
+                                </InfoList>
                                 <div className="app-detail-actions">
                                     <Button variant="outline" size="sm" onClick={toggleBrute} disabled={busy}>{brute?.enabled ? 'Disable protection' : 'Enable protection'}</Button>
                                 </div>

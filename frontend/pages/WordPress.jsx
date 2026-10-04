@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import wordpressApi from '../services/wordpress';
 import { useToast } from 'serverkit-sdk';
@@ -13,14 +13,19 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Checkbox } from 'serverkit-sdk';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
+import { DomainField, CopyField } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 import { emitWalkthroughSignal } from 'serverkit-sdk';
 
-// Mirror the backend slug rule (a-z, 0-9, single dashes) so the create modal can
-// preview the exact <slug>.<base> host the site will be published at.
+// Mirror the backend slug rule (a-z, 0-9, single dashes): a managed site is
+// published at <slug>.<base>, the slug coming from the site name.
 function slugifyPreview(name) {
     return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'site';
 }
+
+// Radix Select cannot hold an empty value; '' means "template default".
+const PHP_DEFAULT = '__default';
 
 function WordPress() {
     const { t } = useTranslation();
@@ -33,11 +38,16 @@ function WordPress() {
     const [createLoading, setCreateLoading] = useState(false);
     const [createForm, setCreateForm] = useState({
         name: '', domain: '', adminEmail: '', phpVersion: '', enablePageCache: false, enableObjectCache: false,
-        baseDomain: '',
+        baseDomain: '', subdomain: '',
     });
     // Base domains a new site can be published under (<slug>.<base>), loaded when
     // the create modal opens. Empty when site routing isn't configured.
     const [baseDomains, setBaseDomains] = useState([]);
+    // What the DomainField reports, and the label it is seeded with. The label
+    // starts as the site-name slug and follows the name until the user edits
+    // it; whatever it ends up as is sent as `subdomain`.
+    const [domainInfo, setDomainInfo] = useState(null);
+    const [labelSeed, setLabelSeed] = useState('');
     const [createdCreds, setCreatedCreds] = useState(null);
     // Where a freshly-created site is reachable, so we can tell the user it is
     // already live (at <slug>.<base>, HTTPS when the wildcard cert is set up)
@@ -65,8 +75,8 @@ function WordPress() {
         if (focus === 'create:site') setShowCreateModal(true);
     }, [location.search]);
 
-    // Load the available base domains when the create modal opens, and preselect
-    // the default so the site publishes under it unless the user picks another.
+    // Load the available base domains when the create modal opens, only to say
+    // where the site lands when there is none (the DomainField picks the base).
     useEffect(() => {
         if (!showCreateModal) return;
         let cancelled = false;
@@ -74,15 +84,35 @@ function WordPress() {
             try {
                 const data = await wordpressApi.listBaseDomains();
                 if (cancelled) return;
-                const bases = data.base_domains || [];
-                setBaseDomains(bases);
-                setCreateForm(f => ({ ...f, baseDomain: f.baseDomain || data.default || '' }));
+                setBaseDomains(data.base_domains || []);
             } catch {
                 if (!cancelled) setBaseDomains([]);
             }
         })();
         return () => { cancelled = true; };
     }, [showCreateModal]);
+
+    // Subdomain mode publishes at <label>.<base> (subdomain + baseDomain, no
+    // domain); own-domain mode creates under the default base and moves the
+    // site to it (domain, empty baseDomain).
+    const handleDomainChange = useCallback((fqdn, info) => {
+        setDomainInfo(info);
+        setCreateForm(f => ({
+            ...f,
+            domain: info.mode === 'custom' ? fqdn : '',
+            baseDomain: info.mode === 'subdomain' ? (info.base || '') : '',
+            subdomain: info.mode === 'subdomain' ? (info.label || '').replace(/\.+$/, '') : '',
+        }));
+    }, []);
+
+    // Follow the site name until the user has typed their own label.
+    const reseedLabel = () => {
+        if (domainInfo?.mode === 'custom') return;
+        const current = (domainInfo?.label || '').replace(/\.+$/, '');
+        if (current && current !== labelSeed) return;
+        const slug = createForm.name ? slugifyPreview(createForm.name) : '';
+        if (slug !== labelSeed) setLabelSeed(slug);
+    };
 
     const loadSites = async () => {
         setLoading(true);
@@ -121,6 +151,8 @@ function WordPress() {
                 emitWalkthroughSignal('wordpress.site-created', { siteId: result.site?.id || result.site_id });
                 setShowCreateModal(false);
                 setCreateForm({ name: '', domain: '', adminEmail: '', phpVersion: '', enablePageCache: false, enableObjectCache: false, baseDomain: '' });
+                setLabelSeed('');
+                setDomainInfo(null);
                 await loadSites();
             } else {
                 toast.error(result.error || t('wp.wordPress.failedToCreateSite', 'Failed to create site'));
@@ -333,8 +365,8 @@ function WordPress() {
                         {createdCreds && (
                             <>
                                 <strong>{t('wp.wordPress.saveTheseAdminCredentialsTheyAre', 'Save these admin credentials — they are shown only once.')}</strong>
-                                <span>{t('wp.wordPress.username', 'Username:')} <code>{createdCreds.user}</code></span>
-                                <span>{t('wp.wordPress.password', 'Password:')} <code>{createdCreds.password}</code></span>
+                                <CopyField label={t('wp.wordPress.usernameLabel', 'Username')} value={createdCreds.user} />
+                                <CopyField label={t('wp.wordPress.passwordLabel', 'Password')} value={createdCreds.password} secret />
                             </>
                         )}
                     </div>
@@ -531,49 +563,31 @@ function WordPress() {
                                     type="text"
                                     value={createForm.name}
                                     onChange={e => setCreateForm({ ...createForm, name: e.target.value })}
+                                    onBlur={reseedLabel}
                                     placeholder="my-wordpress-site"
                                     disabled={createLoading}
                                 />
                                 <span className="sk-formdrawer__hint">{t('wp.wordPress.usedAsTheDockerProjectName2', 'Used as the Docker project name. Letters, numbers, and hyphens only.')}</span>
                             </div>
 
-                            {baseDomains.length > 0 ? (
-                                <div className="sk-formdrawer__field">
-                                    <Label>{t('wp.wordPress.publishUnder', 'Publish under')}</Label>
-                                    <select
-                                        value={createForm.baseDomain}
-                                        onChange={e => setCreateForm({ ...createForm, baseDomain: e.target.value })}
-                                        disabled={createLoading}
-                                    >
-                                        {baseDomains.map(b => (
-                                            <option key={b.domain} value={b.domain}>
-                                                {b.domain}{b.is_default ? ' (default)' : ''}{b.https_enabled ? ' — HTTPS' : ''}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <span className="sk-formdrawer__hint">
-                                        {createForm.name
-                                            ? <>{t('wp.wordPress.theSiteWillBeLiveAt', 'The site will be live at')} <code>{slugifyPreview(createForm.name)}.{createForm.baseDomain}</code>.</>
-                                            : <>{t('wp.wordPress.whichBaseDomainToPublishThis', 'Which base domain to publish this site under.')}</>}
-                                    </span>
-                                </div>
-                            ) : (
-                                <div className="sk-formdrawer__field">
-                                    <Label>{t('wp.wordPress.publishUnder2', 'Publish under')}</Label>
-                                    <span className="sk-formdrawer__hint">{t('wp.wordPress.noBaseDomainConfiguredTheSite', 'No base domain configured — the site will be reachable at')} <code>localhost:&lt;port&gt;</code>. Add a managed-sites base domain in Settings to publish it at a real subdomain.</span>
-                                </div>
-                            )}
-
                             <div className="sk-formdrawer__field">
-                                <Label>{t('wp.wordPress.customDomain', 'Custom Domain')}</Label>
-                                <Input
-                                    type="text"
-                                    value={createForm.domain}
-                                    onChange={e => setCreateForm({ ...createForm, domain: e.target.value })}
-                                    placeholder="example.com"
+                                <Label htmlFor="wp-create-domain">{t('wp.wordPress.domain', 'Domain')}</Label>
+                                <DomainField
+                                    key={labelSeed}
+                                    id="wp-create-domain"
+                                    value={labelSeed && createForm.baseDomain ? `${labelSeed}.${createForm.baseDomain}` : ''}
+                                    defaultLabel={labelSeed}
+                                    onChange={handleDomainChange}
                                     disabled={createLoading}
                                 />
-                                <span className="sk-formdrawer__hint">{t('wp.wordPress.optionalOverridesTheBaseDomainAbove', 'Optional. Overrides the base domain above — the site is created and migrated to this domain.')}</span>
+                                {domainInfo?.mode === 'custom' ? (
+                                    <span className="sk-formdrawer__hint">
+                                        {baseDomains.length === 0 && (
+                                            <>{t('wp.wordPress.noBaseDomainConfiguredTheSite', 'No base domain configured — the site will be reachable at')} <code>localhost:&lt;port&gt;</code>. </>
+                                        )}
+                                        {t('wp.wordPress.optionalTheSiteIsCreatedThen', 'Optional. The site is created, then moved to this domain.')}
+                                    </span>
+                                ) : null}
                             </div>
 
                             <div className="sk-formdrawer__field">
@@ -589,16 +603,19 @@ function WordPress() {
 
                             <div className="sk-formdrawer__field">
                                 <Label>{t('wp.wordPress.phpVersion', 'PHP Version')}</Label>
-                                <select
-                                    value={createForm.phpVersion}
-                                    onChange={e => setCreateForm({ ...createForm, phpVersion: e.target.value })}
+                                <Select
+                                    value={createForm.phpVersion || PHP_DEFAULT}
+                                    onValueChange={v => setCreateForm({ ...createForm, phpVersion: v === PHP_DEFAULT ? '' : v })}
                                     disabled={createLoading}
                                 >
-                                    <option value="">{t('wp.wordPress.defaultLatestForWordpress64', 'Default (latest for WordPress 6.4)')}</option>
-                                    <option value="8.1">{t('wp.wordPress.php81', 'PHP 8.1')}</option>
-                                    <option value="8.2">{t('wp.wordPress.php82', 'PHP 8.2')}</option>
-                                    <option value="8.3">{t('wp.wordPress.php83', 'PHP 8.3')}</option>
-                                </select>
+                                    <SelectTrigger aria-label={t('wp.wordPress.phpVersion', 'PHP Version')}><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={PHP_DEFAULT}>{t('wp.wordPress.defaultLatestForWordpress64', 'Default (latest for WordPress 6.4)')}</SelectItem>
+                                        <SelectItem value="8.1">{t('wp.wordPress.php81', 'PHP 8.1')}</SelectItem>
+                                        <SelectItem value="8.2">{t('wp.wordPress.php82', 'PHP 8.2')}</SelectItem>
+                                        <SelectItem value="8.3">{t('wp.wordPress.php83', 'PHP 8.3')}</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 <span className="sk-formdrawer__hint">{t('wp.wordPress.bakedIntoTheContainerImageAt', 'Baked into the container image at creation. Changeable later from the PHP tab.')}</span>
                             </div>
 

@@ -6,8 +6,10 @@ import { useToast } from 'serverkit-sdk';
 import { useConfirm } from 'serverkit-sdk';
 import { Pill } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton } from './wpDetailShared';
+import { InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Reports Tab — monthly client reports (#33 agency slice). Aggregates the
@@ -134,9 +136,12 @@ const ReportsTab = ({ siteId }) => {
                     <div className="app-panel-body">
                         <p className="hint">{t('wp.reportsTab.snapshotsThisSiteSUptimeIncidents', 'Snapshots this site\'s uptime, incidents, update runs, backups, and current security posture for a calendar month into a printable client report.')}</p>
                         <div className="app-detail-actions">
-                            <select value={genMonth} onChange={e => setGenMonth(e.target.value)} disabled={busy}>
-                                {monthOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                            </select>
+                            <Select value={genMonth} onValueChange={setGenMonth} disabled={busy}>
+                                <SelectTrigger size="sm" className="wp-report-month" aria-label={t('wp.reportsTab.reportMonth', 'Report month')}><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    {monthOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
                             <Button size="sm" onClick={handleGenerate} disabled={busy}>
                                 {busy ? 'Generating…' : 'Generate'}
                             </Button>
@@ -175,6 +180,7 @@ const ReportsTab = ({ siteId }) => {
 // The printable rendering of a single monthly report. Wrapped in
 // .wp-report-printable so the print stylesheet can isolate it from the app chrome.
 const ReportView = ({ report, onPrint, onDownload, onDelete }) => {
+    const { formatDateTime } = useFormat();
     const { t } = useTranslation();
     const d = report.data || {};
     const period = d.period || {};
@@ -207,29 +213,29 @@ const ReportView = ({ report, onPrint, onDownload, onDelete }) => {
                     </span>
                 </div>
                 <div className="app-panel-body">
-                    <div className="app-info-grid">
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.site', 'Site')}</span><span className="app-info-value">{site.name || '—'}</span></div>
-                        {site.client && <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.client', 'Client')}</span><span className="app-info-value">{site.client}</span></div>}
-                        <div className="app-info-item"><span className="app-info-label">URL</span><span className="app-info-value">{site.url ? <a href={site.url} target="_blank" rel="noopener noreferrer">{site.url}</a> : '—'}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.wordpress', 'WordPress')}</span><span className="app-info-value">{site.wp_version || '—'}{site.multisite ? ' · multisite' : ''}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.generated', 'Generated')}</span><span className="app-info-value">{fmt(d.generated_at)}</span></div>
-                    </div>
+                    <InfoList>
+                        <InfoItem label={t('wp.reportsTab.site', 'Site')} value={site.name || '—'} />
+                        {site.client && <InfoItem label={t('wp.reportsTab.client', 'Client')} value={site.client} />}
+                        <InfoItem label="URL" value={site.url ? <a href={site.url} target="_blank" rel="noopener noreferrer">{site.url}</a> : '—'} />
+                        <InfoItem label={t('wp.reportsTab.wordpress', 'WordPress')} value={<>{site.wp_version || '—'}{site.multisite ? ' · multisite' : ''}</>} />
+                        <InfoItem label={t('wp.reportsTab.generated', 'Generated')} value={fmt(d.generated_at)} />
+                    </InfoList>
                 </div>
             </div>
 
             <div className="app-panel">
                 <div className="app-panel-header">{t('wp.reportsTab.summary', 'Summary')}</div>
                 <div className="app-panel-body">
-                    <div className="app-info-grid">
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.uptime', 'Uptime')}</span><span className="app-info-value">{uptime.percent !== null && uptime.percent !== undefined ? `${uptime.percent}%` : 'N/A'}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.incidents', 'Incidents')}</span><span className="app-info-value">{d.incident_count ?? 0}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.updateRuns', 'Update runs')}</span><span className="app-info-value">{updates.total_runs ?? 0}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.componentsUpdated', 'Components updated')}</span><span className="app-info-value">{updates.components_updated ?? 0}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.backups', 'Backups')}</span><span className="app-info-value">{backups.count ?? 0}{backups.count ? ` · ${backups.total_bytes_human}` : ''}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.openVulnerabilities', 'Open vulnerabilities')}</span><span className="app-info-value">{vulns.total ?? 0}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.currentHealth', 'Current health')}</span><span className="app-info-value">{health.status || 'unknown'}</span></div>
-                        <div className="app-info-item"><span className="app-info-label">{t('wp.reportsTab.diskUsage', 'Disk usage')}</span><span className="app-info-value">{health.disk_usage_human || '—'}</span></div>
-                    </div>
+                    <InfoList>
+                        <InfoItem label={t('wp.reportsTab.uptime', 'Uptime')} value={uptime.percent !== null && uptime.percent !== undefined ? `${uptime.percent}%` : 'N/A'} />
+                        <InfoItem label={t('wp.reportsTab.incidents', 'Incidents')} value={d.incident_count ?? 0} />
+                        <InfoItem label={t('wp.reportsTab.updateRuns', 'Update runs')} value={updates.total_runs ?? 0} />
+                        <InfoItem label={t('wp.reportsTab.componentsUpdated', 'Components updated')} value={updates.components_updated ?? 0} />
+                        <InfoItem label={t('wp.reportsTab.backups', 'Backups')} value={<>{backups.count ?? 0}{backups.count ? ` · ${backups.total_bytes_human}` : ''}</>} />
+                        <InfoItem label={t('wp.reportsTab.openVulnerabilities', 'Open vulnerabilities')} value={vulns.total ?? 0} />
+                        <InfoItem label={t('wp.reportsTab.currentHealth', 'Current health')} value={health.status || 'unknown'} />
+                        <InfoItem label={t('wp.reportsTab.diskUsage', 'Disk usage')} value={health.disk_usage_human || '—'} />
+                    </InfoList>
                     {(updates.rolled_back > 0 || updates.failed > 0) && (
                         <div className="app-detail-actions">
                             {updates.completed > 0 && <Pill kind="green">{updates.completed} completed</Pill>}
@@ -312,12 +318,11 @@ const ReportView = ({ report, onPrint, onDownload, onDelete }) => {
                 <div className="app-panel">
                     <div className="app-panel-header">{t('wp.reportsTab.backups2', 'Backups')}</div>
                     <div className="app-panel-body">
-                        {backups.snapshots.map(s => (
-                            <div className="app-info-item" key={s.id}>
-                                <span className="app-info-label">{fmt(s.created_at)}{s.tag ? ` · ${s.tag}` : ''}</span>
-                                <span className="app-info-value">{s.size_human} · {s.status}</span>
-                            </div>
-                        ))}
+                        <InfoList>
+                            {backups.snapshots.map(s => (
+                                <InfoItem key={s.id} label={<>{fmt(s.created_at)}{s.tag ? ` · ${s.tag}` : ''}</>} value={<>{s.size_human} · {s.status}</>} />
+                            ))}
+                        </InfoList>
                     </div>
                 </div>
             )}

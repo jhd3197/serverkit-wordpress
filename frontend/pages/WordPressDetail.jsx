@@ -16,6 +16,7 @@ import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
+import { CopyField } from 'serverkit-sdk';
 import {
     DetailPageSkeleton,
     EnvSwitcher,
@@ -177,8 +178,8 @@ const WordPressDetail = () => {
                 <div className="wp-creds-banner">
                     <div className="wp-creds-banner-text">
                         <strong>{t('wp.wordPressDetail.newSiteCreatedSaveTheseAdmin', 'New site created — save these admin credentials, shown only once.')}</strong>
-                        <span>{t('wp.wordPressDetail.username', 'Username:')} <code>{clonedCreds.user}</code></span>
-                        <span>{t('wp.wordPressDetail.password', 'Password:')} <code>{clonedCreds.password}</code></span>
+                        <CopyField label={t('wp.wordPressDetail.usernameLabel', 'Username')} value={clonedCreds.user} />
+                        <CopyField label={t('wp.wordPressDetail.passwordLabel', 'Password')} value={clonedCreds.password} secret />
                         {clonedCreds.id && (
                             <Button variant="ghost" onClick={() => navigate(`/wordpress/${clonedCreds.id}`)}>{t('wp.wordPressDetail.openNewSite', 'Open new site')}</Button>
                         )}

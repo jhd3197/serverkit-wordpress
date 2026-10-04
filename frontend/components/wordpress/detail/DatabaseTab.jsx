@@ -9,6 +9,7 @@ import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Textarea } from 'serverkit-sdk';
+import { InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Database Tab
@@ -90,32 +91,14 @@ const DatabaseTab = ({ siteId, site }) => {
                     {t('wp.databaseTab.databaseConnection', 'Database Connection')}
                 </div>
                 <div className="app-panel-body">
-                    <div className="app-info-grid">
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.databaseTab.databaseName', 'Database Name')}</span>
-                            <span className="app-info-value mono">{site?.db_name || 'wordpress'}</span>
-                        </div>
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.databaseTab.databaseUser', 'Database User')}</span>
-                            <span className="app-info-value mono">{site?.db_user || 'wordpress'}</span>
-                        </div>
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.databaseTab.databaseHost', 'Database Host')}</span>
-                            <span className="app-info-value mono">{site?.db_host || 'db'}</span>
-                        </div>
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.databaseTab.tablePrefix', 'Table Prefix')}</span>
-                            <span className="app-info-value mono">{site?.db_prefix || 'wp_'}</span>
-                        </div>
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.databaseTab.container', 'Container')}</span>
-                            <span className="app-info-value mono">{site?.compose_project_name ? `${site.compose_project_name}-db` : '-'}</span>
-                        </div>
-                        <div className="app-info-item">
-                            <span className="app-info-label">{t('wp.databaseTab.engine', 'Engine')}</span>
-                            <span className="app-info-value">{t('wp.databaseTab.mysql80', 'MySQL 8.0')}</span>
-                        </div>
-                    </div>
+                    <InfoList>
+                        <InfoItem label={t('wp.databaseTab.databaseName', 'Database Name')} value={site?.db_name || 'wordpress'} mono />
+                        <InfoItem label={t('wp.databaseTab.databaseUser', 'Database User')} value={site?.db_user || 'wordpress'} mono />
+                        <InfoItem label={t('wp.databaseTab.databaseHost', 'Database Host')} value={site?.db_host || 'db'} mono />
+                        <InfoItem label={t('wp.databaseTab.tablePrefix', 'Table Prefix')} value={site?.db_prefix || 'wp_'} mono />
+                        <InfoItem label={t('wp.databaseTab.container', 'Container')} value={site?.compose_project_name ? `${site.compose_project_name}-db` : '-'} mono />
+                        <InfoItem label={t('wp.databaseTab.engine', 'Engine')} value={t('wp.databaseTab.mysql80', 'MySQL 8.0')} />
+                    </InfoList>
                 </div>
             </div>
 
@@ -146,6 +129,7 @@ const DatabaseTab = ({ siteId, site }) => {
 
 // Create Snapshot Modal
 const CreateSnapshotModal = ({ onClose, onCreate }) => {
+    const { formatDate } = useFormat();
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: `Snapshot ${formatDate(new Date())}`,

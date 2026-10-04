@@ -5,12 +5,16 @@ import { Pill } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton, UPDATE_SCHEDULES } from './wpDetailShared';
-import { useTranslation, useFormat } from 'serverkit-sdk';
+import { useTranslation, useFormat, translateLabel } from 'serverkit-sdk';
 
 // Updates Tab — safe update manager (#29): snapshot -> update -> health-check ->
 // auto-rollback, plus a per-site schedule and a run-history report.
+// Radix Select cannot hold an empty value; '' means "no schedule".
+const SCHEDULE_OFF = '__off';
+
 const UpdatesTab = ({ siteId }) => {
     const { t } = useTranslation();
     const { formatDateTime } = useFormat();
@@ -91,11 +95,20 @@ const UpdatesTab = ({ siteId }) => {
                     <div className="app-panel-header">{t('wp.updatesTab.schedule', 'Schedule')}</div>
                     <div className="app-panel-body">
                         <div className="form-group">
-                            <Label>{t('wp.updatesTab.automaticSafeUpdates', 'Automatic safe updates')}</Label>
-                            <select value={schedule} onChange={e => setSchedule(e.target.value)} disabled={busy}>
-                                {UPDATE_SCHEDULES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                                {schedule && !UPDATE_SCHEDULES.some(s => s.value === schedule) && <option value={schedule}>{schedule}</option>}
-                            </select>
+                            <Label htmlFor="wp-update-schedule">{t('wp.updatesTab.automaticSafeUpdates', 'Automatic safe updates')}</Label>
+                            <Select
+                                value={schedule || SCHEDULE_OFF}
+                                onValueChange={v => setSchedule(v === SCHEDULE_OFF ? '' : v)}
+                                disabled={busy}
+                            >
+                                <SelectTrigger id="wp-update-schedule"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    {UPDATE_SCHEDULES.map(s => (
+                                        <SelectItem key={s.value || SCHEDULE_OFF} value={s.value || SCHEDULE_OFF}>{translateLabel(t, s)}</SelectItem>
+                                    ))}
+                                    {schedule && !UPDATE_SCHEDULES.some(s => s.value === schedule) && <SelectItem value={schedule}>{schedule}</SelectItem>}
+                                </SelectContent>
+                            </Select>
                             <span className="form-hint">{t('wp.updatesTab.runsTheSameSafeUpdateWith', 'Runs the same safe update (with auto-rollback) on a schedule.')}</span>
                         </div>
                         <div className="app-detail-actions">

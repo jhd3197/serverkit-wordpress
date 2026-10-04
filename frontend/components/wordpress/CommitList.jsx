@@ -4,6 +4,7 @@ import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
+import { DomainField } from 'serverkit-sdk';
 import { detectProvider } from 'serverkit-sdk';
 import { EmptyState } from 'serverkit-sdk';
 import { useTranslation, useFormat } from 'serverkit-sdk';
@@ -200,13 +201,13 @@ const CreateDevModal = ({ commit, onClose, onCreate, loading }) => {
                 </div>
 
                 <div className="form-group">
-                    <Label>{t('wp.commitList.domainOptional', 'Domain (optional)')}</Label>
-                    <Input
-                        type="text"
-                        name="domain"
-                        value={formData.domain}
-                        onChange={handleChange}
-                        placeholder="dev.example.com"
+                    <Label htmlFor="wp-commit-dev-domain">{t('wp.commitList.domainOptional', 'Domain (optional)')}</Label>
+                    {/* '' until a valid hostname is typed, so empty still
+                        auto-generates. */}
+                    <DomainField
+                        id="wp-commit-dev-domain"
+                        modes={['custom']}
+                        onChange={domain => setFormData(prev => ({ ...prev, domain }))}
                     />
                     <span className="form-hint">{t('wp.commitList.leaveEmptyToAutoGenerate', 'Leave empty to auto-generate')}</span>
                 </div>

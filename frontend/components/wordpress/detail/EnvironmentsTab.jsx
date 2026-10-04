@@ -7,6 +7,8 @@ import { ErrorState } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
+import { DomainField } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { EnvironmentCardSkeleton } from './wpDetailShared';
@@ -174,6 +176,9 @@ const EnvironmentsTab = ({ siteId, site, onUpdate }) => {
     );
 };
 
+// Radix Select cannot hold an empty value; '' means "no automatic sync".
+const NO_SYNC = '__none';
+
 // Create Environment Modal
 export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, hasStaging = false, hasDev = false }) => {
     const { t } = useTranslation();
@@ -231,11 +236,14 @@ export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, ha
         <Modal open onClose={onClose} title={t('wp.environmentsTab.createEnvironment3', 'Create Environment')}>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <Label>{t('wp.environmentsTab.environmentType', 'Environment Type')}</Label>
-                    <select name="type" value={formData.type} onChange={handleChange}>
-                        {!hasDev && <option value="development">{t('wp.environmentsTab.development', 'Development')}</option>}
-                        {!hasStaging && <option value="staging">{t('wp.environmentsTab.staging', 'Staging')}</option>}
-                    </select>
+                    <Label htmlFor="wp-env-type">{t('wp.environmentsTab.environmentType', 'Environment Type')}</Label>
+                    <Select value={formData.type} onValueChange={type => setFormData(prev => ({ ...prev, type }))}>
+                        <SelectTrigger id="wp-env-type"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            {!hasDev && <SelectItem value="development">{t('wp.environmentsTab.development', 'Development')}</SelectItem>}
+                            {!hasStaging && <SelectItem value="staging">{t('wp.environmentsTab.staging', 'Staging')}</SelectItem>}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="form-group">
@@ -251,13 +259,13 @@ export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, ha
                 </div>
 
                 <div className="form-group">
-                    <Label>{t('wp.environmentsTab.domain', 'Domain')}</Label>
-                    <Input
-                        type="text"
-                        name="domain"
-                        value={formData.domain}
-                        onChange={handleChange}
-                        placeholder={suggestedDomain || 'dev.example.com'}
+                    <Label htmlFor="wp-env-domain">{t('wp.environmentsTab.domain', 'Domain')}</Label>
+                    {/* '' until a valid hostname is typed, so empty keeps the
+                        suggested / auto-generated domain. */}
+                    <DomainField
+                        id="wp-env-domain"
+                        modes={['custom']}
+                        onChange={domain => setFormData(prev => ({ ...prev, domain }))}
                     />
                     {suggestedDomain && !formData.domain && (
                         <span className="form-hint form-hint-domain">
@@ -289,12 +297,18 @@ export const CreateEnvironmentModal = ({ onClose, onCreate, productionDomain, ha
                 </div>
 
                 <div className="form-group">
-                    <Label>{t('wp.environmentsTab.syncScheduleOptional', 'Sync Schedule (optional)')}</Label>
-                    <select name="syncSchedule" value={formData.syncSchedule} onChange={handleChange}>
-                        <option value="">{t('wp.environmentsTab.noAutomaticSync', 'No automatic sync')}</option>
-                        <option value="0 3 * * 0">{t('wp.environmentsTab.weeklySunday3am', 'Weekly (Sunday 3am)')}</option>
-                        <option value="0 3 * * *">{t('wp.environmentsTab.daily3am', 'Daily (3am)')}</option>
-                    </select>
+                    <Label htmlFor="wp-env-sync">{t('wp.environmentsTab.syncScheduleOptional', 'Sync Schedule (optional)')}</Label>
+                    <Select
+                        value={formData.syncSchedule || NO_SYNC}
+                        onValueChange={v => setFormData(prev => ({ ...prev, syncSchedule: v === NO_SYNC ? '' : v }))}
+                    >
+                        <SelectTrigger id="wp-env-sync"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={NO_SYNC}>{t('wp.environmentsTab.noAutomaticSync', 'No automatic sync')}</SelectItem>
+                            <SelectItem value="0 3 * * 0">{t('wp.environmentsTab.weeklySunday3am', 'Weekly (Sunday 3am)')}</SelectItem>
+                            <SelectItem value="0 3 * * *">{t('wp.environmentsTab.daily3am', 'Daily (3am)')}</SelectItem>
+                        </SelectContent>
+                    </Select>
                     <span className="form-hint">{t('wp.environmentsTab.automaticallySyncDatabaseFromProduction', 'Automatically sync database from production')}</span>
                 </div>
 

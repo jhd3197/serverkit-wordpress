@@ -12,6 +12,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, Spinner, useToast, Button, Input, Label } from 'serverkit-sdk';
+import { PortField, CopyField, InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 
 const POLL_MS = 2500;
@@ -148,10 +149,12 @@ export default function WordPressSshImport() {
                                placeholder={t('wp.wordPressSshImport.203011310OrWp', '203.0.113.10 or wp.example.com')} />
                     </div>
                     <div className="form-group">
-                        <Label>{t('wp.wordPressSshImport.port', 'Port')}</Label>
-                        <Input value={conn.port} disabled={running}
-                               onChange={e => setConn({ ...conn, port: e.target.value })}
-                               placeholder="22" />
+                        <Label htmlFor="wp-ssh-port">{t('wp.wordPressSshImport.port', 'Port')}</Label>
+                        {/* The source server's SSH port: not a host port here. */}
+                        <PortField id="wp-ssh-port" host={false} allowPrivileged
+                                   value={conn.port} disabled={running}
+                                   onChange={port => setConn({ ...conn, port })}
+                                   placeholder="22" />
                     </div>
                     <div className="form-group">
                         <Label>{t('wp.wordPressSshImport.username', 'Username')} <span className="required">*</span></Label>
@@ -213,21 +216,16 @@ export default function WordPressSshImport() {
                     <h3 className="font-medium mb-3">{t('wp.wordPressSshImport.2ConfirmTheHost', '2. Confirm the host')}</h3>
                     <div className="form-group">
                         <Label>{t('wp.wordPressSshImport.sshHostKeyFingerprint', 'SSH host-key fingerprint (')}{probe.host_key_type})</Label>
-                        <code className="block font-mono text-xs break-all">{probe.host_key_fingerprint}</code>
+                        <CopyField value={probe.host_key_fingerprint} />
                         <span className="form-hint">
                             {t('wp.wordPressSshImport.compareAgainstTheServerYouExpect', 'Compare against the server you expect (ssh-keygen -lf on the source). Every step of the import is pinned to this exact key.')}
                         </span>
                     </div>
-                    <table className="text-sm">
-                        <tbody>
-                            {facts.map(([k, v]) => (
-                                <tr key={k}>
-                                    <td className="pr-4 text-muted-foreground">{k}</td>
-                                    <td className="font-mono">{String(v)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <InfoList>
+                        {facts.map(([k, v]) => (
+                            <InfoItem key={k} label={k} value={String(v)} mono />
+                        ))}
+                    </InfoList>
                     <label className="flex items-center gap-2 text-sm mt-3">
                         <input type="checkbox" checked={trusted} disabled={running}
                                onChange={e => setTrusted(e.target.checked)} />

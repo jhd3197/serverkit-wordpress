@@ -1646,36 +1646,6 @@
     color: $color-warning;
 }
 
-.basic-auth-field {
-    display: flex;
-    flex-direction: column;
-    gap: $space-1;
-
-    label {
-        font-size: $font-size-xs;
-        font-weight: $font-weight-medium;
-        color: $text-tertiary;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-}
-
-.basic-auth-value {
-    display: flex;
-    align-items: center;
-    gap: $space-2;
-    padding: $space-2 $space-3;
-    background: $bg-tertiary;
-    border-radius: $radius-sm;
-
-    code {
-        flex: 1;
-        font-family: $font-family-mono;
-        font-size: $font-size-sm;
-        color: $text-primary;
-    }
-}
-
 .basic-auth-hint {
     font-size: $font-size-xs;
     color: $text-tertiary;

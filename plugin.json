@@ -10,7 +10,7 @@
   "repository": "https://github.com/jhd3197/serverkit-wordpress",
   "permissions": ["shell", "filesystem", "network", "docker", "database"],
   "min_panel_version": "1.7.81",
-  "sdk_version": "^1.5.0",
+  "sdk_version": "^1.6.0",
   "frontend_entry": "dist/index.mjs",
   "entry_point": "wordpress:wordpress_bp",
   "url_prefix": "/api/v1/wordpress",

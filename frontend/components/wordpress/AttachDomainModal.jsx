@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Globe, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
-import { Input } from 'serverkit-sdk';
+import { DomainField } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
 import { Switch } from 'serverkit-sdk';
 import wordpressApi from '../../services/wordpress';
@@ -16,12 +16,13 @@ import { useTranslation } from 'serverkit-sdk';
 export default function AttachDomainModal({ site, onClose, onChanged }) {
     const { t } = useTranslation();
     const toast = useToast();
+    // The normalized hostname, '' until the DomainField reads it as valid.
     const [domain, setDomain] = useState('');
     const [issueSsl, setIssueSsl] = useState(false);
     const [attaching, setAttaching] = useState(false);
     const [result, setResult] = useState(null);
 
-    const valid = /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(domain.trim());
+    const valid = !!domain;
 
     async function handleAttach(e) {
         e?.preventDefault();
@@ -29,7 +30,7 @@ export default function AttachDomainModal({ site, onClose, onChanged }) {
         setAttaching(true);
         toast.info(t('wp.attachDomainModal.attachingDomainCreatingDnsAndMoving', 'Attaching domain — creating DNS and moving the site…'), { duration: 5000 });
         try {
-            const res = await wordpressApi.attachDomain(site.id, { domain: domain.trim(), issueSsl });
+            const res = await wordpressApi.attachDomain(site.id, { domain, issueSsl });
             if (res.success) {
                 setResult(res);
                 if (res.dns?.created) toast.success(t('wp.attachDomainModal.dnsARecordCreatedVia', 'DNS A record created via {{provider}}', { provider: res.dns.provider }));
@@ -61,12 +62,10 @@ export default function AttachDomainModal({ site, onClose, onChanged }) {
 
                         <div className="form-group">
                             <Label htmlFor="wp-domain">{t('wp.attachDomainModal.domain', 'Domain')}</Label>
-                            <Input
+                            <DomainField
                                 id="wp-domain"
-                                type="text"
-                                value={domain}
-                                onChange={(e) => setDomain(e.target.value)}
-                                placeholder="example.com"
+                                modes={['custom']}
+                                onChange={setDomain}
                                 disabled={attaching}
                                 autoFocus
                             />

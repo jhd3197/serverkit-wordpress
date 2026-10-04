@@ -6,6 +6,7 @@ import { KpiBand, MetricCard } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton } from './wpDetailShared';
+import { InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Vulnerabilities Tab — cross-references plugin/theme/core versions against the
@@ -66,10 +67,10 @@ const VulnerabilitiesTab = ({ siteId }) => {
                                 {running ? 'Scanning…' : 'Run scan'}
                             </Button>
                         </div>
-                        <div className="app-info-grid">
-                            <div className="app-info-item"><span className="app-info-label">{t('wp.vulnerabilitiesTab.lastScan', 'Last scan')}</span><span className="app-info-value">{data?.scanned_at ? formatDateTime(data.scanned_at) : 'Never'}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">{t('wp.vulnerabilitiesTab.findings', 'Findings')}</span><span className="app-info-value">{summary.total ?? 0}</span></div>
-                        </div>
+                        <InfoList>
+                            <InfoItem label={t('wp.vulnerabilitiesTab.lastScan', 'Last scan')} value={data?.scanned_at ? formatDateTime(data.scanned_at) : 'Never'} />
+                            <InfoItem label={t('wp.vulnerabilitiesTab.findings', 'Findings')} value={summary.total ?? 0} />
+                        </InfoList>
                         {data?.scan_error && <p className="hint">{t('wp.vulnerabilitiesTab.lastScanError', 'Last scan error:')} {data.scan_error}</p>}
                         <p className="hint">{t('wp.vulnerabilitiesTab.crossReferencesInstalledPluginThemeAnd', 'Cross-references installed plugin, theme, and core versions against the WPVulnerability community database. Re-run after updating.')}</p>
                     </div>

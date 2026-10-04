@@ -8,6 +8,7 @@ import { useToast } from 'serverkit-sdk';
 import { MetricCard, SegControl } from 'serverkit-sdk';
 import { SkeletonBoundary } from 'serverkit-sdk';
 import { OverviewGridSkeleton, ANALYTICS_PERIODS } from './wpDetailShared';
+import { InfoList, InfoItem } from 'serverkit-sdk';
 import { useTranslation, useFormat } from 'serverkit-sdk';
 
 // Analytics Tab — per-site traffic + error analytics (#25), parsed on-demand from
@@ -127,12 +128,12 @@ const AnalyticsTab = ({ siteId }) => {
                 <div className="app-panel">
                     <div className="app-panel-header">{t('wp.analyticsTab.statusCodes', 'Status codes')}</div>
                     <div className="app-panel-body">
-                        <div className="app-info-grid">
-                            <div className="app-info-item"><span className="app-info-label">2xx</span><span className="app-info-value">{formatNumber(s['2xx'] ?? 0)}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">3xx</span><span className="app-info-value">{formatNumber(s['3xx'] ?? 0)}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">4xx</span><span className="app-info-value">{formatNumber(s['4xx'] ?? 0)}</span></div>
-                            <div className="app-info-item"><span className="app-info-label">5xx</span><span className="app-info-value">{formatNumber(s['5xx'] ?? 0)}</span></div>
-                        </div>
+                        <InfoList>
+                            <InfoItem label="2xx" value={formatNumber(s['2xx'] ?? 0)} />
+                            <InfoItem label="3xx" value={formatNumber(s['3xx'] ?? 0)} />
+                            <InfoItem label="4xx" value={formatNumber(s['4xx'] ?? 0)} />
+                            <InfoItem label="5xx" value={formatNumber(s['5xx'] ?? 0)} />
+                        </InfoList>
                     </div>
                 </div>
 
@@ -140,14 +141,11 @@ const AnalyticsTab = ({ siteId }) => {
                     <div className="app-panel">
                         <div className="app-panel-header">{t('wp.analyticsTab.topUrls', 'Top URLs')}</div>
                         <div className="app-panel-body">
-                            <div className="app-info-grid">
+                            <InfoList>
                                 {data.top_paths.map((row, i) => (
-                                    <div className="app-info-item" key={i}>
-                                        <span className="app-info-label" title={row.path}>{clip(row.path)}</span>
-                                        <span className="app-info-value">{formatNumber(row.count)}</span>
-                                    </div>
+                                    <InfoItem key={i} label={<span title={row.path}>{clip(row.path)}</span>} value={formatNumber(row.count)} />
                                 ))}
-                            </div>
+                            </InfoList>
                             <p className="hint">{t('wp.analyticsTab.readLiveFromTheContainerAccess', 'Read live from the container access log; response-time metrics are not captured by the default log.')}</p>
                         </div>
                     </div>
@@ -161,21 +159,18 @@ const AnalyticsTab = ({ siteId }) => {
                                 <p className="hint">{phpErr.note || 'PHP error logging is off.'}</p>
                             ) : (
                                 <>
-                                    <div className="app-info-grid">
-                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.fatal', 'Fatal')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.fatal ?? 0)}</span></div>
-                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.warning', 'Warning')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.warning ?? 0)}</span></div>
-                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.notice', 'Notice')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.notice ?? 0)}</span></div>
-                                        <div className="app-info-item"><span className="app-info-label">{t('wp.analyticsTab.deprecated', 'Deprecated')}</span><span className="app-info-value">{formatNumber(phpErr.counts?.deprecated ?? 0)}</span></div>
-                                    </div>
+                                    <InfoList>
+                                        <InfoItem label={t('wp.analyticsTab.fatal', 'Fatal')} value={formatNumber(phpErr.counts?.fatal ?? 0)} />
+                                        <InfoItem label={t('wp.analyticsTab.warning', 'Warning')} value={formatNumber(phpErr.counts?.warning ?? 0)} />
+                                        <InfoItem label={t('wp.analyticsTab.notice', 'Notice')} value={formatNumber(phpErr.counts?.notice ?? 0)} />
+                                        <InfoItem label={t('wp.analyticsTab.deprecated', 'Deprecated')} value={formatNumber(phpErr.counts?.deprecated ?? 0)} />
+                                    </InfoList>
                                     {phpErr.recent?.length > 0 ? (
-                                        <div className="app-info-grid">
+                                        <InfoList>
                                             {phpErr.recent.map((e, i) => (
-                                                <div className="app-info-item" key={i}>
-                                                    <span className="app-info-label" title={e.message}>{e.level}: {clipMsg(e.message)}</span>
-                                                    <span className="app-info-value">{e.time}</span>
-                                                </div>
+                                                <InfoItem key={i} label={<span title={e.message}>{e.level}: {clipMsg(e.message)}</span>} value={e.time} />
                                             ))}
-                                        </div>
+                                        </InfoList>
                                     ) : (
                                         <p className="hint">{phpErr.note || 'No PHP errors recorded.'}</p>
                                     )}

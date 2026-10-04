@@ -21,6 +21,7 @@ import {
 } from '../components/wordpress';
 import { ConfirmDialog } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
 import { Spinner } from 'serverkit-sdk';
 import { EmptyState } from 'serverkit-sdk';
 import { FolderGit2 } from 'lucide-react';
@@ -28,7 +29,7 @@ import { io } from 'socket.io-client';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
-import { useTranslation, useFormat } from 'serverkit-sdk';
+import { useTranslation, useFormat, translateLabel } from 'serverkit-sdk';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || window.location.origin;
 
@@ -740,6 +741,7 @@ const WordPressProject = () => {
 
 // Promotion History (lists past promotions; rollback available for completed promotions with a pre-promotion snapshot)
 const PromotionHistory = ({ projectId, onRollback }) => {
+    const { formatDateTime } = useFormat();
     const { t } = useTranslation();
     const [promotions, setPromotions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -869,14 +871,17 @@ const CreatePipelineEnvModal = ({ onClose, onCreate, productionDomain, existingT
         <Modal open onClose={onClose} title={t('wp.wordPressProject.createEnvironment', 'Create Environment')}>
             <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <Label>{t('wp.wordPressProject.environmentType', 'Environment Type')}</Label>
-                        <select name="type" value={formData.type} onChange={handleChange}>
-                            {availableTypes.map(t => (
-                                <option key={t.value} value={t.value} disabled={t.disabled}>
-                                    {t.label}{t.disabled ? ' (already exists)' : ''}
-                                </option>
-                            ))}
-                        </select>
+                        <Label htmlFor="wp-project-env-type">{t('wp.wordPressProject.environmentType', 'Environment Type')}</Label>
+                        <Select value={formData.type} onValueChange={type => setFormData(prev => ({ ...prev, type }))}>
+                            <SelectTrigger id="wp-project-env-type"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {availableTypes.map(type => (
+                                    <SelectItem key={type.value} value={type.value} disabled={type.disabled}>
+                                        {translateLabel(t, type)}{type.disabled ? ` (${t('wp.wordPressProject.alreadyExists', 'already exists')})` : ''}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     {formData.type === 'multidev' && (

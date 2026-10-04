@@ -11,6 +11,7 @@ import { useTopbarActions } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
 import { Switch } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
 
@@ -322,19 +323,18 @@ function WordPressPluginLibrary() {
                 <div className="wp-plib-form">
                     <div className="wp-plib-form__row">
                         <Label htmlFor="plib-site">{t('wp.wordPressPluginLibrary.targetSite', 'Target site')}</Label>
-                        <select
-                            id="plib-site"
-                            className="wp-plib-form__select"
-                            value={installSiteId}
-                            onChange={e => setInstallSiteId(e.target.value)}
-                        >
-                            <option value="">{t('wp.wordPressPluginLibrary.selectASite', 'Select a site…')}</option>
-                            {sites.map(s => (
-                                <option key={s.id} value={s.id}>
-                                    {s.name || s.application?.name || `Site ${s.id}`}
-                                </option>
-                            ))}
-                        </select>
+                        <Select value={installSiteId} onValueChange={setInstallSiteId}>
+                            <SelectTrigger id="plib-site">
+                                <SelectValue placeholder={t('wp.wordPressPluginLibrary.selectASite', 'Select a site…')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {sites.map(s => (
+                                    <SelectItem key={s.id} value={String(s.id)}>
+                                        {s.name || s.application?.name || `Site ${s.id}`}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="wp-plib-form__row wp-plib-form__row--inline">
                         <Switch checked={installActivate} onCheckedChange={setInstallActivate} id="plib-activate" />
