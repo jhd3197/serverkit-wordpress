@@ -1,7 +1,7 @@
 {
   "name": "serverkit-wordpress",
   "display_name": "WordPress",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The full WordPress suite for ServerKit: one-click site provisioning, a curated plugin library, environments and promote pipelines, update runs, security hardening, vulnerability scanning, analytics and reports. Offered during onboarding and installable from the Marketplace; uninstall it to slim the panel.",
   "author": "ServerKit",
   "license": "MIT",
@@ -9,7 +9,7 @@
   "homepage": "https://github.com/jhd3197/serverkit-wordpress",
   "repository": "https://github.com/jhd3197/serverkit-wordpress",
   "permissions": ["shell", "filesystem", "network", "docker", "database"],
-  "min_panel_version": "1.7.81",
+  "min_panel_version": "1.11.18",
   "sdk_version": "^1.6.0",
   "frontend_entry": "dist/index.mjs",
   "entry_point": "wordpress:wordpress_bp",
