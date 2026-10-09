@@ -5,14 +5,13 @@ import { useToast } from 'serverkit-sdk';
 import { ResourceAdvisory } from 'serverkit-sdk';
 import { Spinner } from 'serverkit-sdk';
 import { ResourceListPage } from 'serverkit-sdk';
-import { Globe, ChevronRight } from 'lucide-react';
-import { Pill, ServiceTile, Drawer } from 'serverkit-sdk';
+import { Globe, ChevronRight, Database, ExternalLink, Plus, Settings } from 'lucide-react';
+import { Pill, ServiceTile, Drawer, SearchField } from 'serverkit-sdk';
 import { useTopbarActions } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
-import { Checkbox } from 'serverkit-sdk';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from 'serverkit-sdk';
 import { DomainField, CopyField } from 'serverkit-sdk';
 import { useTranslation } from 'serverkit-sdk';
@@ -24,6 +23,14 @@ function slugifyPreview(name) {
     return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'site';
 }
 
+const STATUS_RULE = (op, value) => ({ match: 'all', rules: [{ id: 'st', field: 'status', op, value }] });
+
+// Built-in saved views (the heading's view picker), same envelope as Services.
+const WP_VIEWS = [
+    { name: 'Running', state: { search: '', sorts: [], hiddenKeys: [], columnFilters: STATUS_RULE('any', ['running']) } },
+    { name: 'Stopped', state: { search: '', sorts: [], hiddenKeys: [], columnFilters: STATUS_RULE('none', ['running']) } },
+];
+
 // Radix Select cannot hold an empty value; '' means "template default".
 const PHP_DEFAULT = '__default';
 
@@ -31,8 +38,6 @@ function WordPress() {
     const { t } = useTranslation();
     const [sites, setSites] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTag, setActiveTag] = useState(null); // null = show all
-    const [statusFilter, setStatusFilter] = useState('all'); // all | running | stopped
     const [siteSearch, setSiteSearch] = useState(''); // client-side name/title/domain filter
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
@@ -223,65 +228,40 @@ function WordPress() {
                 {t('wp.wordPress.importASite', 'Import a site')}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowImportModal(true)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                {t('wp.wordPress.importSite', 'Import site')}
+                <Database size={14} />
+                {t('wp.wordPress.importSqlDump', 'Import SQL dump')}
             </Button>
             <Button size="sm" onClick={() => setShowCreateModal(true)} data-walkthrough="wordpress-create-site">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <Plus size={14} />
                 {t('wp.wordPress.createSite', 'New site')}
             </Button>
+            <SearchField
+                value={siteSearch}
+                onSearch={setSiteSearch}
+                placeholder={t('wp.wordPress.searchSites', 'Search sites…')}
+            />
         </>,
-        []
+        [siteSearch]
     );
 
-    const allTags = Array.from(new Set(sites.flatMap(s => s.tags || []))).sort();
-    const runningCount = sites.filter(s => s.status === 'running').length;
     const q = siteSearch.trim().toLowerCase();
     const siteLabel = site => site.name || site.application?.name || `Site ${site.id}`;
     const shownSites = sites.filter(site => (
-        (statusFilter === 'all'
-            || (statusFilter === 'running' ? site.status === 'running' : site.status !== 'running'))
-        && (activeTag === null || (site.tags || []).includes(activeTag))
-        && (q === '' || [siteLabel(site), site.title, site.url, site.domain]
-            .some(v => v && String(v).toLowerCase().includes(q)))
+        q === '' || [siteLabel(site), site.title, site.url, site.domain]
+            .some(v => v && String(v).toLowerCase().includes(q))
     ));
-    const allSelected = shownSites.length > 0 && shownSites.every(s => selectedIds.has(s.id));
 
     const columns = [
         {
-            key: '__select',
-            className: 'wp-list__ck',
-            cellClassName: 'wp-list__ck',
-            header: (
-                <Checkbox
-                    checked={allSelected}
-                    onCheckedChange={(checked) => setSelectedIds(checked ? new Set(shownSites.map(s => s.id)) : new Set())}
-                    aria-label={t('wp.wordPress.selectAllSites', 'Select all sites')}
-                />
-            ),
-            render: (site) => (
-                <div onClick={e => e.stopPropagation()}>
-                    <Checkbox
-                        checked={selectedIds.has(site.id)}
-                        onCheckedChange={(checked) => {
-                            setSelectedIds(prev => {
-                                const next = new Set(prev);
-                                if (checked) next.add(site.id);
-                                else next.delete(site.id);
-                                return next;
-                            });
-                        }}
-                        aria-label={t('wp.wordPress.select', 'Select {{value}}', { value: site.name || `site ${site.id}` })}
-                    />
-                </div>
-            ),
-        },
-        {
             key: 'name',
             headerKey: 'wp.wordPress.site', header: 'Site',
+            sortable: true,
+            hideable: false,
+            sortValue: (site) => siteLabel(site).toLowerCase(),
+            value: (site) => siteLabel(site),
             render: (site) => (
                 <div className="sk-cell-name">
-                    <ServiceTile name={siteLabel(site)} size={30} className="wp-list__tile" aria-hidden="true" />
+                    <ServiceTile name={siteLabel(site)} size={28} className="wp-list__tile" aria-hidden="true" />
                     <span>
                         <div>{siteLabel(site)}</div>
                         {site.port && <div className="sk-cell-sub">:{site.port}</div>}
@@ -289,11 +269,30 @@ function WordPress() {
                 </div>
             ),
         },
-        { key: 'environments', headerKey: 'wp.wordPress.environments', header: 'Environments', cellClassName: 'sk-cell-mono', render: (site) => (site.environment_count || 0) + 1 },
-        { key: 'version', headerKey: 'wp.wordPress.version', header: 'Version', cellClassName: 'sk-cell-mono', render: (site) => `WP ${site.wp_version || '6.4'}` },
+        {
+            key: 'environments',
+            headerKey: 'wp.wordPress.environments', header: 'Environments',
+            sortable: true,
+            sortValue: (site) => (site.environment_count || 0) + 1,
+            cellClassName: 'sk-cell-dim',
+            render: (site) => (site.environment_count || 0) + 1,
+        },
+        {
+            key: 'version',
+            headerKey: 'wp.wordPress.version', header: 'Version',
+            sortable: true,
+            sortValue: (site) => site.wp_version || '',
+            cellClassName: 'sk-cell-mono',
+            render: (site) => site.wp_version || '—',
+        },
         {
             key: 'status',
             headerKey: 'wp.wordPress.status', header: 'Status',
+            sortable: true,
+            type: 'enum',
+            value: (site) => site.status,
+            groupable: true,
+            groupValue: (site) => site.status,
             render: (site) => (
                 <Pill kind={site.status === 'running' ? 'green' : 'gray'}>
                     {site.status === 'running' ? t('wp.wordPress.running2', 'Running') : t('wp.wordPress.stopped2', 'Stopped')}
@@ -303,6 +302,8 @@ function WordPress() {
         {
             key: 'tags',
             headerKey: 'wp.wordPress.tags', header: 'Tags',
+            sortable: false,
+            value: (site) => (site.tags || []).join(', '),
             render: (site) => (
                 site.tags?.length
                     ? site.tags.map(tag => <span key={tag} className="sk-tag">{tag}</span>)
@@ -310,18 +311,24 @@ function WordPress() {
             ),
         },
         {
-            key: '__links',
+            key: '__actions',
             header: '',
             width: 70,
+            sortable: false,
+            hideable: false,
             render: (site) => (
                 site.url && site.status === 'running' ? (
                     <div className="wp-list__links" onClick={e => e.stopPropagation()}>
-                        <a href={site.url} target="_blank" rel="noopener noreferrer" title={t('wp.wordPress.openSite', 'Open site')} aria-label={t('wp.wordPress.openSite2', 'Open site')}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                        </a>
-                        <a href={`${site.url}/wp-admin`} target="_blank" rel="noopener noreferrer" title={t('wp.wordPress.wpAdmin', 'WP Admin')} aria-label={t('wp.wordPress.wpAdmin2', 'WP Admin')}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                        </a>
+                        <Button variant="ghost" size="sm" asChild>
+                            <a href={site.url} target="_blank" rel="noopener noreferrer" title={t('wp.wordPress.openSite', 'Open site')} aria-label={t('wp.wordPress.openSite2', 'Open site')}>
+                                <ExternalLink size={14} />
+                            </a>
+                        </Button>
+                        <Button variant="ghost" size="sm" asChild>
+                            <a href={`${site.url}/wp-admin`} target="_blank" rel="noopener noreferrer" title={t('wp.wordPress.wpAdmin', 'WP Admin')} aria-label={t('wp.wordPress.wpAdmin2', 'WP Admin')}>
+                                <Settings size={14} />
+                            </a>
+                        </Button>
                     </div>
                 ) : (
                     <ChevronRight size={16} className="wp-list__chev" />
@@ -339,7 +346,19 @@ function WordPress() {
             columns={columns}
             keyField="id"
             onRowClick={(site) => navigate(`/wordpress/${site.id}`)}
-            rowClassName={(site) => (selectedIds.has(site.id) ? 'is-selected' : '')}
+            storageKey="serverkit-list-wordpress"
+            viewPageKey="wordpress"
+            noun="sites"
+            builtinViews={WP_VIEWS}
+            selectable
+            selectedIds={selectedIds}
+            onToggleSelect={(id, checked) => setSelectedIds(prev => {
+                const next = new Set(prev);
+                if (checked) next.add(id);
+                else next.delete(id);
+                return next;
+            })}
+            onSelectAll={(checked) => setSelectedIds(checked ? new Set(shownSites.map(site => site.id)) : new Set())}
             header={<>
                 {/* Advisory, not a gate: a constrained server says so here and
                     the operator still decides. */}
@@ -374,35 +393,6 @@ function WordPress() {
                 </div>
                 )}
             </>}
-            filters={[
-                { value: 'all', labelKey: 'wp.wordPress.all', label: 'All', count: sites.length },
-                { value: 'running', labelKey: 'wp.wordPress.running', label: 'Running', count: runningCount },
-                { value: 'stopped', labelKey: 'wp.wordPress.stopped', label: 'Stopped', count: sites.length - runningCount },
-            ]}
-            activeFilter={statusFilter}
-            onFilterChange={setStatusFilter}
-            searchTerm={siteSearch}
-            onSearchChange={setSiteSearch}
-            searchPlaceholder="Search sites…"
-            toolbarExtra={allTags.length > 0 && (
-                <div className="wp-tag-filter">
-                    <button type="button"
-                        className={`wp-tag-chip wp-tag-chip--filter ${activeTag === null ? 'is-active' : ''}`}
-                        onClick={() => setActiveTag(null)}
-                    >
-                        {t('wp.wordPress.allTags', 'All tags')}
-                    </button>
-                    {allTags.map(tag => (
-                        <button type="button"
-                            key={tag}
-                            className={`wp-tag-chip wp-tag-chip--filter ${activeTag === tag ? 'is-active' : ''}`}
-                            onClick={() => setActiveTag(tag)}
-                        >
-                            {tag}
-                        </button>
-                    ))}
-                </div>
-            )}
             selectedCount={selectedIds.size}
             onClearSelection={() => setSelectedIds(new Set())}
             bulkActions={
