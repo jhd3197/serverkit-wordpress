@@ -3,6 +3,7 @@ import subprocess
 import secrets
 import string
 import shutil
+import tempfile
 import json
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -38,10 +39,16 @@ define('WP_AUTO_UPDATE_CORE', 'minor');
     @classmethod
     def install_wp_cli(cls) -> Dict:
         """Install WP-CLI."""
+        # Download into a private temp dir, never the process's working
+        # directory: `curl -O` there dropped a 7 MB wp-cli.phar into the
+        # panel's backend/ whenever the move below failed.
+        staging = tempfile.mkdtemp(prefix='wp-cli-')
+        phar = os.path.join(staging, 'wp-cli.phar')
         try:
             commands = [
-                ['curl', '-O', 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'],
-                ['chmod', '+x', 'wp-cli.phar'],
+                ['curl', '-fsSL', '-o', phar,
+                 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'],
+                ['chmod', '+x', phar],
             ]
 
             for cmd in commands:
@@ -49,13 +56,15 @@ define('WP_AUTO_UPDATE_CORE', 'minor');
                 if result.returncode != 0:
                     return {'success': False, 'error': result.stderr}
 
-            result = run_privileged(['mv', 'wp-cli.phar', cls.WP_CLI_PATH], timeout=120)
+            result = run_privileged(['mv', phar, cls.WP_CLI_PATH], timeout=120)
             if result.returncode != 0:
                 return {'success': False, 'error': result.stderr}
 
             return {'success': True, 'message': 'WP-CLI installed successfully'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
 
     @classmethod
     def wp_cli(cls, path: str, command: List[str], user: str = 'www-data', timeout: int = None) -> Dict:
