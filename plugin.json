@@ -1,7 +1,7 @@
 {
   "name": "serverkit-wordpress",
   "display_name": "WordPress",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "The full WordPress suite for ServerKit: one-click site provisioning, a curated plugin library, environments and promote pipelines, update runs, security hardening, vulnerability scanning, analytics and reports. Offered during onboarding and installable from the Marketplace; uninstall it to slim the panel.",
   "author": "ServerKit",
   "license": "MIT",

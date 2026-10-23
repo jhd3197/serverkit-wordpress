@@ -1,5 +1,31 @@
 # ServerKit WordPress
 
+## PHP security repair (1.0.4)
+
+For existing managed Docker sites, open the site's PHP tab and select **Update
+PHP 8.3** (or PHP 8.2). Updating the extension alone does not replace running
+site containers. The same-branch update pulls and builds a replacement runtime
+before restarting only the WordPress service; mounted WordPress files and the
+database service are preserved. Existing WordPress core files are not upgraded
+by this operation.
+
+The replacement requires PHP 8.3.36 / 8.2.35 or newer, includes PDO MySQL, and
+disables session upload progress in both PHP ini and Apache admin configuration.
+Success requires live version, PDO, readiness and HTTP checks. On failure, the
+updater attempts recovery using the previous image and reports that the security
+update was not applied. The saved Compose file is a configuration backup, not a
+database/files backup; keep a normal site backup before maintenance.
+
+Custom images, custom commands and sites without a persistent document root
+require manual maintenance. Host PHP-FPM installations are separate and must be
+updated using their distribution's patched packages. See the
+[PHP advisory](https://www.php.net/index.php).
+
+The panel's bundled WordPress templates also need the matching ServerKit change
+for new installations. Registry-provisioned sites are repaired after WordPress
+installation. New sites default to WordPress 7.1.3 with PHP 8.3; PHP 8.1 is no
+longer offered.
+
 <p>
   <img src="assets/logo.png" alt="ServerKit WordPress logo" width="96" align="right" />
 </p>

@@ -538,7 +538,7 @@ function WordPress() {
                                 <div>
                                     <strong>{t('wp.wordPress.thisWillCreate', 'This will create:')}</strong>
                                     <ul>
-                                        <li>{t('wp.wordPress.wordpress64ApacheContainer', 'WordPress 6.4 (Apache) container')}</li>
+                                        <li>{t('wp.wordPress.patchedApacheContainer', 'WordPress with patched PHP and PDO MySQL')}</li>
                                         <li>{t('wp.wordPress.mysql80DatabaseContainer', 'MySQL 8.0 database container')}</li>
                                         <li>{t('wp.wordPress.isolatedDockerNetwork', 'Isolated Docker network')}</li>
                                     </ul>
@@ -600,8 +600,7 @@ function WordPress() {
                                 >
                                     <SelectTrigger aria-label={t('wp.wordPress.phpVersion', 'PHP version')}><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={PHP_DEFAULT}>{t('wp.wordPress.defaultLatestForWordpress64', 'Default (latest for WordPress 6.4)')}</SelectItem>
-                                        <SelectItem value="8.1">{t('wp.wordPress.php81', 'PHP 8.1')}</SelectItem>
+                                        <SelectItem value={PHP_DEFAULT}>{t('wp.wordPress.defaultPatchedPhp', 'Default (PHP 8.3, security patched)')}</SelectItem>
                                         <SelectItem value="8.2">{t('wp.wordPress.php82', 'PHP 8.2')}</SelectItem>
                                         <SelectItem value="8.3">{t('wp.wordPress.php83', 'PHP 8.3')}</SelectItem>
                                     </SelectContent>
