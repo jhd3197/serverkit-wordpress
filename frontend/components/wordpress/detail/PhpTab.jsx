@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import wordpressApi from '../../../services/wordpress';
-import { useToast } from 'serverkit-sdk';
+import { useToast, useConfirm } from 'serverkit-sdk';
 import { Button } from 'serverkit-sdk';
 import { Input } from 'serverkit-sdk';
 import { Label } from 'serverkit-sdk';
@@ -15,6 +15,7 @@ import { useTranslation } from 'serverkit-sdk';
 const PhpTab = ({ siteId }) => {
     const { t } = useTranslation();
     const toast = useToast();
+    const { confirm } = useConfirm();
     const [php, setPhp] = useState(null);
     const [loading, setLoading] = useState(true);
     const [switching, setSwitching] = useState(false);
@@ -37,12 +38,12 @@ const PhpTab = ({ siteId }) => {
         } finally {
             setLoading(false);
         }
-    }, [siteId, toast]);
+    }, [siteId, toast, t]);
 
     useEffect(() => { load(); }, [load]);
 
     async function handleSwitch(version) {
-        if (!window.confirm(t('wp.phpTab.switchThisSiteToPhpThis', 'Switch this site to PHP {{version}}? This pulls the wordpress:php{{version2}}-apache image and recreates the container (brief downtime; database and files are preserved).', { version: version, version2: version }))) return;
+        if (!await confirm({ title: 'Update PHP runtime', message: `Update this site to patched PHP ${version} with PDO MySQL? The image builds first, then WordPress briefly restarts. Files and database are preserved.`, confirmText: 'Update PHP' })) return;
         setSwitching(true);
         toast.info(t('wp.phpTab.switchingToPhp', 'Switching to PHP {{version}}…', { version: version }), { duration: 4000 });
         try {
@@ -66,7 +67,7 @@ const PhpTab = ({ siteId }) => {
             if (val && val !== (live[k] || '')) changed[k] = val;
         });
         if (Object.keys(changed).length === 0) { toast.info(t('wp.phpTab.noChangesToSave', 'No changes to save')); return; }
-        if (!window.confirm(t('wp.phpTab.applyThesePhpLimitsTheContainer', 'Apply these PHP limits? The container reloads (brief downtime; database and files are preserved).'))) return;
+        if (!await confirm({ title: 'Apply PHP limits', message: 'The container reloads briefly. Database and files are preserved.', confirmText: 'Apply limits' })) return;
         setSaving(true);
         try {
             const res = await wordpressApi.setPhpLimits(siteId, changed);
@@ -111,8 +112,8 @@ const PhpTab = ({ siteId }) => {
                             <p className="hint">{t('wp.phpTab.switchingRebuildsTheContainerFromThe', 'Switching rebuilds the container from the official wordpress php-apache image. The database and uploaded files are preserved.')}</p>
                             <div className="app-detail-actions">
                                 {versions.map(v => (
-                                    <Button key={v} variant="outline" size="sm" disabled={switching || current.startsWith(v)} onClick={() => handleSwitch(v)}>
-                                        {current.startsWith(v) ? `PHP ${v} (current)` : `PHP ${v}`}
+                                    <Button key={v} variant="outline" size="sm" disabled={switching || saving} onClick={() => handleSwitch(v)}>
+                                        {current.startsWith(v) ? `Update PHP ${v}` : `PHP ${v}`}
                                     </Button>
                                 ))}
                             </div>
@@ -128,12 +129,12 @@ const PhpTab = ({ siteId }) => {
                             {editableKeys.map(k => (
                                 <div className="form-group" key={k}>
                                     <Label>{PHP_LIMIT_LABELS[k] || k}</Label>
-                                    <Input value={form[k] ?? ''} placeholder={limits[k] || ''} disabled={saving}
+                                    <Input value={form[k] ?? ''} placeholder={limits[k] || ''} disabled={saving || switching}
                                         onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
                                 </div>
                             ))}
                             <div className="app-detail-actions">
-                                <Button size="sm" onClick={handleSaveLimits} disabled={saving}>{saving ? t('wp.phpTab.saving', 'Saving…') : t('wp.phpTab.saveLimits', 'Save limits')}</Button>
+                                <Button size="sm" onClick={handleSaveLimits} disabled={saving || switching}>{saving ? t('wp.phpTab.saving', 'Saving…') : t('wp.phpTab.saveLimits', 'Save limits')}</Button>
                             </div>
                         </div>
                     </div>

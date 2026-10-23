@@ -3,6 +3,7 @@ import subprocess
 import secrets
 import string
 import shutil
+import tempfile
 import json
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -38,10 +39,16 @@ define('WP_AUTO_UPDATE_CORE', 'minor');
     @classmethod
     def install_wp_cli(cls) -> Dict:
         """Install WP-CLI."""
+        # Download into a private temp dir, never the process's working
+        # directory: `curl -O` there dropped a 7 MB wp-cli.phar into the
+        # panel's backend/ whenever the move below failed.
+        staging = tempfile.mkdtemp(prefix='wp-cli-')
+        phar = os.path.join(staging, 'wp-cli.phar')
         try:
             commands = [
-                ['curl', '-O', 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'],
-                ['chmod', '+x', 'wp-cli.phar'],
+                ['curl', '-fsSL', '-o', phar,
+                 'https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar'],
+                ['chmod', '+x', phar],
             ]
 
             for cmd in commands:
@@ -49,13 +56,15 @@ define('WP_AUTO_UPDATE_CORE', 'minor');
                 if result.returncode != 0:
                     return {'success': False, 'error': result.stderr}
 
-            result = run_privileged(['mv', 'wp-cli.phar', cls.WP_CLI_PATH], timeout=120)
+            result = run_privileged(['mv', phar, cls.WP_CLI_PATH], timeout=120)
             if result.returncode != 0:
                 return {'success': False, 'error': result.stderr}
 
             return {'success': True, 'message': 'WP-CLI installed successfully'}
         except Exception as e:
             return {'success': False, 'error': str(e)}
+        finally:
+            shutil.rmtree(staging, ignore_errors=True)
 
     @classmethod
     def wp_cli(cls, path: str, command: List[str], user: str = 'www-data', timeout: int = None) -> Dict:
@@ -246,44 +255,13 @@ define('WP_AUTO_UPDATE_CORE', 'minor');
     @classmethod
     def get_available_php_versions(cls) -> List[str]:
         """Official wordpress image PHP variant tags we support switching to."""
-        return ['8.1', '8.2', '8.3']
+        return ['8.2', '8.3']
 
     @classmethod
     def set_php_version(cls, path: str, version: str) -> Dict:
-        """Switch a Docker WP site to a different PHP by rewriting the compose
-        image tag (wordpress:<wp>-php<version>-apache) and recreating the app
-        container. Volumes/DB persist. NOT host php-fpm. Brief downtime.
-        """
-        from app.services.docker_service import DockerService
-        if version not in cls.get_available_php_versions():
-            return {'success': False, 'error': f'Unsupported PHP version: {version}'}
-        compose_file = os.path.join(path, 'docker-compose.yml')
-        if not os.path.exists(compose_file):
-            return {'success': False, 'error': 'Not a Docker-stack site (no docker-compose.yml)'}
-        try:
-            with open(compose_file, 'r') as f:
-                content = f.read()
-            import re as _re
-            m = _re.search(r'image:\s*wordpress:([^\s]+)', content)
-            if not m:
-                return {'success': False, 'error': 'wordpress image line not found in compose file'}
-            current_tag = m.group(1)
-            # Derive the WP core from the existing tag; fall back to the known core for
-            # legacy compose files that still carry an unresolved ${VERSION...} literal,
-            # so the switch never drops the core pin (e.g. -> php8.2-apache).
-            wp_core = current_tag.split('-')[0] if current_tag and current_tag[0].isdigit() else cls.WP_CORE
-            new_tag = f'{wp_core}-php{version}-apache'
-            new_content = content.replace(f'image: wordpress:{current_tag}', f'image: wordpress:{new_tag}')
-            with open(compose_file, 'w') as f:
-                f.write(new_content)
-            up = DockerService.compose_up(path, detach=True, build=False)
-            if not up.get('success'):
-                return {'success': False, 'error': up.get('error') or 'compose up failed', 'image_tag': new_tag}
-            cls._wait_for_wp_ready(path)
-            live = cls.get_php_info(path).get('php_version')
-            return {'success': True, 'message': f'Switched to PHP {version}', 'image_tag': new_tag, 'php_version': live}
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
+        """Repair the site's PHP runtime, including same-branch security updates."""
+        from .php_runtime import repair_runtime
+        return repair_runtime(cls, path, version)
 
     # --- Per-site PHP ini limits (#24 write side) -------------------------------
     # The official wordpress:*-apache image is Apache + mod_php and scans
@@ -1902,7 +1880,7 @@ RewriteRule ^wp-content/uploads/.*\\.php$ - [F]
 
     # WordPress core line baked into every managed stack's image tag. Kept in sync
     # with the template default (backend/templates/wordpress.yaml) and wp_version below.
-    WP_CORE = '6.4'
+    WP_CORE = '7.1.3'
 
     @classmethod
     def create_site(cls, name: str, admin_email: str, user_id: int, admin_user: str = 'admin',
@@ -1930,12 +1908,12 @@ RewriteRule ^wp-content/uploads/.*\\.php$ - [F]
         if existing:
             return {'success': False, 'error': f'A site with name "{safe_name}" already exists'}
 
-        # Bake the chosen PHP version into the initial image tag so the site is
-        # created on the right PHP from the start (no post-create container recreate).
-        # Invalid/empty values fall through to the template default (WP_CORE-apache).
-        user_variables = {}
-        if php_version and php_version in cls.get_available_php_versions():
-            user_variables['VERSION'] = f'{cls.WP_CORE}-php{php_version}-apache'
+        # Select a supported branch; verify the runtime after installation even
+        # when an older registry template supplied the initial stack.
+        php_version = php_version or '8.3'
+        if not isinstance(php_version, str) or php_version not in cls.get_available_php_versions():
+            return {'success': False, 'error': 'Choose PHP 8.2 or 8.3'}
+        user_variables = {'VERSION': f'{cls.WP_CORE}-php{php_version}-apache'}
 
         try:
             result = TemplateService.install_template(
@@ -1989,6 +1967,12 @@ RewriteRule ^wp-content/uploads/.*\\.php$ - [F]
                     '--skip-email',
                 ])
                 if install_res.get('success'):
+                    # Registry templates may predate the bundled security defaults.
+                    # Verify/repair their runtime before finalizing a new public site.
+                    runtime = cls.set_php_version(app.root_path, php_version)
+                    if not runtime.get('success'):
+                        return {'success': False, 'error': 'Site provisioned, but PHP runtime repair failed: '
+                                + runtime.get('error', 'unknown error'), 'application_id': app.id}
                     harden_actions = cls._harden_docker_site(app.root_path)
                     # Optional caches (best-effort; never fail the create). These are
                     # wp_cli calls inside the now-running container, so they must run
