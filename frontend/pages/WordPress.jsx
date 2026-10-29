@@ -5,7 +5,7 @@ import { useToast } from 'serverkit-sdk';
 import { ResourceAdvisory } from 'serverkit-sdk';
 import { Spinner } from 'serverkit-sdk';
 import { ResourceListPage } from 'serverkit-sdk';
-import { Globe, ChevronRight, Database, ExternalLink, Plus, Settings } from 'lucide-react';
+import { Globe, Copy, Database, ExternalLink, Plus, Settings } from 'lucide-react';
 import { Pill, ServiceTile, Drawer, SearchField } from 'serverkit-sdk';
 import { useTopbarActions } from 'serverkit-sdk';
 import { Modal } from 'serverkit-sdk';
@@ -313,12 +313,22 @@ function WordPress() {
         {
             key: '__actions',
             header: '',
-            width: 70,
+            width: 110,
             sortable: false,
             hideable: false,
             render: (site) => (
-                site.url && site.status === 'running' ? (
-                    <div className="wp-list__links" onClick={e => e.stopPropagation()}>
+                <div className="wp-list__links" onClick={e => e.stopPropagation()}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={site.status !== 'running'}
+                        onClick={() => navigate(`/wordpress/${site.id}?focus=duplicate`)}
+                        title={t('wp.settingsTab.duplicateSite', 'Duplicate site')}
+                        aria-label={t('wp.settingsTab.duplicateSite', 'Duplicate site')}
+                    >
+                        <Copy size={14} />
+                    </Button>
+                    {site.url && site.status === 'running' && <>
                         <Button variant="ghost" size="sm" asChild>
                             <a href={site.url} target="_blank" rel="noopener noreferrer" title={t('wp.wordPress.openSite', 'Open site')} aria-label={t('wp.wordPress.openSite2', 'Open site')}>
                                 <ExternalLink size={14} />
@@ -329,10 +339,8 @@ function WordPress() {
                                 <Settings size={14} />
                             </a>
                         </Button>
-                    </div>
-                ) : (
-                    <ChevronRight size={16} className="wp-list__chev" />
-                )
+                    </>}
+                </div>
             ),
         },
     ];

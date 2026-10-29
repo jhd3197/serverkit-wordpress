@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Settings, Database, GitBranch, Package, Palette, FolderOpen, FileText, Lock, Activity, Globe, BarChart3, LayoutDashboard, Layers } from 'lucide-react';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Copy, Settings, Database, GitBranch, Package, Palette, FolderOpen, FileText, Lock, Activity, Globe, BarChart3, LayoutDashboard, Layers } from 'lucide-react';
 import { useTabParam } from 'serverkit-sdk';
 import wordpressApi from '../services/wordpress';
 import { useToast } from 'serverkit-sdk';
@@ -48,6 +48,7 @@ const WordPressDetail = () => {
     const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const toast = useToast();
     const { openDrawer } = useLogsDrawer();
     const [site, setSite] = useState(null);
@@ -61,6 +62,14 @@ const WordPressDetail = () => {
     const [cloneName, setCloneName] = useState('');
     const [clonedCreds, setClonedCreds] = useState(null);
     const [gitStatus, setGitStatus] = useState(null);
+
+    useEffect(() => {
+        if (loading || !site || String(site.id) !== id || searchParams.get('focus') !== 'duplicate') return;
+        if (site.status === 'running') setShowCloneModal(true);
+        const next = new URLSearchParams(searchParams);
+        next.delete('focus');
+        setSearchParams(next, { replace: true });
+    }, [loading, site, id, searchParams, setSearchParams]);
 
     useEffect(() => {
         // Show the skeleton again when navigating between environment site ids
@@ -91,6 +100,7 @@ const WordPressDetail = () => {
     }
 
     async function handleClone() {
+        if (cloning) return;
         if (!cloneName.trim()) {
             toast.error(t('wp.wordPressDetail.newSiteNameIsRequired', 'New site name is required'));
             return;
@@ -203,6 +213,14 @@ const WordPressDetail = () => {
                 )}
                 actions={(
                     <>
+                    <Button
+                        variant="ghost"
+                        onClick={() => setShowCloneModal(true)}
+                        disabled={!isRunning || cloning}
+                    >
+                        <Copy size={16} />
+                        {t('wp.settingsTab.duplicateSite', 'Duplicate site')}
+                    </Button>
                     <Button
                         variant="ghost"
                         onClick={() => navigate(`/files?path=${encodeURIComponent(site.application?.root_path || '/')}`)}
@@ -400,12 +418,13 @@ const WordPressDetail = () => {
             )}
 
             {/* Clone Site Modal */}
-            <Modal open={showCloneModal} onClose={() => !cloning && setShowCloneModal(false)} title={t('wp.wordPressDetail.cloneSite', 'Clone site')}>
+            <Modal open={showCloneModal} onClose={() => !cloning && setShowCloneModal(false)} title={t('wp.settingsTab.duplicateSite', 'Duplicate site')}>
                 <form onSubmit={(e) => { e.preventDefault(); handleClone(); }}>
                     <p className="hint">{t('wp.wordPressDetail.createsABrandNewIndependentWordpress', 'Creates a brand-new independent WordPress site (its own Docker stack and database) seeded from')} <strong>{site.name}</strong>{t('wp.wordPressDetail.withFreshAdminCredentialsShownOnce', ', with fresh admin credentials shown once.')}</p>
                     <div className="form-group">
-                        <Label>{t('wp.wordPressDetail.newSiteName', 'New site name *')}</Label>
+                        <Label htmlFor="duplicate-site-name">{t('wp.wordPressDetail.newSiteName', 'New site name *')}</Label>
                         <Input
+                            id="duplicate-site-name"
                             type="text"
                             value={cloneName}
                             onChange={(e) => setCloneName(e.target.value)}
@@ -416,7 +435,7 @@ const WordPressDetail = () => {
                     </div>
                     <div className="modal-actions">
                         <Button type="button" variant="outline" onClick={() => setShowCloneModal(false)} disabled={cloning}>{t('wp.wordPressDetail.cancel', 'Cancel')}</Button>
-                        <Button type="submit" disabled={cloning || !cloneName.trim()}>{cloning ? t('wp.wordPressDetail.cloning', 'Cloning…') : t('wp.wordPressDetail.cloneSite2', 'Clone site')}</Button>
+                        <Button type="submit" disabled={cloning || !cloneName.trim()}>{cloning ? t('wp.wordPressDetail.cloning', 'Cloning…') : t('wp.settingsTab.duplicateSite', 'Duplicate site')}</Button>
                     </div>
                 </form>
             </Modal>
