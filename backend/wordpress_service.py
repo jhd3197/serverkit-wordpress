@@ -1560,7 +1560,7 @@ RewriteRule ^wp-content/uploads/.*\\.php$ - [F]
             'storage_recommended': '10GB',
             'components': [
                 {'name': 'WordPress', 'memory': '~256MB', 'storage': '~500MB'},
-                {'name': 'MySQL 8.0', 'memory': '~256MB', 'storage': '~1GB'}
+                {'name': 'MySQL 8.4', 'memory': '~256MB', 'storage': '~1GB'}
             ],
             'warning': 'Installation will spin up a MySQL database container'
         }

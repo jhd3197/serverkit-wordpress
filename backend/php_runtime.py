@@ -2,6 +2,8 @@
 
 Security floor: https://www.php.net/releases/8_3_36.php (2026-10-21).
 The image supplies PHP; existing WordPress files remain in their mounted volume.
+PhpRedis is built in: Object Cache Pro will not start without it, and the
+upstream image does not ship it (panel issue 252).
 """
 import json
 import os
@@ -27,6 +29,10 @@ def runtime_dockerfile(version):
 RUN php -r 'exit(version_compare(PHP_VERSION, "{minimum}", ">=") ? 0 : 1);' \\
  && docker-php-ext-install pdo_mysql \\
  && php -r 'exit(extension_loaded("pdo_mysql") ? 0 : 1);'
+RUN pecl install redis \\
+ && docker-php-ext-enable redis \\
+ && rm -rf /tmp/pear \\
+ && php -r 'exit(extension_loaded("redis") ? 0 : 1);'
 RUN printf 'session.upload_progress.enabled=0\\n' > /usr/local/etc/php/conf.d/zz-serverkit-security.ini \\
  && printf 'php_admin_flag session.upload_progress.enabled Off\\n' > /etc/apache2/conf-available/serverkit-php-security.conf \\
  && a2enconf serverkit-php-security
@@ -128,9 +134,13 @@ def _repair_runtime(service, path, version):
                 or tuple(map(int, parsed.groups())) < tuple(map(int, MINIMUM_PHP[version].split('.')))):
             raise RuntimeError(f'PHP verification failed: expected >= {MINIMUM_PHP[version]}, received {live or "unknown"}')
         modules = service.wp_cli(path, ['eval',
-            'echo json_encode([extension_loaded("pdo"), extension_loaded("pdo_mysql")]);'])
-        if not modules.get('success') or json.loads(modules.get('output') or 'null') != [True, True]:
+            'echo json_encode([extension_loaded("pdo"), extension_loaded("pdo_mysql"),'
+            ' extension_loaded("redis")]);'])
+        loaded = json.loads(modules.get('output') or 'null') if modules.get('success') else None
+        if not isinstance(loaded, list) or loaded[:2] != [True, True]:
             raise RuntimeError('PDO/MySQL driver verification failed')
+        if loaded[2:] != [True]:
+            raise RuntimeError('PhpRedis extension verification failed')
         # Check Apache, not just the CLI process. Do not follow redirects to an
         # external domain; a working canonical-URL redirect is a valid response.
         probe = DockerService.run_compose(base + ['exec', '-T', 'wordpress',
@@ -138,7 +148,7 @@ def _repair_runtime(service, path, version):
             'http://127.0.0.1/'], cwd=path)
         if not probe.get('success') or not re.fullmatch(r'[23]\d\d', (probe.get('output') or '').strip()):
             raise RuntimeError('WordPress HTTP health check failed')
-        return {'success': True, 'message': f'Updated and verified PHP {live} with PDO MySQL',
+        return {'success': True, 'message': f'Updated and verified PHP {live} with PDO MySQL and PhpRedis',
                 'php_version': live, 'image_tag': image, 'compose_backup': str(backup)}
     except Exception as exc:
         # Recover availability using the exact old image, never a newly pulled tag.

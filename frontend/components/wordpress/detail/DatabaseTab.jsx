@@ -97,7 +97,7 @@ const DatabaseTab = ({ siteId, site }) => {
                         <InfoItem label={t('wp.databaseTab.databaseHost', 'Database host')} value={site?.db_host || 'db'} mono />
                         <InfoItem label={t('wp.databaseTab.tablePrefix', 'Table prefix')} value={site?.db_prefix || 'wp_'} mono />
                         <InfoItem label={t('wp.databaseTab.container', 'Container')} value={site?.compose_project_name ? `${site.compose_project_name}-db` : '-'} mono />
-                        <InfoItem label={t('wp.databaseTab.engine', 'Engine')} value={t('wp.databaseTab.mysql80', 'MySQL 8.0')} />
+                        <InfoItem label={t('wp.databaseTab.engine', 'Engine')} value={t('wp.databaseTab.mysql', 'MySQL')} />
                     </InfoList>
                 </div>
             </div>
