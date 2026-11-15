@@ -33,7 +33,7 @@ def site(tmp_path, monkeypatch):
     monkeypatch.setattr(runtime.DockerService, '_compose_cmd_with_overlay', lambda p: ['docker', 'compose'])
     service = SimpleNamespace(_wait_for_wp_ready=lambda p: True,
         get_php_info=lambda p: {'php_version': '8.3.36'},
-        wp_cli=lambda *a: {'success': True, 'output': '[true,true]'})
+        wp_cli=lambda *a: {'success': True, 'output': '[true,true,true]'})
     return tmp_path, compose, config, calls, service
 
 
@@ -64,13 +64,15 @@ def test_build_failure_never_replaces_container(site, monkeypatch):
     assert not any('up' in c for c in calls)
 
 
-@pytest.mark.parametrize('failure', ['old_php', 'unknown_php', 'pdo', 'readiness', 'http'])
+@pytest.mark.parametrize('failure', ['old_php', 'unknown_php', 'pdo', 'redis', 'readiness', 'http'])
 def test_failed_verification_recovers_exact_previous_image(site, monkeypatch, failure):
     path, compose, original, calls, service = site
     if failure in ('old_php', 'unknown_php'):
         service.get_php_info = lambda p: {'php_version': '8.3.4' if failure == 'old_php' else ''}
     elif failure == 'pdo':
-        service.wp_cli = lambda *a: {'success': True, 'output': '[true,false]'}
+        service.wp_cli = lambda *a: {'success': True, 'output': '[true,false,true]'}
+    elif failure == 'redis':
+        service.wp_cli = lambda *a: {'success': True, 'output': '[true,true,false]'}
     elif failure == 'readiness':
         service._wait_for_wp_ready = lambda p: False
     else:
@@ -83,6 +85,20 @@ def test_failed_verification_recovers_exact_previous_image(site, monkeypatch, fa
     assert config['services']['wordpress']['image'].startswith('serverkit-wp-runtime:recovery-')
     assert config['services']['db'] == original['services']['db']
     assert 'NOT applied' in result['warning']
+
+
+@pytest.mark.parametrize('version', ['8.2', '8.3'])
+def test_runtime_image_builds_and_verifies_phpredis(version):
+    # Object Cache Pro refuses to start without PhpRedis, and the upstream
+    # wordpress image does not ship it (panel issue 252).
+    lines = runtime.runtime_dockerfile(version).splitlines()
+    start = lines.index('RUN pecl install redis \\')
+    # One RUN: each step continues onto the next, and the build fails unless
+    # the extension actually loads.
+    assert lines[start + 1:start + 4] == [
+        ' && docker-php-ext-enable redis \\',
+        ' && rm -rf /tmp/pear \\',
+        " && php -r 'exit(extension_loaded(\"redis\") ? 0 : 1);'"]
 
 
 def test_unsupported_version_cannot_run_docker(site):
