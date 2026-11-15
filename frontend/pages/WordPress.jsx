@@ -547,7 +547,7 @@ function WordPress() {
                                     <strong>{t('wp.wordPress.thisWillCreate', 'This will create:')}</strong>
                                     <ul>
                                         <li>{t('wp.wordPress.patchedApacheContainer', 'WordPress with patched PHP and PDO MySQL')}</li>
-                                        <li>{t('wp.wordPress.mysql80DatabaseContainer', 'MySQL 8.0 database container')}</li>
+                                        <li>{t('wp.wordPress.mysqlDatabaseContainer', 'MySQL 8.4 database container')}</li>
                                         <li>{t('wp.wordPress.isolatedDockerNetwork', 'Isolated Docker network')}</li>
                                     </ul>
                                 </div>
